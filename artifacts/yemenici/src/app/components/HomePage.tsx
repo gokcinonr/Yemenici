@@ -392,11 +392,12 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const scale = vw / DESIGN_WIDTH;
+  const scale = Math.min(vw / DESIGN_WIDTH, 1);
+  const offsetLeft = vw > DESIGN_WIDTH ? Math.round((vw - DESIGN_WIDTH) / 2) : 0;
 
   return (
     <div
-      className="bg-[#fafbfb] overflow-x-hidden"
+      className="bg-[#fafbfb] w-full overflow-x-hidden"
       style={{ height: `${DESIGN_HEIGHT * scale}px` }}
     >
       <div
@@ -406,6 +407,7 @@ export default function HomePage() {
           height: `${DESIGN_HEIGHT}px`,
           transform: `scale(${scale})`,
           transformOrigin: "top left",
+          marginLeft: `${offsetLeft}px`,
         }}
       >
         <div className="absolute bg-[#f2f3f5] h-[2150.379px] left-0 top-[767.06px] w-[1280px]" />
