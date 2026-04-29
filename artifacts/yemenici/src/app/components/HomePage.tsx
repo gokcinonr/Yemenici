@@ -5,14 +5,14 @@ import imgRicardoGomezAngel41X6FwTwPh4Unsplash from "../../imports/HomePageNavOf
 import imgSimonKadula8Gr6BObQloiUnsplash2 from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
 import { imgHomaAppliances7ZQgZg8Mwe0Unsplash, imgSimonKadula8Gr6BObQloiUnsplash1 } from "../../imports/HomePageNavOff1/svg-phvyl";
 
-const DESIGN_WIDTH = 1440;
+const DESIGN_WIDTH = 1280;
 const DESIGN_HEIGHT = 3360;
 
 function MaskGroup() {
   return (
     <div className="absolute contents left-0 top-0" data-name="Mask Group 3505">
       <div
-        className="absolute h-[899px] left-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[1440px_780px] top-0 w-[1440px]"
+        className="absolute h-[899px] left-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[1280px_780px] top-0 w-[1280px]"
         style={{ maskImage: `url('${imgHomaAppliances7ZQgZg8Mwe0Unsplash}')` }}
         data-name="homa-appliances-7zQgZG8mwe0-unsplash"
       >
@@ -26,7 +26,7 @@ function Hero() {
   return (
     <div className="absolute contents left-0 top-0" data-name="hero1">
       <MaskGroup />
-      <div className="absolute bg-gradient-to-b from-[#fafbfb] h-[780px] left-0 to-[rgba(128,128,128,0)] top-0 w-[1440px]" />
+      <div className="absolute bg-gradient-to-b from-[#fafbfb] h-[780px] left-0 to-[rgba(128,128,128,0)] top-0 w-[1280px]" />
     </div>
   );
 }
@@ -212,7 +212,7 @@ function FooterLinks() {
 function FooterSection() {
   return (
     <div className="absolute contents left-0 top-[2455.74px]">
-      <div className="absolute bg-white h-[426px] left-0 top-[2917px] w-[1440px]" />
+      <div className="absolute bg-white h-[426px] left-0 top-[2917px] w-[1280px]" />
       <div className="absolute contents left-[130.61px] top-[3226.63px]">
         <p className="absolute font-['Poppins:Regular',sans-serif] leading-[21px] left-[130.61px] not-italic text-[14px] text-black top-[3267.62px] whitespace-nowrap">Copyright © 2025 Yemenici</p>
         <LinkedinIcon />
@@ -313,7 +313,7 @@ function LanguageSelector() {
 function MegaMenuOverlay() {
   return (
     <>
-      <div className="absolute h-[472.527px] left-0 top-0 w-[1440px]" style={{ backdropFilter: "blur(30px)" }}>
+      <div className="absolute h-[472.527px] left-0 top-0 w-[1280px]" style={{ backdropFilter: "blur(30px)" }}>
         <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 472.527">
           <path d="M0 0H1440V472.527H0V0Z" fill="rgba(249, 249, 249, 0.95)" />
         </svg>
@@ -408,7 +408,7 @@ export default function HomePage() {
           transformOrigin: "top left",
         }}
       >
-        <div className="absolute bg-[#f2f3f5] h-[2150.379px] left-0 top-[767.06px] w-[1440.004px]" />
+        <div className="absolute bg-[#f2f3f5] h-[2150.379px] left-0 top-[767.06px] w-[1280px]" />
         <Hero />
         <p className="absolute font-['Poppins:Bold',sans-serif] leading-[0] left-[84.72px] not-italic text-[0px] text-white top-[535px] w-[760px]">
           <span className="font-['Poppins:Regular',sans-serif] leading-[26px] text-[21px]">{`Cut downtime, reduce errors, and keep your team aligned on every task with `}</span>
