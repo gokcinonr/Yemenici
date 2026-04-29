@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
 import imgHero from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
 import imgQuality from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
@@ -79,13 +79,20 @@ function LanguageSelector() {
   );
 }
 
-function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; onMouseLeave: () => void }) {
+const titleStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 17, color: "#000", marginBottom: 8 };
+const paraStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: 12, lineHeight: "18px", opacity: 0.88 };
+
+function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: { isOpen: boolean; onMouseEnter: () => void; onMouseLeave: () => void }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
+    if (isOpen) {
+      const id = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(id);
+    } else {
+      setVisible(false);
+    }
+  }, [isOpen]);
 
   return (
     <div
@@ -93,7 +100,8 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(-30px)",
-        transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1)",
+        transition: "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)",
+        pointerEvents: visible ? "auto" : "none",
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -106,13 +114,13 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.55s cubic-bezier(0.16,1,0.3,1) 0.22s, transform 0.55s cubic-bezier(0.16,1,0.3,1) 0.22s",
+            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.18s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.18s",
           }}
         >
           <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
           <div className="p-4">
-            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">INDUSTRIES</p>
-            <p className="text-[12px] text-black leading-[18px] opacity-88">
+            <p style={titleStyle}>INDUSTRIES</p>
+            <p style={{ ...paraStyle, color: "#000" }}>
               We support the mobility industry with custom-engineered rubber and rubber-to-metal components developed to meet the complex demands of OEM and Tier-1 customers.
             </p>
           </div>
@@ -123,18 +131,18 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.55s cubic-bezier(0.16,1,0.3,1) 0.36s, transform 0.55s cubic-bezier(0.16,1,0.3,1) 0.36s",
+            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s",
           }}
         >
           <div className="bg-[#202429]/[0.02] rounded-[15px] p-4 flex-1">
-            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Mobility</p>
-            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+            <p style={titleStyle}>Mobility</p>
+            <p style={{ ...paraStyle, color: "#000f29" }}>
               We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.
             </p>
           </div>
           <div className="bg-[#202429]/[0.01] rounded-[15px] p-4 flex-1">
-            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Industrial</p>
-            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+            <p style={titleStyle}>Industrial</p>
+            <p style={{ ...paraStyle, color: "#000f29" }}>
               We support a wide range of industrial applications with components engineered for durability, sealing performance, and mechanical integrity.
             </p>
           </div>
@@ -144,12 +152,12 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.55s cubic-bezier(0.16,1,0.3,1) 0.5s, transform 0.55s cubic-bezier(0.16,1,0.3,1) 0.5s",
+            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s",
           }}
         >
           <div className="bg-[#202429]/[0.02] rounded-[15px] p-4">
-            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Agriculture</p>
-            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+            <p style={titleStyle}>Agriculture</p>
+            <p style={{ ...paraStyle, color: "#000f29" }}>
               We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions.
             </p>
           </div>
@@ -296,7 +304,7 @@ export default function HomePage() {
       </div>
 
       {/* ─── Mega Menu (full-width, z-40 — header stays on top at z-50) ── */}
-      {isMegaMenuOpen && <MegaMenu onMouseEnter={openMenu} onMouseLeave={closeMenu} />}
+      <MegaMenu isOpen={isMegaMenuOpen} onMouseEnter={openMenu} onMouseLeave={closeMenu} />
 
       {/* ─── Hero ──────────────────────────────────────── */}
       <section className="relative w-full h-[780px] overflow-hidden">
