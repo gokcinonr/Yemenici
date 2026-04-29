@@ -89,16 +89,16 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
 
   return (
     <div
-      className="fixed left-0 right-0 top-[93px] z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]"
+      className="fixed left-0 right-0 top-0 z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(-20px)",
+        transform: visible ? "translateY(0)" : "translateY(-30px)",
         transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1)",
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="max-w-[1280px] mx-auto px-8 py-8 grid grid-cols-3 gap-6">
+      <div className="max-w-[1280px] mx-auto px-8 pt-[93px] pb-8 grid grid-cols-3 gap-6">
         {/* Sütun 1 */}
         <div
           className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
