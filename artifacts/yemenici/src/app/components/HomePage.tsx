@@ -280,21 +280,35 @@ export default function HomePage() {
         <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
           <Logo />
 
-          <nav className="flex items-center gap-6 md:gap-8">
+          <nav className="flex items-center gap-1">
             <button
-              className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer transition-colors duration-200"
+              style={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 600,
+                background: isMegaMenuOpen ? "rgba(249,249,249,0.97)" : "transparent",
+              }}
               onMouseEnter={openMenu}
               onClick={() => setIsMegaMenuOpen((v) => !v)}
             >
               SOLUTIONS <ChevronIcon color={isMegaMenuOpen ? "#000" : "#898C90"} />
             </button>
-            <button className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+            <button
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+            >
               QUALITY <ChevronIcon />
             </button>
-            <button className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+            <button
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+            >
               COMPANY <ChevronIcon />
             </button>
-            <button className="font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+            <button
+              className="px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+            >
               CONTACT
             </button>
           </nav>
