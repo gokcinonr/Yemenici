@@ -162,14 +162,14 @@ function IndustryCard({
       <div className="absolute inset-0 flex flex-col justify-between p-[38px] pt-[35px] pb-[35px]">
         <div>
           <p
-            className="font-['Poppins:ExtraLight',sans-serif] text-[40px] leading-normal"
-            style={{ color: titleColor, transition: "color 0.35s ease" }}
+            className="text-[40px] leading-normal"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200, color: titleColor, transition: "color 0.35s ease" }}
           >
             {title}
           </p>
           <p
-            className="font-['Poppins:Regular',sans-serif] text-[16px] leading-[26px] mt-4 max-w-[357px]"
-            style={{ color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
+            className="text-[16px] leading-[26px] mt-4 max-w-[357px]"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
           >
             {paragraph}
           </p>
