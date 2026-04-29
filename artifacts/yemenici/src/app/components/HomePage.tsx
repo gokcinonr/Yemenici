@@ -168,8 +168,8 @@ function IndustryCard({
             {title}
           </p>
           <p
-            className="text-[16px] leading-[26px] mt-4 max-w-[357px]"
-            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
+            className="text-[16px] mt-4 max-w-[357px]"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, lineHeight: "22px", color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
           >
             {paragraph}
           </p>
