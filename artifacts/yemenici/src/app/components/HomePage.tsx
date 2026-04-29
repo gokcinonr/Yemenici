@@ -69,7 +69,7 @@ function LanguageSelector() {
           key={code}
           onClick={() => setActive(code)}
           className={`rounded-[7px] px-2 py-0.5 text-[11px] font-['Poppins:Medium',sans-serif] font-medium text-white uppercase tracking-[0.275px] transition-colors ${
-            active === code ? "bg-[#151619]" : "bg-[#9AA4B7] hover:bg-[#6B7280]"
+            active === code ? "bg-[#151619]" : "bg-[#D1D5DB] hover:bg-[#B0B7C3]"
           }`}
         >
           {code}
