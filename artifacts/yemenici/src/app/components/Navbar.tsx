@@ -118,7 +118,11 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
         <div className="max-w-[1280px] mx-auto flex gap-6">
 
           {/* Col 1 (65%) — Automotive, Industrial, Agriculture in 2-sub-column grid */}
-          <div className="grid grid-cols-2 gap-3" style={{ width: "65%", ...colStyle(0.18) }}>
+          <div style={{ width: "65%", ...colStyle(0.18) }}>
+            <p style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: 11, letterSpacing: "0.12em", color: "#000", opacity: 0.35, textTransform: "uppercase", marginBottom: 10 }}>
+              Industries
+            </p>
+          <div className="grid grid-cols-2 gap-3">
             {[
               { label: "Automotive", href: "/solutions/industries/automotive", desc: "Rubber and rubber-to-metal components engineered for OEM automotive platforms — vibration isolation, sealing, and structural damping." },
               { label: "Industrial", href: "/solutions/industries/industrial", desc: "Heavy-duty rubber parts designed for machinery, conveyors, and industrial equipment operating under high load and temperature extremes." },
@@ -135,9 +139,16 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
               </Link>
             ))}
           </div>
+          </div>
+
+          {/* Vertical separator */}
+          <div style={{ width: 1, backgroundColor: "rgba(0,0,0,0.08)", alignSelf: "stretch", flexShrink: 0 }} />
 
           {/* Col 2 (35%) — Certification, Laboratory & Testing */}
           <div className="flex flex-col gap-3" style={{ flex: 1, ...colStyle(0.30) }}>
+            <p style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: 11, letterSpacing: "0.12em", color: "#000", opacity: 0.35, textTransform: "uppercase", marginBottom: 10 }}>
+              Quality
+            </p>
             {[
               { label: "Certification", href: "/quality/certification", desc: "Our facilities and processes hold internationally recognized quality certifications, ensuring compliance with the most demanding industry standards." },
               { label: "Laboratory & Testing", href: "/quality/laboratory-testing", desc: "In-house laboratory capabilities covering material testing, dimensional inspection, and performance validation across all product lines." },
