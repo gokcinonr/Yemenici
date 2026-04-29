@@ -1,45 +1,131 @@
 import { useState, useEffect } from "react";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
-import imgHomaAppliances7ZQgZg8Mwe0Unsplash1 from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
-import imgRicardoGomezAngel41X6FwTwPh4Unsplash from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
-import imgSimonKadula8Gr6BObQloiUnsplash2 from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
-import { imgHomaAppliances7ZQgZg8Mwe0Unsplash, imgSimonKadula8Gr6BObQloiUnsplash1 } from "../../imports/HomePageNavOff1/svg-phvyl";
+import imgHero from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
+import imgQuality from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
+import imgMegaMenu from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
 
-const DESIGN_WIDTH = 1280;
-const DESIGN_HEIGHT = 3360;
+type ContentRow = { section: string; key: string; value: string };
 
-function MaskGroup() {
+function useContent() {
+  const [content, setContent] = useState<ContentRow[]>([]);
+  useEffect(() => {
+    fetch("/api/content")
+      .then((r) => r.json())
+      .then(setContent)
+      .catch(() => {});
+  }, []);
+  return (section: string, key: string) =>
+    content.find((c) => c.section === section && c.key === key)?.value ?? "";
+}
+
+function Logo() {
   return (
-    <div className="absolute contents left-0 top-0" data-name="Mask Group 3505">
-      <div
-        className="absolute h-[899px] left-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[1280px_780px] top-0 w-[1280px]"
-        style={{ maskImage: `url('${imgHomaAppliances7ZQgZg8Mwe0Unsplash}')` }}
-        data-name="homa-appliances-7zQgZG8mwe0-unsplash"
-      >
-        <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgHomaAppliances7ZQgZg8Mwe0Unsplash1} />
+    <div className="flex-shrink-0">
+      <svg fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 73.1252 59.4171" width="62" height="50">
+        <g>
+          <path d={svgPaths.p37316a20} fill="#ED1C24" />
+          <path d={svgPaths.p31385980} fill="#ED1C24" />
+          <path d={svgPaths.p3ac7f580} fill="#ED1C24" />
+          <path d={svgPaths.p16f0f780} fill="#004FA3" />
+          <path d={svgPaths.p2103e00} fill="#ED1C24" />
+          <path d={svgPaths.p24ba1980} fill="#004FA3" />
+          <g>
+            <path d={svgPaths.p7462380} fill="#ED1C24" />
+            <path d={svgPaths.p8d24a80} fill="#ED1C24" />
+            <path d={svgPaths.p17b4a0f0} fill="#ED1C24" />
+            <path d={svgPaths.pe2feb80} fill="#ED1C24" />
+            <path d={svgPaths.p313b00} fill="#ED1C24" />
+            <path d={svgPaths.pef51d00} fill="#ED1C24" />
+            <path d={svgPaths.p25acb700} fill="#ED1C24" />
+            <path d={svgPaths.p6d8f2c0} fill="#ED1C24" />
+          </g>
+          <path d={svgPaths.p3615a6a0} fill="#004FA3" />
+          <path d={svgPaths.p1f194e00} fill="#004FA3" />
+          <path d={svgPaths.pa919000} fill="#004FA3" />
+          <path d={svgPaths.p1b5ac300} fill="#004FA3" />
+          <path d={svgPaths.paf57780} fill="#004FA3" />
+          <path d={svgPaths.p3c5ad00} fill="white" />
+          <path d={svgPaths.p1758cb00} fill="white" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+function ChevronIcon({ color = "#898C90" }: { color?: string }) {
+  return (
+    <svg width="11" height="7" fill="none" viewBox="0 0 11 6.00098">
+      <path d={svgPaths.p24717480} stroke={color} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function LanguageSelector() {
+  const [active, setActive] = useState("EN");
+  return (
+    <div className="flex items-center gap-1">
+      {["TR", "DE", "EN"].map((code) => (
+        <button
+          key={code}
+          onClick={() => setActive(code)}
+          className={`rounded-[7px] px-2 py-0.5 text-[11px] font-['Poppins:Medium',sans-serif] font-medium text-white uppercase tracking-[0.275px] transition-colors ${
+            active === code ? "bg-[#151619]" : "bg-[#9AA4B7] hover:bg-[#6B7280]"
+          }`}
+        >
+          {code}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MegaMenu() {
+  return (
+    <div className="absolute left-0 right-0 top-[79px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-b-[20px] shadow-lg">
+      <div className="px-8 py-8 grid grid-cols-3 gap-6">
+        <div className="bg-[#202429]/5 rounded-[15px] overflow-hidden">
+          <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
+          <div className="p-4">
+            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">INDUSTRIES</p>
+            <p className="text-[12px] text-black leading-[18px] opacity-88">
+              We support the mobility industry with custom-engineered rubber and rubber-to-metal components developed to meet the complex demands of OEM and Tier-1 customers.
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="bg-[#202429]/[0.02] rounded-[15px] p-4 flex-1">
+            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Mobility</p>
+            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+              We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.
+            </p>
+          </div>
+          <div className="bg-[#202429]/[0.01] rounded-[15px] p-4 flex-1">
+            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Industrial</p>
+            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+              We support a wide range of industrial applications with components engineered for durability, sealing performance, and mechanical integrity.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div className="bg-[#202429]/[0.02] rounded-[15px] p-4">
+            <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Agriculture</p>
+            <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
+              We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function Hero() {
-  return (
-    <div className="absolute contents left-0 top-0" data-name="hero1">
-      <MaskGroup />
-      <div className="absolute bg-gradient-to-b from-[#fafbfb] h-[780px] left-0 to-[rgba(128,128,128,0)] top-0 w-[1280px]" />
-    </div>
-  );
-}
-
 function IndustryCard({
-  cardLeft,
   title,
   paragraph,
   imageUrl,
   linkUrl,
   hoverTextColor,
 }: {
-  cardLeft: number;
   title: string;
   paragraph: string;
   imageUrl?: string;
@@ -51,79 +137,48 @@ function IndustryCard({
   const showImage = hovered && hasImage;
   const hoverColor = hoverTextColor === "dark" ? "#202429" : "#ffffff";
 
-  const handleClick = () => {
-    if (linkUrl && linkUrl !== "#") window.open(linkUrl, "_blank");
-  };
-
   const bgColor = hovered && !hasImage ? "#202429" : "#ffffff";
   const titleColor = showImage ? hoverColor : hovered && !hasImage ? "#ffffff" : "#969696";
   const arrowColor = showImage ? hoverColor : hovered && !hasImage ? "#ffffff" : "#000000";
-  const paraOpacity = showImage ? 0 : hovered && !hasImage ? 0 : 1;
+  const paraOpacity = showImage || (hovered && !hasImage) ? 0 : 1;
   const paraColor = hovered && !hasImage ? "#ffffff" : "#000000";
 
   return (
     <div
-      className="absolute rounded-[15px] overflow-hidden cursor-pointer"
-      style={{
-        left: cardLeft,
-        top: 1150.05,
-        width: 419.566,
-        height: 306.354,
-        backgroundColor: bgColor,
-        transition: "background-color 0.35s ease",
-      }}
+      className="rounded-[15px] overflow-hidden cursor-pointer relative"
+      style={{ height: 306, backgroundColor: bgColor, transition: "background-color 0.35s ease" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={handleClick}
+      onClick={() => { if (linkUrl && linkUrl !== "#") window.open(linkUrl, "_blank"); }}
     >
       {imageUrl && (
         <img
           alt=""
-          className="absolute inset-0 size-full object-cover pointer-events-none rounded-[15px]"
           src={imageUrl}
-          style={{
-            opacity: showImage ? 1 : 0,
-            transition: "opacity 0.35s ease",
-          }}
+          className="absolute inset-0 w-full h-full object-cover rounded-[15px] pointer-events-none"
+          style={{ opacity: showImage ? 1 : 0, transition: "opacity 0.35s ease" }}
         />
       )}
-      <p
-        className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] not-italic text-[40px]"
-        style={{
-          left: 38.2,
-          top: 35,
-          width: 369,
-          color: titleColor,
-          transition: "color 0.35s ease",
-        }}
-      >
-        {title}
-      </p>
-      <p
-        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px]"
-        style={{
-          left: 38.2,
-          top: 105,
-          width: 357,
-          color: paraColor,
-          opacity: paraOpacity,
-          transition: "opacity 0.2s ease, color 0.35s ease",
-          pointerEvents: "none",
-        }}
-      >
-        {paragraph}
-      </p>
-      <div
-        className="absolute"
-        style={{ left: 38.2, top: 245, width: 30.562, height: 20.964 }}
-      >
-        <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
-          <path
-            d={svgPaths.pef3cc00}
-            fill={arrowColor}
-            style={{ transition: "fill 0.35s ease" }}
-          />
-        </svg>
+      <div className="absolute inset-0 flex flex-col justify-between p-[38px] pt-[35px] pb-[35px]">
+        <div>
+          <p
+            className="font-['Poppins:ExtraLight',sans-serif] text-[40px] leading-normal"
+            style={{ color: titleColor, transition: "color 0.35s ease" }}
+          >
+            {title}
+          </p>
+          <p
+            className="font-['Poppins:Regular',sans-serif] text-[16px] leading-[26px] mt-4 max-w-[357px]"
+            style={{ color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
+          >
+            {paragraph}
+          </p>
+        </div>
+        <div>
+          <svg width="31" height="21" fill="none" viewBox="0 0 30.5624 20.9637">
+            <path d={svgPaths.pef3cc00} fill={arrowColor} style={{ transition: "fill 0.35s ease" }} />
+          </svg>
+        </div>
       </div>
     </div>
   );
@@ -131,389 +186,201 @@ function IndustryCard({
 
 function LinkedinIcon() {
   return (
-    <div className="absolute h-[20px] left-[130.61px] top-[3226.63px] w-[20.922px]" data-name="linkedin icon">
-      <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20.9219 20">
-        <g clipPath="url(#clip0_1_143)" id="linkedin icon">
-          <path d={svgPaths.pbd79500} fill="var(--fill-0, black)" id="Subtraction 2" />
+    <a href="#" className="text-black hover:opacity-70 transition-opacity">
+      <svg width="21" height="20" fill="none" viewBox="0 0 20.9219 20">
+        <g clipPath="url(#li)">
+          <path d={svgPaths.pbd79500} fill="currentColor" />
         </g>
         <defs>
-          <clipPath id="clip0_1_143">
-            <rect fill="white" height="20" width="20.9219" />
+          <clipPath id="li">
+            <rect width="20.9219" height="20" fill="white" />
           </clipPath>
         </defs>
       </svg>
-    </div>
+    </a>
   );
-}
-
-function FooterLinks() {
-  return (
-    <div className="absolute contents left-[130.61px] top-[2987.86px]">
-      <div className="absolute h-[18px] left-[705.61px] overflow-clip top-[3052.86px] w-[46px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Career</p>
-      </div>
-      <div className="absolute h-[18px] left-[705.61px] overflow-clip top-[3024.86px] w-[77px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Contact Us</p>
-      </div>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[705.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Contact</p>
-      <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3136.86px] w-[91px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Construction</p>
-      </div>
-      <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3108.86px] w-[77px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Healthcare</p>
-      </div>
-      <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3108.86px] w-[53px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Imprint</p>
-      </div>
-      <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3080.86px] w-[49px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mining</p>
-      </div>
-      <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3080.86px] w-[116px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">{`Security & GDPR`}</p>
-      </div>
-      <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3052.86px] w-[76px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Our Values</p>
-      </div>
-      <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3052.86px] w-[90px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Terms of Use</p>
-      </div>
-      <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3024.86px] w-[172px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">About Us</p>
-      </div>
-      <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3024.86px] w-[172px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">Privacy Policy</p>
-      </div>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[483.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Company</p>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[866.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Policies</p>
-      <div className="absolute h-[18px] left-[304.61px] overflow-clip top-[3052.86px] w-[131px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Laboratory Testing</p>
-      </div>
-      <div className="absolute h-[18px] left-[304.61px] overflow-clip top-[3024.86px] w-[87px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 whitespace-nowrap">Certification</p>
-      </div>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[304.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Quality</p>
-      <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3108.86px] w-[59px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industry</p>
-      </div>
-      <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3080.86px] w-[79px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Agriculture</p>
-      </div>
-      <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3052.86px] w-[56px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mobility</p>
-      </div>
-      <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3024.86px] w-[70px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industries</p>
-      </div>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[130.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Solutions</p>
-    </div>
-  );
-}
-
-function FooterSection() {
-  return (
-    <div className="absolute contents left-0 top-[2455.74px]">
-      <div className="absolute bg-white h-[426px] left-0 top-[2917px] w-[1280px]" />
-      <div className="absolute contents left-[130.61px] top-[3226.63px]">
-        <p className="absolute font-['Poppins:Regular',sans-serif] leading-[21px] left-[130.61px] not-italic text-[14px] text-black top-[3267.62px] whitespace-nowrap">Copyright © 2025 Yemenici</p>
-        <LinkedinIcon />
-      </div>
-      <FooterLinks />
-      <div className="absolute h-0 left-[67.72px] top-[2455.74px] w-[1302.283px]">
-        <div className="absolute inset-[-0.5px_0]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 1302.28 1">
-            <path d="M0 0.5H1302.28" stroke="var(--stroke-0, #9AA4B7)" />
-          </svg>
-        </div>
-      </div>
-      <div className="absolute bg-black h-[35px] left-[130.61px] rounded-[20px] top-[2760.51px] w-[199px]" />
-      <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[230.11px] not-italic text-[12px] text-center text-white top-[2769.51px] whitespace-nowrap">CONTACT US</p>
-      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] left-[130.61px] not-italic text-[16px] text-black top-[2624.51px] w-[703.391px]">Learn how Yemenici can streamline your field service, maintenance, onboarding, and training operations. Boost efficiency, reduce downtime, and empower your workforce with innovative tools designed for digital transformation.</p>
-      <p className="absolute font-['Poppins:Medium',sans-serif] leading-[normal] left-[130.61px] not-italic text-[40px] text-black top-[2547.51px] w-[593.094px]">Learn more about Yemenici</p>
-    </div>
-  );
-}
-
-function Logo() {
-  return (
-    <div className="absolute h-[59.417px] left-[61px] top-[68px] w-[73.125px]">
-      <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 73.1252 59.4171">
-        <g id="Group 7684">
-          <path d={svgPaths.p37316a20} fill="var(--fill-0, #ED1C24)" id="Path 4731" />
-          <path d={svgPaths.p31385980} fill="var(--fill-0, #ED1C24)" id="Path 4732" />
-          <path d={svgPaths.p3ac7f580} fill="var(--fill-0, #ED1C24)" id="Rectangle 2860" />
-          <path d={svgPaths.p16f0f780} fill="var(--fill-0, #004FA3)" id="Rectangle 2861" />
-          <path d={svgPaths.p2103e00} fill="var(--fill-0, #ED1C24)" id="Rectangle 2862" />
-          <path d={svgPaths.p24ba1980} fill="var(--fill-0, #004FA3)" id="Rectangle 2863" />
-          <g id="Group 7660">
-            <path d={svgPaths.p7462380} fill="var(--fill-0, #ED1C24)" id="Path 4733" />
-            <path d={svgPaths.p8d24a80} fill="var(--fill-0, #ED1C24)" id="Path 4734" />
-            <path d={svgPaths.p17b4a0f0} fill="var(--fill-0, #ED1C24)" id="Path 4735" />
-            <path d={svgPaths.pe2feb80} fill="var(--fill-0, #ED1C24)" id="Path 4736" />
-            <path d={svgPaths.p313b00} fill="var(--fill-0, #ED1C24)" id="Path 4737" />
-            <path d={svgPaths.pef51d00} fill="var(--fill-0, #ED1C24)" id="Path 4738" />
-            <path d={svgPaths.p25acb700} fill="var(--fill-0, #ED1C24)" id="Path 4739" />
-            <path d={svgPaths.p6d8f2c0} fill="var(--fill-0, #ED1C24)" id="Path 4740" />
-          </g>
-          <path d={svgPaths.p3615a6a0} fill="var(--fill-0, #004FA3)" id="Path 4741" />
-          <path d={svgPaths.p1f194e00} fill="var(--fill-0, #004FA3)" id="Path 4742" />
-          <path d={svgPaths.pa919000} fill="var(--fill-0, #004FA3)" id="Path 4743" />
-          <path d={svgPaths.p1b5ac300} fill="var(--fill-0, #004FA3)" id="Path 4744" />
-          <path d={svgPaths.paf57780} fill="var(--fill-0, #004FA3)" id="Path 4745" />
-          <path d={svgPaths.p3c5ad00} fill="var(--fill-0, white)" id="Path 4746" />
-          <path d={svgPaths.p1758cb00} fill="var(--fill-0, white)" id="Path 4747" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function LanguageSelector() {
-  const [active, setActive] = useState("EN");
-
-  const langs: { code: string; x: number }[] = [
-    { code: "TR", x: 1253 },
-    { code: "DE", x: 1296 },
-    { code: "EN", x: 1339 },
-  ];
-
-  return (
-    <>
-      {langs.map(({ code, x }) => (
-        <button
-          key={code}
-          onClick={() => setActive(code)}
-          className="absolute cursor-pointer rounded-[7px] transition-colors duration-150"
-          style={{
-            left: x,
-            top: 88,
-            width: 33,
-            height: 20,
-            backgroundColor: active === code ? "#151619" : "#9AA4B7",
-          }}
-          onMouseEnter={(e) => {
-            if (active !== code) {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#6B7280";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (active !== code) {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#9AA4B7";
-            }
-          }}
-        >
-          <span className="font-['Poppins:Medium',sans-serif] font-medium text-[11px] text-white tracking-[0.275px] uppercase select-none">
-            {code}
-          </span>
-        </button>
-      ))}
-    </>
-  );
-}
-
-function MegaMenuOverlay() {
-  return (
-    <>
-      <div className="absolute h-[472.527px] left-0 top-0 w-[1280px]" style={{ backdropFilter: "blur(30px)" }}>
-        <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 472.527">
-          <path d="M0 0H1440V472.527H0V0Z" fill="rgba(249, 249, 249, 0.95)" />
-        </svg>
-      </div>
-
-      <div className="absolute bg-[#202429] h-[114px] left-[1004px] opacity-2 rounded-[15px] top-[162px] w-[366px]" />
-      <div className="absolute bg-[#202429] h-[257px] left-[65px] opacity-5 rounded-[15px] top-[162px] w-[463px]" />
-      <div className="absolute bg-[#202429] h-[114px] left-[607px] opacity-1 rounded-[15px] top-[305px] w-[366px]" />
-
-      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[18px] left-[1025px] not-italic opacity-88 text-[#000f29] text-[12px] top-[200px] w-[326px]">We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions.</p>
-      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[18px] left-[96px] not-italic opacity-88 text-[12px] text-black top-[323px] w-[411px]">{`We support the mobility industry with custom-engineered rubber and rubber-to-metal components developed to meet the complex demands of OEM and Tier-1 customers. `}</p>
-      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[18px] left-[628px] not-italic opacity-88 text-[#000f29] text-[12px] top-[343px] w-[326px]">We support a wide range of industrial applications with components engineered for durability, sealing performance, and mechanical integrity</p>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[1025px] not-italic opacity-88 text-[17px] text-black top-[173px] whitespace-nowrap">Agriculture</p>
-
-      <div className="absolute bg-[#202429] h-[114px] left-[607px] opacity-2 rounded-[15px] top-[162px] w-[366px]" />
-      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[18px] left-[628px] not-italic opacity-88 text-[#000f29] text-[12px] top-[200px] w-[326px]">We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.</p>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[628px] not-italic opacity-88 text-[17px] text-black top-[173px] whitespace-nowrap">Mobility</p>
-
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[96px] not-italic opacity-88 text-[17px] text-black top-[296px] whitespace-nowrap">INDUSTRIES</p>
-      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[628px] not-italic opacity-88 text-[17px] text-black top-[316px] whitespace-nowrap">Industrial</p>
-
-      <div className="absolute flex h-[257px] items-center justify-center left-[576px] top-[162px] w-0">
-        <div className="flex-none rotate-90">
-          <div className="h-0 relative w-[257px]">
-            <div className="absolute inset-[-1px_0_0_0]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 257 1">
-                <line opacity="0.26744" stroke="var(--stroke-0, #707070)" x2="257" y1="0.5" y2="0.5" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bg-[#151619] h-[35px] left-[448px] opacity-2 rounded-[7px] top-[83px] w-[140px]" />
-      <div className="absolute contents left-[65px] top-[162px]">
-        <div
-          className="absolute h-[309px] left-[65px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_25px] mask-size-[463px_105px] top-[137px] w-[463px]"
-          style={{ maskImage: `url('${imgSimonKadula8Gr6BObQloiUnsplash1}')` }}
-        >
-          <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgSimonKadula8Gr6BObQloiUnsplash2} />
-        </div>
-      </div>
-
-      <div className="absolute left-[520.5px] size-0 top-[120.5px]">
-        <div className="absolute inset-[-1px_0_0_0]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 0.0001 1">
-            <line stroke="var(--stroke-0, black)" x2="0.0001" y1="0.5" y2="0.5" />
-          </svg>
-        </div>
-      </div>
-    </>
-  );
-}
-
-type ContentRow = { section: string; key: string; value: string };
-
-function useContent() {
-  const [content, setContent] = useState<ContentRow[]>([]);
-  useEffect(() => {
-    fetch("/api/content").then((r) => r.json()).then(setContent).catch(() => {});
-  }, []);
-  const get = (section: string, key: string) =>
-    content.find((c) => c.section === section && c.key === key)?.value ?? "";
-  return get;
 }
 
 export default function HomePage() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-  const [vw, setVw] = useState(typeof window !== "undefined" ? window.innerWidth : DESIGN_WIDTH);
   const getContent = useContent();
 
-  useEffect(() => {
-    const update = () => setVw(window.innerWidth);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  const scale = Math.min(vw / DESIGN_WIDTH, 1);
-  const offsetLeft = vw > DESIGN_WIDTH ? Math.round((vw - DESIGN_WIDTH) / 2) : 0;
-
   return (
-    <div
-      className="bg-[#fafbfb] w-full overflow-x-hidden"
-      style={{ height: `${DESIGN_HEIGHT * scale}px` }}
-    >
+    <div className="min-h-screen bg-[#fafbfb]">
+
+      {/* ─── Navbar ─────────────────────────────────────── */}
       <div
-        className="bg-[#fafbfb] relative"
-        style={{
-          width: `${DESIGN_WIDTH}px`,
-          height: `${DESIGN_HEIGHT}px`,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          marginLeft: `${offsetLeft}px`,
-        }}
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[14px] px-4 md:px-8"
+        onMouseLeave={() => setIsMegaMenuOpen(false)}
       >
-        <div className="absolute bg-[#f2f3f5] h-[2150.379px] left-0 top-[767.06px] w-[1280px]" />
-        <Hero />
-        <p className="absolute font-['Poppins:Bold',sans-serif] leading-[0] left-[84.72px] not-italic text-[0px] text-white top-[535px] w-[760px]">
-          <span className="font-['Poppins:Regular',sans-serif] leading-[26px] text-[21px]">{`Cut downtime, reduce errors, and keep your team aligned on every task with `}</span>
-          <span className="leading-[26px] text-[21px]">Yemenici</span>
-        </p>
-        <div className="absolute font-['Poppins:Bold',sans-serif] leading-[0] left-[81.72px] not-italic text-[78px] text-shadow-[0px_3px_6px_rgba(0,0,0,0.16)] text-white top-[278px] w-[1121px] whitespace-pre-wrap">
-          <p className="leading-[82px] mb-0">{`Leading Software for `}</p>
-          <p className="leading-[82px]">{`AR Remote Assistance & Digital Work Instructions `}</p>
-        </div>
-        <IndustryCard
-          cardLeft={65}
-          title="Mobility"
-          paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
-          imageUrl={getContent("cards", "mobility_image") || undefined}
-          linkUrl={getContent("cards", "mobility_link") || undefined}
-          hoverTextColor={getContent("cards", "mobility_hover_text") || "white"}
-        />
-        <IndustryCard
-          cardLeft={507}
-          title="Industries"
-          paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
-          imageUrl={getContent("cards", "industries_image") || undefined}
-          linkUrl={getContent("cards", "industries_link") || undefined}
-          hoverTextColor={getContent("cards", "industries_hover_text") || "white"}
-        />
-        <IndustryCard
-          cardLeft={950}
-          title="Agriculture"
-          paragraph="We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."
-          imageUrl={getContent("cards", "agriculture_image") || undefined}
-          linkUrl={getContent("cards", "agriculture_link") || undefined}
-          hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
-        />
-        <div className="absolute bg-black h-[35px] left-[80px] rounded-[20px] top-[625.05px] w-[199px]" />
-        <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[179.5px] not-italic text-[12px] text-center text-white top-[634.05px] whitespace-nowrap">LEARN MORE</p>
-        <div className="absolute h-[733.568px] left-[67.72px] rounded-[25px] top-[1599.02px] w-[1304.566px]">
-          <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[25px] size-full" src={imgRicardoGomezAngel41X6FwTwPh4Unsplash} />
-        </div>
-        <div className="absolute bg-[#202429] h-[377.637px] left-[67.72px] rounded-bl-[25px] rounded-br-[25px] rounded-tl-[25px] top-[1954.95px] w-[1304.566px]" />
-        <p className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[42px] left-[130.61px] not-italic text-[30px] text-white top-[2041.62px] w-[806px]">We see quality as a system of relationships, not just between parts and processes, but between people, teams, and shared goals.</p>
-        <div className="absolute bg-white h-[35px] left-[130.61px] rounded-[20px] top-[2213.62px] w-[199px]" />
-        <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[230.11px] not-italic text-[12px] text-black text-center top-[2222.62px] whitespace-nowrap">QUALITY AS A CULTURE</p>
-        <FooterSection />
-        <div className="absolute contents left-[123.98px] top-[1027.05px]">
-          <div className="absolute bg-white h-[35px] left-[123.98px] rounded-[20px] top-[1027.05px] w-[199px]" />
-          <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[223.48px] not-italic text-[12px] text-black text-center top-[1036.05px] whitespace-nowrap">DISCOVER INDUSTRIES</p>
-        </div>
-        <div className="absolute contents left-[123.98px] top-[878.05px]">
-          <p className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[42px] left-[123.98px] not-italic text-[30px] text-black top-[878.05px] w-[873px]">We design and manufacture high-performance rubber and rubber-to-metal components tailored to the technical needs of mobility, industrial, and agricultural sectors.</p>
-        </div>
+        <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
+          <Logo />
 
-        {isMegaMenuOpen && <MegaMenuOverlay />}
+          <nav className="flex items-center gap-6 md:gap-8">
+            <button
+              className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity"
+              onMouseEnter={() => setIsMegaMenuOpen(true)}
+              onClick={() => setIsMegaMenuOpen((v) => !v)}
+            >
+              SOLUTIONS <ChevronIcon color={isMegaMenuOpen ? "#000" : "#898C90"} />
+            </button>
+            <button className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+              QUALITY <ChevronIcon />
+            </button>
+            <button className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+              COMPANY <ChevronIcon />
+            </button>
+            <button className="font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity">
+              CONTACT
+            </button>
+          </nav>
 
-        {/* Header bar — 2% margin each side (29px of 1440px) */}
-        <div className="absolute bg-white h-[79px] left-[29px] rounded-[20px] top-[58px] w-[1382px]" />
-        <Logo />
+          <LanguageSelector />
 
-        {/* Nav items */}
-        <p className="-translate-x-1/2 absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[938.5px] not-italic text-[14px] text-black text-center top-[91px] tracking-[0.35px] uppercase whitespace-nowrap">CONTACT</p>
-        <div className="absolute h-[5.001px] left-[845px] top-[98.08px] w-[10px]">
-          <div className="absolute inset-[-10%_-5%]">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11 6.00098">
-              <path d={svgPaths.p24717480} stroke="var(--stroke-0, #898C90)" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          {isMegaMenuOpen && <MegaMenu />}
+        </div>
+      </div>
+
+      {/* ─── Hero ──────────────────────────────────────── */}
+      <section className="relative w-full h-[780px] overflow-hidden">
+        <img
+          src={imgHero}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fafbfb]/80 via-transparent to-transparent" />
+
+        <div className="relative h-full max-w-[1280px] mx-auto px-8 flex flex-col justify-center">
+          <div
+            className="font-['Poppins:Bold',sans-serif] text-[78px] text-white leading-[82px] max-w-[1000px] mt-24"
+            style={{ textShadow: "0px 3px 6px rgba(0,0,0,0.16)" }}
+          >
+            <p className="leading-[82px] mb-0">Leading Software for </p>
+            <p className="leading-[82px]">AR Remote Assistance &amp; Digital Work Instructions </p>
+          </div>
+          <button className="mt-12 bg-black text-white font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2 w-fit">
+            LEARN MORE
+          </button>
+        </div>
+      </section>
+
+      {/* ─── Industries Intro + Cards ──────────────────── */}
+      <section className="bg-[#f2f3f5] pt-20 pb-20">
+        <div className="max-w-[1280px] mx-auto px-8">
+          <p className="font-['Poppins:ExtraLight',sans-serif] text-[30px] text-black leading-[42px] max-w-[873px]">
+            We design and manufacture high-performance rubber and rubber-to-metal components tailored to the technical needs of mobility, industrial, and agricultural sectors.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <IndustryCard
+              title={getContent("cards", "mobility_title") || "Mobility"}
+              paragraph={getContent("cards", "mobility_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
+              imageUrl={getContent("cards", "mobility_image") || undefined}
+              linkUrl={getContent("cards", "mobility_link") || undefined}
+              hoverTextColor={getContent("cards", "mobility_hover_text") || "white"}
+            />
+            <IndustryCard
+              title={getContent("cards", "industries_title") || "Industries"}
+              paragraph={getContent("cards", "industries_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
+              imageUrl={getContent("cards", "industries_image") || undefined}
+              linkUrl={getContent("cards", "industries_link") || undefined}
+              hoverTextColor={getContent("cards", "industries_hover_text") || "white"}
+            />
+            <IndustryCard
+              title={getContent("cards", "agriculture_title") || "Agriculture"}
+              paragraph={getContent("cards", "agriculture_desc") || "We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."}
+              imageUrl={getContent("cards", "agriculture_image") || undefined}
+              linkUrl={getContent("cards", "agriculture_link") || undefined}
+              hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
+            />
+          </div>
+
+          <div className="mt-8">
+            <button className="bg-white text-black font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
+              DISCOVER INDUSTRIES
+            </button>
           </div>
         </div>
-        <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[758px] not-italic text-[14px] text-black top-[90.58px] tracking-[0.35px] uppercase whitespace-nowrap">COMPANY</p>
-        <div className="absolute h-[5.001px] left-[700px] top-[98.08px] w-[10px]">
-          <div className="absolute inset-[-10%_-5%]">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11 6.00098">
-              <path d={svgPaths.p24717480} stroke="var(--stroke-0, #898C90)" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </div>
+      </section>
 
-        {/* SOLUTIONS button — fixed: inner elements use positions relative to the button */}
-        <button
-          className="absolute cursor-pointer"
-          style={{ left: 440, top: 58, width: 150, height: 79 }}
-          onMouseEnter={() => setIsMegaMenuOpen(true)}
-          onMouseLeave={() => setIsMegaMenuOpen(false)}
-          onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-        >
-          {/* Chevron: page coords (561, 98.08) minus button origin (440, 58) */}
-          <div className="absolute" style={{ left: 121, top: 40.08, width: 10, height: 5.001 }}>
-            <div className="absolute inset-[-10%_-5%]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11 6.00098">
-                <path d={svgPaths.p24717480} stroke={isMegaMenuOpen ? "black" : "var(--stroke-0, #898C90)"} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+      {/* ─── Quality ───────────────────────────────────── */}
+      <section className="bg-[#f2f3f5] pb-20">
+        <div className="max-w-[1280px] mx-auto px-8">
+          <div className="rounded-[25px] overflow-hidden">
+            <img
+              src={imgQuality}
+              alt=""
+              className="w-full h-[580px] object-cover rounded-t-[25px]"
+            />
+            <div className="bg-[#202429] rounded-b-[25px] px-16 py-16">
+              <p className="font-['Poppins:ExtraLight',sans-serif] text-[30px] text-white leading-[42px] max-w-[806px]">
+                We see quality as a system of relationships, not just between parts and processes, but between people, teams, and shared goals.
+              </p>
+              <button className="mt-10 bg-white text-black font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
+                QUALITY AS A CULTURE
+              </button>
             </div>
           </div>
-          {/* Text: page coords (509.5, 90.58) minus button origin (440, 58), centered */}
-          <p
-            className="absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] not-italic text-[14px] text-black text-center tracking-[0.35px] whitespace-nowrap"
-            style={{ left: "50%", top: 32.58, transform: "translateX(-50%)" }}
-          >
-            SOLUTIONS
-          </p>
-        </button>
+        </div>
+      </section>
 
-        <p className="-translate-x-1/2 absolute font-['Poppins:SemiBold',sans-serif] leading-[normal] left-[658px] not-italic text-[14px] text-black text-center top-[90.58px] tracking-[0.35px] uppercase whitespace-nowrap">QUALITY</p>
-        <LanguageSelector />
-      </div>
+      {/* ─── Footer CTA ─────────────────────────────────── */}
+      <section className="bg-[#f2f3f5] pb-20">
+        <div className="max-w-[1280px] mx-auto px-8">
+          <div className="border-t border-[#9AA4B7] pt-16">
+            <p className="font-['Poppins:Medium',sans-serif] text-[40px] text-black leading-normal max-w-[593px]">
+              Learn more about Yemenici
+            </p>
+            <p className="font-['Poppins:Regular',sans-serif] text-[16px] text-black leading-[26px] max-w-[703px] mt-6">
+              Learn how Yemenici can streamline your field service, maintenance, onboarding, and training operations. Boost efficiency, reduce downtime, and empower your workforce with innovative tools designed for digital transformation.
+            </p>
+            <button className="mt-10 bg-black text-white font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
+              CONTACT US
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Footer Links ───────────────────────────────── */}
+      <footer className="bg-white">
+        <div className="max-w-[1280px] mx-auto px-8 pt-16 pb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Solutions</p>
+              {["Industries", "Mobility", "Agriculture", "Industry"].map((l) => (
+                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
+              ))}
+            </div>
+            <div>
+              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Quality</p>
+              {["Certification", "Laboratory Testing"].map((l) => (
+                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
+              ))}
+            </div>
+            <div>
+              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Company</p>
+              {["About Us", "Our Values", "Mining", "Healthcare", "Construction"].map((l) => (
+                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
+              ))}
+            </div>
+            <div>
+              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Contact</p>
+              {["Contact Us", "Career"].map((l) => (
+                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
+              ))}
+              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4 mt-6">Policies</p>
+              {["Privacy Policy", "Terms of Use", "Security & GDPR", "Imprint"].map((l) => (
+                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-[#9AA4B7] pt-6 flex items-center justify-between">
+            <p className="font-['Poppins:Regular',sans-serif] text-[14px] text-black">Copyright © 2025 Yemenici</p>
+            <LinkedinIcon />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
