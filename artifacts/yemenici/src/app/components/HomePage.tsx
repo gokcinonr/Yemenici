@@ -80,9 +80,30 @@ function LanguageSelector() {
 }
 
 function MegaMenu() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
-    <div className="absolute left-0 right-0 top-[79px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-b-[20px] shadow-lg">
-      <div className="px-8 py-8 grid grid-cols-3 gap-6">
+    <div
+      className="absolute left-0 right-0 top-[79px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-[20px] shadow-lg overflow-hidden"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(-10px)",
+        transition: "opacity 0.25s ease, transform 0.25s ease",
+      }}
+    >
+      <div
+        className="px-8 py-8 grid grid-cols-3 gap-6"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateX(0)" : "translateX(-18px)",
+          transition: "opacity 0.3s ease 0.18s, transform 0.3s ease 0.18s",
+        }}
+      >
         <div className="bg-[#202429]/5 rounded-[15px] overflow-hidden">
           <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
           <div className="p-4">
@@ -146,7 +167,7 @@ function IndustryCard({
   return (
     <div
       className="rounded-[15px] overflow-hidden cursor-pointer relative"
-      style={{ height: 306, backgroundColor: bgColor, transition: "background-color 0.35s ease" }}
+      style={{ height: 306, backgroundColor: bgColor, transition: "background-color 0.55s ease" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => { if (linkUrl && linkUrl !== "#") window.open(linkUrl, "_blank"); }}
@@ -156,27 +177,27 @@ function IndustryCard({
           alt=""
           src={imageUrl}
           className="absolute inset-0 w-full h-full object-cover rounded-[15px] pointer-events-none"
-          style={{ opacity: showImage ? 1 : 0, transition: "opacity 0.35s ease" }}
+          style={{ opacity: showImage ? 1 : 0, transition: "opacity 0.55s ease" }}
         />
       )}
       <div className="absolute inset-0 flex flex-col justify-between p-[38px] pt-[35px] pb-[35px]">
         <div>
           <p
             className="text-[40px] leading-normal"
-            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200, color: titleColor, transition: "color 0.35s ease" }}
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200, color: titleColor, transition: "color 0.55s ease" }}
           >
             {title}
           </p>
           <p
             className="text-[16px] mt-4 max-w-[357px]"
-            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, lineHeight: "22px", color: paraColor, opacity: paraOpacity, transition: "opacity 0.2s ease, color 0.35s ease" }}
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, lineHeight: "22px", color: paraColor, opacity: paraOpacity, transition: "opacity 0.35s ease, color 0.55s ease" }}
           >
             {paragraph}
           </p>
         </div>
         <div>
           <svg width="31" height="21" fill="none" viewBox="0 0 30.5624 20.9637">
-            <path d={svgPaths.pef3cc00} fill={arrowColor} style={{ transition: "fill 0.35s ease" }} />
+            <path d={svgPaths.pef3cc00} fill={arrowColor} style={{ transition: "fill 0.55s ease" }} />
           </svg>
         </div>
       </div>
