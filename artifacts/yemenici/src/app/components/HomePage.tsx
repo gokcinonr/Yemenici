@@ -134,13 +134,13 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: { isOpen: boolean; onM
             transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s",
           }}
         >
-          <div className="bg-[#202429]/[0.02] rounded-[15px] p-4 flex-1">
+          <div className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
             <p style={titleStyle}>Mobility</p>
             <p style={{ ...paraStyle, color: "#000f29" }}>
               We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.
             </p>
           </div>
-          <div className="bg-[#202429]/[0.01] rounded-[15px] p-4 flex-1">
+          <div className="bg-[#202429]/[0.01] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
             <p style={titleStyle}>Industrial</p>
             <p style={{ ...paraStyle, color: "#000f29" }}>
               We support a wide range of industrial applications with components engineered for durability, sealing performance, and mechanical integrity.
@@ -155,7 +155,7 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: { isOpen: boolean; onM
             transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s",
           }}
         >
-          <div className="bg-[#202429]/[0.02] rounded-[15px] p-4">
+          <div className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200">
             <p style={titleStyle}>Agriculture</p>
             <p style={{ ...paraStyle, color: "#000f29" }}>
               We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions.
