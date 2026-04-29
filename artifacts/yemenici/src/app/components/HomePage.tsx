@@ -250,8 +250,86 @@ function LinkedinIcon() {
   );
 }
 
+function HamburgerButton({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-10 h-10 flex flex-col items-center justify-center cursor-pointer gap-[5px]"
+      aria-label={isOpen ? "Close menu" : "Open menu"}
+    >
+      <span
+        className="block h-px bg-black origin-center transition-all duration-300"
+        style={{ width: 22, transform: isOpen ? "translateY(6px) rotate(45deg)" : "none" }}
+      />
+      <span
+        className="block h-px bg-black transition-all duration-300"
+        style={{ width: 22, opacity: isOpen ? 0 : 1 }}
+      />
+      <span
+        className="block h-px bg-black origin-center transition-all duration-300"
+        style={{ width: 22, transform: isOpen ? "translateY(-6px) rotate(-45deg)" : "none" }}
+      />
+    </button>
+  );
+}
+
+function MobileMenu({ isOpen }: { isOpen: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const id = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(id);
+    } else {
+      setVisible(false);
+    }
+  }, [isOpen]);
+
+  const navStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 22, letterSpacing: "0.4px" };
+
+  return (
+    <div
+      className="fixed left-0 right-0 top-0 bottom-0 z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px]"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(-16px)",
+        transition: "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)",
+        pointerEvents: visible ? "auto" : "none",
+      }}
+    >
+      <div className="px-6 pt-[127px] flex flex-col">
+        {(["SOLUTIONS", "QUALITY", "COMPANY", "CONTACT"] as const).map((label, i) => (
+          <button
+            key={label}
+            className="flex items-center justify-between w-full px-2 py-4 rounded-[14px] text-black hover:bg-black/[0.04] transition-colors duration-200 border-b border-black/[0.06] last:border-0"
+            style={{
+              ...navStyle,
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0)" : "translateY(10px)",
+              transition: `opacity 0.45s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.06}s, transform 0.45s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.06}s, background-color 0.2s`,
+            }}
+          >
+            {label}
+            <ChevronIcon color="#B0B7C3" />
+          </button>
+        ))}
+        <div
+          className="mt-8 px-2"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.36s",
+          }}
+        >
+          <LanguageSelector />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const getContent = useContent();
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -280,7 +358,8 @@ export default function HomePage() {
         <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
           <Logo />
 
-          <nav className="flex items-center gap-1">
+          {/* Desktop nav — hidden on mobile */}
+          <nav className="hidden md:flex items-center gap-1">
             <button
               className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer transition-colors duration-200"
               style={{
@@ -313,12 +392,23 @@ export default function HomePage() {
             </button>
           </nav>
 
-          <LanguageSelector />
+          {/* Desktop language selector — hidden on mobile */}
+          <div className="hidden md:flex">
+            <LanguageSelector />
+          </div>
+
+          {/* Mobile hamburger — hidden on desktop */}
+          <div className="md:hidden">
+            <HamburgerButton isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen((v) => !v)} />
+          </div>
         </div>
       </div>
 
-      {/* ─── Mega Menu (full-width, z-40 — header stays on top at z-50) ── */}
+      {/* ─── Mega Menu — desktop only (full-width, z-40) ── */}
       <MegaMenu isOpen={isMegaMenuOpen} onMouseEnter={openMenu} onMouseLeave={closeMenu} />
+
+      {/* ─── Mobile Menu — full screen, below header ── */}
+      <MobileMenu isOpen={isMobileMenuOpen} />
 
       {/* ─── Hero ──────────────────────────────────────── */}
       <section className="relative w-full h-[780px] overflow-hidden">
