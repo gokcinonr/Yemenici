@@ -98,7 +98,8 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="max-w-[1280px] mx-auto px-8 pt-[127px] pb-8 grid grid-cols-3 gap-6">
+      <div className="px-4 md:px-8 pt-[127px] pb-8">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-3 gap-6">
         {/* Sütun 1 */}
         <div
           className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
@@ -153,6 +154,7 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
