@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const API = "/api";
 
@@ -9,6 +9,13 @@ type ContentRow = {
   value: string;
   label: string;
   updatedAt: string;
+};
+
+type MediaFile = {
+  filename: string;
+  url: string;
+  size: number;
+  createdAt: string;
 };
 
 async function apiFetch(path: string, options?: RequestInit) {
@@ -33,16 +40,10 @@ function LoginPage({ onLogin }: { onLogin: (u: string) => void }) {
     setError("");
     setLoading(true);
     try {
-      const d = await apiFetch("/admin/login", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
+      const d = await apiFetch("/admin/login", { method: "POST", body: JSON.stringify({ username, password }) });
       onLogin(d.username);
-    } catch {
-      setError("Kullanıcı adı veya şifre hatalı.");
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError("Kullanıcı adı veya şifre hatalı."); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -81,56 +82,87 @@ function LoginPage({ onLogin }: { onLogin: (u: string) => void }) {
   );
 }
 
-/* ────────────────────────────── Sidebar ────────────────────────────── */
-type SectionKey = "hero" | "cards" | "industries" | "quality" | "footer";
+/* ────────────────────────────── Sidebar nav ────────────────────────────── */
+type SectionKey = "hero" | "cards" | "industries" | "quality" | "footer" | "media";
 
-const NAV: { group: string; items: { key: SectionKey; label: string }[] }[] = [
+const NAV: { group: string; items: { key: SectionKey; label: string; icon: string }[] }[] = [
   {
     group: "Ana Sayfa",
     items: [
-      { key: "hero", label: "Hero" },
-      { key: "cards", label: "Kartlar" },
-      { key: "industries", label: "Endüstriler" },
-      { key: "quality", label: "Kalite" },
+      { key: "hero", label: "Hero", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+      { key: "cards", label: "Kartlar", icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" },
+      { key: "industries", label: "Endüstriler", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
+      { key: "quality", label: "Kalite", icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" },
     ],
   },
   {
     group: "Genel",
-    items: [{ key: "footer", label: "Footer" }],
+    items: [
+      { key: "footer", label: "Footer", icon: "M4 6h16M4 12h16M4 18h7" },
+      { key: "media", label: "Medya Kütüphanesi", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+    ],
   },
 ];
 
-/* ────────────────────────────── Field helpers ────────────────────────────── */
+/* ────────────────────────────── useField hook ────────────────────────────── */
+function useField(rows: ContentRow[], section: string, key: string, onSaveRow: (id: number, value: string) => Promise<void>) {
+  const row = rows.find((r) => r.section === section && r.key === key);
+  const [value, setValue] = useState(row?.value ?? "");
+  const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    if (row) setValue(row.value);
+  }, [row?.id, row?.value]);
+
+  const dirty = value !== (row?.value ?? "");
+
+  const onSave = useCallback(async () => {
+    if (!row) return;
+    setSaving(true);
+    try {
+      await onSaveRow(row.id, value);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  }, [row, value, onSaveRow]);
+
+  return { value, setValue, saving, dirty, onSave, justSaved };
+}
+
+/* ────────────────────────────── UI atoms ────────────────────────────── */
+function SaveBtn({ onSave, saving, dirty, justSaved }: { onSave: () => void; saving: boolean; dirty: boolean; justSaved: boolean }) {
+  return (
+    <button onClick={onSave} disabled={saving || !dirty}
+      className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-40 ${justSaved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+      {saving ? "Kaydediliyor..." : justSaved ? "✓ Kaydedildi" : "Kaydet"}
+    </button>
+  );
+}
+
 function TextField({
-  label, value, onChange, onSave, saving, dirty, multiline = false, placeholder,
-}: {
-  label: string; value: string; onChange: (v: string) => void;
-  onSave: () => void; saving: boolean; dirty: boolean;
-  multiline?: boolean; placeholder?: string;
-}) {
+  label, value, setValue, onSave, saving, dirty, justSaved, multiline = false, placeholder,
+}: ReturnType<typeof useField> & { label: string; multiline?: boolean; placeholder?: string }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
-      {multiline ? (
-        <textarea rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition resize-none" />
-      ) : (
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
-      )}
+      {multiline
+        ? <textarea rows={3} value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder}
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition resize-none" />
+        : <input type="text" value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder}
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+      }
       <div className="flex justify-end mt-2">
-        <SaveButton onSave={onSave} saving={saving} dirty={dirty} />
+        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
       </div>
     </div>
   );
 }
 
 function ImageField({
-  label, value, onChange, onSave, saving, dirty,
-}: {
-  label: string; value: string; onChange: (v: string) => void;
-  onSave: () => void; saving: boolean; dirty: boolean;
-}) {
+  label, value, setValue, onSave, saving, dirty, justSaved,
+}: ReturnType<typeof useField> & { label: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -144,7 +176,7 @@ function ImageField({
       const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
       if (!res.ok) throw new Error();
       const { url } = await res.json();
-      onChange(url);
+      setValue(url);
     } catch { alert("Yükleme başarısız."); }
     finally {
       setUploading(false);
@@ -156,20 +188,21 @@ function ImageField({
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
       <div className="flex gap-3 items-start">
-        {value && (
-          <div className="w-20 h-14 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-            <img src={value} alt="" className="w-full h-full object-cover" />
-          </div>
-        )}
+        <div className={`w-20 h-14 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-50 flex items-center justify-center ${!value && "text-gray-300"}`}>
+          {value
+            ? <img src={value} alt="" className="w-full h-full object-cover" />
+            : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          }
+        </div>
         <div className="flex-1 space-y-2">
-          <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://... veya fotoğraf yükleyin"
+          <input type="text" value={value} onChange={(e) => setValue(e.target.value)} placeholder="https://... veya fotoğraf yükleyin"
             className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
               className="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50">
               {uploading ? "Yükleniyor..." : "Fotoğraf Yükle"}
             </button>
-            <SaveButton onSave={onSave} saving={saving} dirty={dirty} />
+            <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
           </div>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
         </div>
@@ -178,133 +211,210 @@ function ImageField({
   );
 }
 
-function SaveButton({ onSave, saving, dirty }: { onSave: () => void; saving: boolean; dirty: boolean }) {
-  return (
-    <button onClick={onSave} disabled={saving || !dirty}
-      className="px-4 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-40 bg-blue-600 hover:bg-blue-700 text-white">
-      {saving ? "Kaydediliyor..." : "Kaydet"}
-    </button>
-  );
-}
-
-/* ────────────────────────────── Section views ────────────────────────────── */
-function useField(rows: ContentRow[], section: string, key: string, onSave: (id: number, value: string) => Promise<void>) {
-  const row = rows.find((r) => r.section === section && r.key === key);
-  const [value, setValue] = useState(row?.value ?? "");
-  const [saving, setSaving] = useState(false);
-  const [savedId, setSavedId] = useState<number | null>(null);
-
-  useEffect(() => { if (row) setValue(row.value); }, [row?.id, row?.value]);
-
-  const dirty = value !== (row?.value ?? "");
-
-  const save = async () => {
-    if (!row) return;
-    setSaving(true);
-    try {
-      await onSave(row.id, value);
-      setSavedId(row.id);
-      setTimeout(() => setSavedId(null), 2500);
-    } finally { setSaving(false); }
-  };
-
-  return { value, setValue, saving, dirty, save, hasSaved: savedId === row?.id };
-}
-
-/* Hero */
-function HeroSection({ rows, onSave }: { rows: ContentRow[]; onSave: (id: number, v: string) => Promise<void> }) {
-  const title1 = useField(rows, "hero", "title_line1", onSave);
-  const title2 = useField(rows, "hero", "title_line2", onSave);
-  const subtitle = useField(rows, "hero", "subtitle", onSave);
-  const cta = useField(rows, "hero", "cta_button", onSave);
-
+/* ────────────────────────────── Section components ────────────────────────────── */
+function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+  const title1 = useField(rows, "hero", "title_line1", onSaveRow);
+  const title2 = useField(rows, "hero", "title_line2", onSaveRow);
+  const subtitle = useField(rows, "hero", "subtitle", onSaveRow);
+  const cta = useField(rows, "hero", "cta_button", onSaveRow);
   return (
     <div className="space-y-6">
-      <TextField label="Başlık Satır 1" {...title1} onChange={title1.setValue} />
-      <TextField label="Başlık Satır 2" {...title2} onChange={title2.setValue} />
-      <TextField label="Alt Başlık" multiline {...subtitle} onChange={subtitle.setValue} />
-      <TextField label="Buton Metni" {...cta} onChange={cta.setValue} />
+      <TextField label="Başlık Satır 1" {...title1} />
+      <TextField label="Başlık Satır 2" {...title2} />
+      <TextField label="Alt Başlık" multiline {...subtitle} />
+      <TextField label="Buton Metni" {...cta} />
     </div>
   );
 }
 
-/* Card group */
-function CardGroup({ rows, prefix, title, onSave }: {
-  rows: ContentRow[]; prefix: string; title: string; onSave: (id: number, v: string) => Promise<void>;
+function CardGroup({ rows, prefix, title, onSaveRow }: {
+  rows: ContentRow[]; prefix: string; title: string; onSaveRow: (id: number, v: string) => Promise<void>;
 }) {
-  const cardTitle = useField(rows, "cards", `${prefix}_title`, onSave);
-  const desc = useField(rows, "cards", `${prefix}_desc`, onSave);
-  const image = useField(rows, "cards", `${prefix}_image`, onSave);
-  const link = useField(rows, "cards", `${prefix}_link`, onSave);
-
+  const cardTitle = useField(rows, "cards", `${prefix}_title`, onSaveRow);
+  const desc = useField(rows, "cards", `${prefix}_desc`, onSaveRow);
+  const image = useField(rows, "cards", `${prefix}_image`, onSaveRow);
+  const link = useField(rows, "cards", `${prefix}_link`, onSaveRow);
   return (
     <div className="border border-gray-200 rounded-xl p-5 space-y-5 bg-white">
-      <h3 className="text-sm font-bold text-gray-800">{title}</h3>
-      <TextField label="Kart Başlık" {...cardTitle} onChange={cardTitle.setValue} />
-      <TextField label="Kart Açıklama" multiline {...desc} onChange={desc.setValue} />
-      <ImageField label="Kart Arkaplan Görseli" {...image} onChange={image.setValue} />
-      <TextField label="Kart Link" placeholder="https://..." {...link} onChange={link.setValue} />
+      <h3 className="text-sm font-bold text-gray-800 pb-2 border-b border-gray-100">{title}</h3>
+      <TextField label="Kart Başlık" {...cardTitle} />
+      <TextField label="Kart Açıklama" multiline {...desc} />
+      <ImageField label="Kart Arkaplan Görseli" {...image} />
+      <TextField label="Kart Link" placeholder="https://..." {...link} />
     </div>
   );
 }
 
-function CardsSection({ rows, onSave }: { rows: ContentRow[]; onSave: (id: number, v: string) => Promise<void> }) {
+function CardsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
   return (
     <div className="space-y-5">
-      <CardGroup rows={rows} prefix="mobility" title="KART 1 — Mobilite" onSave={onSave} />
-      <CardGroup rows={rows} prefix="industries" title="KART 2 — Endüstriler" onSave={onSave} />
-      <CardGroup rows={rows} prefix="agriculture" title="KART 3 — Tarım" onSave={onSave} />
+      <CardGroup rows={rows} prefix="mobility" title="KART 1 — Mobilite" onSaveRow={onSaveRow} />
+      <CardGroup rows={rows} prefix="industries" title="KART 2 — Endüstriler" onSaveRow={onSaveRow} />
+      <CardGroup rows={rows} prefix="agriculture" title="KART 3 — Tarım" onSaveRow={onSaveRow} />
     </div>
   );
 }
 
-/* Industries */
-function IndustriesSection({ rows, onSave }: { rows: ContentRow[]; onSave: (id: number, v: string) => Promise<void> }) {
-  const text = useField(rows, "industries", "section_text", onSave);
-  const btn = useField(rows, "industries", "discover_button", onSave);
-  const btnUrl = useField(rows, "industries", "discover_button_url", onSave);
-
+function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+  const text = useField(rows, "industries", "section_text", onSaveRow);
+  const btn = useField(rows, "industries", "discover_button", onSaveRow);
+  const btnUrl = useField(rows, "industries", "discover_button_url", onSaveRow);
   return (
     <div className="space-y-6">
-      <TextField label="Bölüm Metni" multiline {...text} onChange={text.setValue} />
-      <TextField label="Buton Metni" {...btn} onChange={btn.setValue} />
-      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} onChange={btnUrl.setValue} />
+      <TextField label="Bölüm Metni" multiline {...text} />
+      <TextField label="Buton Metni" {...btn} />
+      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} />
     </div>
   );
 }
 
-/* Quality */
-function QualitySection({ rows, onSave }: { rows: ContentRow[]; onSave: (id: number, v: string) => Promise<void> }) {
-  const text = useField(rows, "quality", "text", onSave);
-  const btn = useField(rows, "quality", "button", onSave);
-  const btnUrl = useField(rows, "quality", "button_url", onSave);
-
+function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+  const text = useField(rows, "quality", "text", onSaveRow);
+  const btn = useField(rows, "quality", "button", onSaveRow);
+  const btnUrl = useField(rows, "quality", "button_url", onSaveRow);
   return (
     <div className="space-y-6">
-      <TextField label="Bölüm Metni" multiline {...text} onChange={text.setValue} />
-      <TextField label="Buton Metni" {...btn} onChange={btn.setValue} />
-      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} onChange={btnUrl.setValue} />
+      <TextField label="Bölüm Metni" multiline {...text} />
+      <TextField label="Buton Metni" {...btn} />
+      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} />
     </div>
   );
 }
 
-/* Footer */
-function FooterSection({ rows, onSave }: { rows: ContentRow[]; onSave: (id: number, v: string) => Promise<void> }) {
-  const copy = useField(rows, "footer", "copyright", onSave);
+function FooterSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+  const copy = useField(rows, "footer", "copyright", onSaveRow);
   return (
     <div className="space-y-6">
-      <TextField label="Telif Hakkı" {...copy} onChange={copy.setValue} />
+      <TextField label="Telif Hakkı" {...copy} />
     </div>
   );
 }
 
-/* ────────────────────────────── Main editor ────────────────────────────── */
+/* ────────────────────────────── Media Library ────────────────────────────── */
+function formatSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function MediaLibrary() {
+  const [files, setFiles] = useState<MediaFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try { setFiles(await apiFetch("/admin/media")); }
+    catch { setFiles([]); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = Array.from(e.target.files ?? []);
+    if (!fileList.length) return;
+    setUploading(true);
+    try {
+      await Promise.all(fileList.map(async (file) => {
+        const form = new FormData();
+        form.append("file", file);
+        await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      }));
+      await load();
+    } catch { alert("Yükleme başarısız."); }
+    finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const handleDelete = async (filename: string) => {
+    if (!confirm("Bu görseli silmek istediğinizden emin misiniz?")) return;
+    setDeleting(filename);
+    try {
+      await apiFetch(`/admin/media/${filename}`, { method: "DELETE" });
+      setFiles((prev) => prev.filter((f) => f.filename !== filename));
+    } catch { alert("Silme başarısız."); }
+    finally { setDeleting(null); }
+  };
+
+  const handleCopy = (url: string) => {
+    navigator.clipboard.writeText(window.location.origin + url);
+    setCopied(url);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-sm text-gray-500">{files.length} görsel yüklü</p>
+        </div>
+        <button onClick={() => fileRef.current?.click()} disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition disabled:opacity-60">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          {uploading ? "Yükleniyor..." : "Görsel Yükle"}
+        </button>
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="aspect-video bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : files.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+          <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p className="text-sm font-medium">Henüz görsel yüklenmedi</p>
+          <p className="text-xs mt-1">Görsel Yükle butonunu kullanın</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          {files.map((f) => (
+            <div key={f.filename} className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden">
+              <div className="aspect-video bg-gray-100 overflow-hidden">
+                <img src={f.url} alt={f.filename} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-3">
+                <p className="text-xs text-gray-600 font-medium truncate" title={f.filename}>{f.filename}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{formatSize(f.size)}</p>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-3 flex gap-2 opacity-0 group-hover:opacity-100 transition bg-gradient-to-t from-white via-white to-transparent pt-6">
+                <button onClick={() => handleCopy(f.url)}
+                  className="flex-1 text-center py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white hover:bg-gray-700 transition">
+                  {copied === f.url ? "✓ Kopyalandı" : "URL Kopyala"}
+                </button>
+                <button onClick={() => handleDelete(f.filename)} disabled={deleting === f.filename}
+                  className="py-1.5 px-3 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition disabled:opacity-50">
+                  {deleting === f.filename ? "..." : "Sil"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ────────────────────────────── Content Editor ────────────────────────────── */
 const SECTION_TITLES: Record<SectionKey, string> = {
   hero: "Hero",
   cards: "Kartlar",
   industries: "Endüstriler",
   quality: "Kalite",
   footer: "Footer",
+  media: "Medya Kütüphanesi",
 };
 
 function ContentEditor({ username, onLogout }: { username: string; onLogout: () => void }) {
@@ -313,18 +423,16 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
   const [active, setActive] = useState<SectionKey>("hero");
 
   useEffect(() => {
-    apiFetch("/admin/content")
-      .then((r: ContentRow[]) => setRows(r))
-      .finally(() => setLoading(false));
+    apiFetch("/admin/content").then((r: ContentRow[]) => setRows(r)).finally(() => setLoading(false));
   }, []);
 
-  const handleSave = async (id: number, value: string) => {
+  const onSaveRow = useCallback(async (id: number, value: string) => {
     const updated: ContentRow = await apiFetch(`/admin/content/${id}`, {
       method: "PUT",
       body: JSON.stringify({ value }),
     });
     setRows((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-  };
+  }, []);
 
   const handleLogout = async () => {
     await apiFetch("/admin/logout", { method: "POST" });
@@ -332,23 +440,23 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
   };
 
   const renderSection = () => {
+    if (active === "media") return <MediaLibrary />;
     if (loading) return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />)}
       </div>
     );
     switch (active) {
-      case "hero": return <HeroSection rows={rows} onSave={handleSave} />;
-      case "cards": return <CardsSection rows={rows} onSave={handleSave} />;
-      case "industries": return <IndustriesSection rows={rows} onSave={handleSave} />;
-      case "quality": return <QualitySection rows={rows} onSave={handleSave} />;
-      case "footer": return <FooterSection rows={rows} onSave={handleSave} />;
+      case "hero": return <HeroSection rows={rows} onSaveRow={onSaveRow} />;
+      case "cards": return <CardsSection rows={rows} onSaveRow={onSaveRow} />;
+      case "industries": return <IndustriesSection rows={rows} onSaveRow={onSaveRow} />;
+      case "quality": return <QualitySection rows={rows} onSaveRow={onSaveRow} />;
+      case "footer": return <FooterSection rows={rows} onSaveRow={onSaveRow} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex flex-col">
-      {/* Header */}
       <header className="h-14 border-b border-gray-200 bg-white px-6 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -360,30 +468,21 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         </div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-gray-500">{username}</span>
-          <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-gray-900 transition">
-            Çıkış Yap
-          </button>
+          <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-gray-900 transition">Çıkış Yap</button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <aside className="w-52 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto py-5 px-3">
           {NAV.map((group) => (
             <div key={group.group} className="mb-5">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-1.5">
-                {group.group}
-              </p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-1.5">{group.group}</p>
               {group.items.map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setActive(item.key)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-0.5 ${
-                    active === item.key
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
+                <button key={item.key} onClick={() => setActive(item.key)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-0.5 flex items-center gap-2.5 ${active === item.key ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"}`}>
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                  </svg>
                   {item.label}
                 </button>
               ))}
@@ -391,14 +490,16 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
           ))}
         </aside>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-2xl mx-auto">
+          <div className={active === "media" ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"}>
             <h2 className="text-xl font-bold text-gray-900 mb-1">{SECTION_TITLES[active]}</h2>
             <p className="text-sm text-gray-500 mb-6">
-              {active === "cards"
-                ? "Kartları düzenleyip her alanı ayrı ayrı kaydedin."
-                : "Bu bölümdeki içerikleri düzenleyip kaydedin."}
+              {active === "cards" && "Her kartı ayrı ayrı düzenleyip kaydedin."}
+              {active === "media" && "Yüklenen görselleri yönetin, URL kopyalayın veya silin."}
+              {active === "hero" && "Ana sayfa hero bölümü içeriklerini düzenleyin."}
+              {active === "industries" && "Endüstriler bölümü içeriklerini düzenleyin."}
+              {active === "quality" && "Kalite bölümü içeriklerini düzenleyin."}
+              {active === "footer" && "Footer bölümü içeriklerini düzenleyin."}
             </p>
             {renderSection()}
           </div>
@@ -420,13 +521,11 @@ export default function App() {
       .finally(() => setChecking(false));
   }, []);
 
-  if (checking) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (checking) return (
+    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   if (!user) return <LoginPage onLogin={setUser} />;
   return <ContentEditor username={user} onLogout={() => setUser(null)} />;

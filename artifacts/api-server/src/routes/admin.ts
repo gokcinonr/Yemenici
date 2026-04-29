@@ -95,9 +95,38 @@ router.post(
   (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
     const url = `/api/uploads/${req.file.filename}`;
-    res.json({ url });
+    res.json({ url, filename: req.file.filename });
   },
 );
+
+router.get("/admin/media", requireAuth, (_req, res) => {
+  const fs = require("fs") as typeof import("fs");
+  const uploadDir = path.join(process.cwd(), "public/uploads");
+  try {
+    const files = fs.readdirSync(uploadDir)
+      .filter((f: string) => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f))
+      .map((f: string) => {
+        const stat = fs.statSync(path.join(uploadDir, f));
+        return { filename: f, url: `/api/uploads/${f}`, size: stat.size, createdAt: stat.birthtime };
+      })
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    res.json(files);
+  } catch {
+    res.json([]);
+  }
+});
+
+router.delete("/admin/media/:filename", requireAuth, (req, res) => {
+  const fs = require("fs") as typeof import("fs");
+  const filename = path.basename(req.params.filename);
+  const filePath = path.join(process.cwd(), "public/uploads", filename);
+  try {
+    if (require("fs").existsSync(filePath)) fs.unlinkSync(filePath);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
 
 router.get("/content", async (req, res) => {
   try {
