@@ -324,18 +324,145 @@ function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: 
 function CardGroup({ rows, prefix, title, onSaveRow }: {
   rows: ContentRow[]; prefix: string; title: string; onSaveRow: (id: number, v: string) => Promise<void>;
 }) {
-  const cardTitle = useField(rows, "cards", `${prefix}_title`, onSaveRow);
-  const desc = useField(rows, "cards", `${prefix}_desc`, onSaveRow);
-  const image = useField(rows, "cards", `${prefix}_image`, onSaveRow);
-  const link = useField(rows, "cards", `${prefix}_link`, onSaveRow);
+  const getRow = (k: string) => rows.find((r) => r.section === "cards" && r.key === `${prefix}_${k}`);
+
+  const initVals = () => ({
+    title: getRow("title")?.value ?? "",
+    desc: getRow("desc")?.value ?? "",
+    image: getRow("image")?.value ?? "",
+    link: getRow("link")?.value ?? "",
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Sync when rows load/change
+  useEffect(() => {
+    const v = {
+      title: getRow("title")?.value ?? "",
+      desc: getRow("desc")?.value ?? "",
+      image: getRow("image")?.value ?? "",
+      link: getRow("link")?.value ?? "",
+    };
+    setVals(v);
+    setOrig(v);
+  }, [
+    getRow("title")?.value, getRow("desc")?.value,
+    getRow("image")?.value, getRow("link")?.value,
+  ]);
+
+  const dirty = vals.title !== orig.title || vals.desc !== orig.desc
+    || vals.image !== orig.image || vals.link !== orig.link;
+
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    const rows4 = [
+      { row: getRow("title"), val: vals.title },
+      { row: getRow("desc"), val: vals.desc },
+      { row: getRow("image"), val: vals.image },
+      { row: getRow("link"), val: vals.link },
+    ];
+    setSaving(true);
+    try {
+      await Promise.all(rows4.filter((r) => r.row).map(({ row, val }) => onSaveRow(row!.id, val)));
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      set("image")(url);
+    } catch { alert("Yükleme başarısız."); }
+    finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
+  };
+
   return (
-    <div className="border border-gray-200 rounded-xl p-5 space-y-5 bg-white">
-      <h3 className="text-sm font-bold text-gray-800 pb-2 border-b border-gray-100">{title}</h3>
-      <TextField label="Kart Başlık" {...cardTitle} />
-      <TextField label="Kart Açıklama" multiline {...desc} />
-      <ImageField label="Kart Arkaplan Görseli" {...image} />
-      <TextField label="Kart Link" placeholder="https://..." {...link} />
-    </div>
+    <>
+      {showPicker && (
+        <MediaPickerModal
+          onSelect={(url) => { set("image")(url); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl p-5 bg-white">
+        <h3 className="text-sm font-bold text-gray-800 pb-3 mb-4 border-b border-gray-100">{title}</h3>
+        <div className="space-y-4">
+          {/* Başlık */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Kart Başlık</label>
+            <input type="text" value={vals.title} onChange={(e) => set("title")(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+          </div>
+          {/* Açıklama */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Kart Açıklama</label>
+            <textarea rows={3} value={vals.desc} onChange={(e) => set("desc")(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition resize-none" />
+          </div>
+          {/* Görsel */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Kart Arkaplan Görseli</label>
+            <div className="flex gap-3 items-start">
+              <div className="w-20 h-14 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-50 flex items-center justify-center text-gray-300">
+                {vals.image
+                  ? <img src={vals.image} alt="" className="w-full h-full object-cover" />
+                  : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                }
+              </div>
+              <div className="flex-1 space-y-2">
+                <input type="text" value={vals.image} onChange={(e) => set("image")(e.target.value)}
+                  placeholder="https://... veya aşağıdan seçin"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+                <div className="flex gap-2">
+                  <button onClick={() => fileRef.current?.click()} disabled={uploading}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    {uploading ? "Yükleniyor..." : "Yükle"}
+                  </button>
+                  <button onClick={() => setShowPicker(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    Kütüphaneden Seç
+                  </button>
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              </div>
+            </div>
+          </div>
+          {/* Link */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Kart Link</label>
+            <input type="text" value={vals.link} onChange={(e) => set("link")(e.target.value)}
+              placeholder="https://..."
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+          </div>
+        </div>
+        {/* Tek kaydet butonu */}
+        <div className="mt-5 pt-4 border-t border-gray-100 flex justify-end">
+          <button onClick={handleSave} disabled={saving || !dirty}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+            {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kartı Kaydet"}
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
