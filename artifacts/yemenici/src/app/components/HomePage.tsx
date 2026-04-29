@@ -267,11 +267,20 @@ export default function HomePage() {
       {/* ─── Industries Intro + Cards ──────────────────── */}
       <section className="bg-[#f2f3f5] pt-20 pb-20">
         <div className="max-w-[1280px] mx-auto px-8">
-          <p className="font-['Poppins:ExtraLight',sans-serif] text-[30px] text-black leading-[42px] max-w-[873px]">
+          <p
+            className="text-[30px] text-black leading-[42px] max-w-[873px]"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200 }}
+          >
             We design and manufacture high-performance rubber and rubber-to-metal components tailored to the technical needs of mobility, industrial, and agricultural sectors.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div className="mt-8">
+            <button className="bg-white text-black text-[12px] tracking-wide rounded-full px-8 py-2" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}>
+              DISCOVER INDUSTRIES
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <IndustryCard
               title={getContent("cards", "mobility_title") || "Mobility"}
               paragraph={getContent("cards", "mobility_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
@@ -293,12 +302,6 @@ export default function HomePage() {
               linkUrl={getContent("cards", "agriculture_link") || undefined}
               hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
             />
-          </div>
-
-          <div className="mt-8">
-            <button className="bg-white text-black font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
-              DISCOVER INDUSTRIES
-            </button>
           </div>
         </div>
       </section>
