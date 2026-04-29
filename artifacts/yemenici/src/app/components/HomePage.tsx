@@ -69,61 +69,61 @@ function FooterLinks() {
   return (
     <div className="absolute contents left-[130.61px] top-[2987.86px]">
       <div className="absolute h-[18px] left-[705.61px] overflow-clip top-[3052.86px] w-[46px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Career</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Career</p>
       </div>
       <div className="absolute h-[18px] left-[705.61px] overflow-clip top-[3024.86px] w-[77px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Contact Us</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Contact Us</p>
       </div>
-      <p className="absolute font-['Montserrat:SemiBold',sans-serif] leading-[25px] left-[705.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Contact</p>
+      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[705.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Contact</p>
       <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3136.86px] w-[91px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Construction</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Construction</p>
       </div>
       <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3108.86px] w-[77px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Healthcare</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Healthcare</p>
       </div>
       <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3108.86px] w-[53px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Imprint</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Imprint</p>
       </div>
       <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3080.86px] w-[49px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mining</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mining</p>
       </div>
       <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3080.86px] w-[116px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">{`Security & GDPR`}</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">{`Security & GDPR`}</p>
       </div>
       <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3052.86px] w-[76px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Our Values</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Our Values</p>
       </div>
       <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3052.86px] w-[90px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Terms of Use</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Terms of Use</p>
       </div>
       <div className="absolute h-[18px] left-[483.61px] overflow-clip top-[3024.86px] w-[172px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">About Us</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">About Us</p>
       </div>
       <div className="absolute h-[18px] left-[866.61px] overflow-clip top-[3024.86px] w-[172px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">Privacy Policy</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 w-[172px]">Privacy Policy</p>
       </div>
-      <p className="absolute font-['Montserrat:SemiBold',sans-serif] leading-[25px] left-[483.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Company</p>
-      <p className="absolute font-['Montserrat:SemiBold',sans-serif] leading-[25px] left-[866.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Policies</p>
+      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[483.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Company</p>
+      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[866.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Policies</p>
       <div className="absolute h-[18px] left-[304.61px] overflow-clip top-[3052.86px] w-[131px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Laboratory Testing</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Laboratory Testing</p>
       </div>
       <div className="absolute h-[18px] left-[304.61px] overflow-clip top-[3024.86px] w-[87px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 whitespace-nowrap">Certification</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[18px] left-0 text-[14px] text-black top-0 whitespace-nowrap">Certification</p>
       </div>
-      <p className="absolute font-['Montserrat:SemiBold',sans-serif] leading-[25px] left-[304.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Quality</p>
+      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[304.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Quality</p>
       <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3108.86px] w-[59px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industry</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industry</p>
       </div>
       <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3080.86px] w-[79px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Agriculture</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Agriculture</p>
       </div>
       <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3052.86px] w-[56px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mobility</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Mobility</p>
       </div>
       <div className="absolute h-[18px] left-[130.61px] overflow-clip top-[3024.86px] w-[70px]">
-        <p className="absolute font-['Montserrat:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industries</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] font-normal leading-[2px] left-0 text-[14px] text-black top-[8px] whitespace-nowrap">Industries</p>
       </div>
-      <p className="absolute font-['Montserrat:SemiBold',sans-serif] leading-[25px] left-[130.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Solutions</p>
+      <p className="absolute font-['Poppins:SemiBold',sans-serif] leading-[25px] left-[130.61px] not-italic text-[15px] text-black top-[2987.86px] whitespace-nowrap">Solutions</p>
     </div>
   );
 }
@@ -133,7 +133,7 @@ function FooterSection() {
     <div className="absolute contents left-0 top-[2455.74px]">
       <div className="absolute bg-white h-[426px] left-0 top-[2917px] w-[1440px]" />
       <div className="absolute contents left-[130.61px] top-[3226.63px]">
-        <p className="absolute font-['Open_Sans:Regular',sans-serif] leading-[21px] left-[130.61px] not-italic text-[14px] text-black top-[3267.62px] whitespace-nowrap">Copyright © 2025 Yemenici</p>
+        <p className="absolute font-['Poppins:Regular',sans-serif] leading-[21px] left-[130.61px] not-italic text-[14px] text-black top-[3267.62px] whitespace-nowrap">Copyright © 2025 Yemenici</p>
         <LinkedinIcon />
       </div>
       <FooterLinks />
@@ -220,7 +220,7 @@ function LanguageSelector() {
             }
           }}
         >
-          <span className="font-['Montserrat:Medium',sans-serif] font-medium text-[11px] text-white tracking-[0.275px] uppercase select-none">
+          <span className="font-['Poppins:Medium',sans-serif] font-medium text-[11px] text-white tracking-[0.275px] uppercase select-none">
             {code}
           </span>
         </button>
