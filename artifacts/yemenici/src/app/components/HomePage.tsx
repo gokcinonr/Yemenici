@@ -110,7 +110,7 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: { isOpen: boolean; onM
       <div className="max-w-[1280px] mx-auto grid grid-cols-3 gap-6">
         {/* Sütun 1 */}
         <div
-          className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
+          className="bg-[#202429]/5 hover:bg-[#202429]/[0.08] rounded-[15px] overflow-hidden cursor-pointer transition-colors duration-200"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(10px)",
