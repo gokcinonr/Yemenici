@@ -1,9 +1,27 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
+import multer from "multer";
+import path from "path";
 import { db, adminUsersTable, siteContentTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 const router = Router();
+
+const storage = multer.diskStorage({
+  destination: path.join(process.cwd(), "public/uploads"),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) cb(null, true);
+    else cb(new Error("Only images allowed"));
+  },
+});
 
 function requireAuth(req: any, res: any, next: any) {
   if (req.session?.adminId) return next();
@@ -69,6 +87,17 @@ router.put("/admin/content/:id", requireAuth, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+router.post(
+  "/admin/upload",
+  requireAuth,
+  upload.single("file"),
+  (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No file" });
+    const url = `/api/uploads/${req.file.filename}`;
+    res.json({ url });
+  },
+);
 
 router.get("/content", async (req, res) => {
   try {

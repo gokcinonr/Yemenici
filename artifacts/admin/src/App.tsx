@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const API = "/api";
 
@@ -14,7 +14,7 @@ type ContentRow = {
 async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`${API}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: options?.body instanceof FormData ? {} : { "Content-Type": "application/json" },
     ...options,
   });
   if (!res.ok) throw new Error(await res.text());
@@ -105,6 +105,129 @@ const SECTION_LABELS: Record<string, string> = {
   footer: "Footer",
 };
 
+function ImageUploadField({
+  row,
+  value,
+  onChange,
+  onSave,
+  saving,
+  saved,
+}: {
+  row: ContentRow;
+  value: string;
+  onChange: (v: string) => void;
+  onSave: () => void;
+  saving: boolean;
+  saved: boolean;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/admin/upload`, {
+        method: "POST",
+        credentials: "include",
+        body: form,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      onChange(url);
+    } catch {
+      alert("Yükleme başarısız.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-5">
+      <label className="block text-sm font-medium text-foreground mb-3">{row.label}</label>
+      <div className="flex gap-3 items-start">
+        {value && (
+          <div className="relative w-24 h-16 rounded-lg overflow-hidden border border-border flex-shrink-0">
+            <img src={value} alt="preview" className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex-1 space-y-2">
+          <input
+            type="text"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://... veya fotoğraf yükleyin"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium border border-border bg-muted hover:bg-accent text-foreground transition disabled:opacity-50"
+            >
+              {uploading ? "Yükleniyor..." : "Fotoğraf Yükle"}
+            </button>
+            <button
+              onClick={onSave}
+              disabled={saving}
+              className="px-4 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-50 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+            </button>
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SelectField({
+  row,
+  value,
+  onChange,
+  onSave,
+  saving,
+  saved,
+  options,
+}: {
+  row: ContentRow;
+  value: string;
+  onChange: (v: string) => void;
+  onSave: () => void;
+  saving: boolean;
+  saved: boolean;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="bg-card border border-border rounded-xl p-5">
+      <label className="block text-sm font-medium text-foreground mb-2">{row.label}</label>
+      <div className="flex gap-2 items-center">
+        <select
+          className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          {saving ? "..." : saved ? "✓" : "Kaydet"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ContentEditor({ username, onLogout }: { username: string; onLogout: () => void }) {
   const [content, setContent] = useState<ContentRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +259,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
       });
       setContent((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
       setSaved(row.id);
-      setTimeout(() => setSaved(null), 2000);
+      setTimeout(() => setSaved(null), 2500);
     } catch {
       alert("Kaydetme başarısız.");
     } finally {
@@ -147,6 +270,79 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
   const handleLogout = async () => {
     await apiFetch("/admin/logout", { method: "POST" });
     onLogout();
+  };
+
+  const renderField = (row: ContentRow) => {
+    const key = row.key;
+    const value = editValues[row.id] ?? row.value;
+    const onChange = (v: string) => setEditValues((prev) => ({ ...prev, [row.id]: v }));
+    const isSaving = saving === row.id;
+    const isSaved = saved === row.id;
+
+    if (key.endsWith("_image")) {
+      return (
+        <ImageUploadField
+          key={row.id}
+          row={row}
+          value={value}
+          onChange={onChange}
+          onSave={() => handleSave(row)}
+          saving={isSaving}
+          saved={isSaved}
+        />
+      );
+    }
+
+    if (key.endsWith("_hover_text")) {
+      return (
+        <SelectField
+          key={row.id}
+          row={row}
+          value={value}
+          onChange={onChange}
+          onSave={() => handleSave(row)}
+          saving={isSaving}
+          saved={isSaved}
+          options={[
+            { value: "white", label: "Beyaz metin (koyu arka plan için)" },
+            { value: "dark", label: "Koyu metin (açık arka plan için)" },
+          ]}
+        />
+      );
+    }
+
+    return (
+      <div key={row.id} className="bg-card border border-border rounded-xl p-5">
+        <label className="block text-sm font-medium text-foreground mb-2">{row.label}</label>
+        {value.length > 80 ? (
+          <textarea
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-none"
+            rows={3}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        ) : (
+          <input
+            type="text"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )}
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-xs text-muted-foreground">
+            Son güncelleme: {new Date(row.updatedAt).toLocaleString("tr-TR")}
+          </p>
+          <button
+            onClick={() => handleSave(row)}
+            disabled={isSaving || editValues[row.id] === row.value}
+            className="px-4 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-50 bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            {isSaving ? "Kaydediliyor..." : isSaved ? "✓ Kaydedildi" : "Kaydet"}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -162,10 +358,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">{username}</span>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-muted-foreground hover:text-foreground transition"
-          >
+          <button onClick={handleLogout} className="text-sm text-muted-foreground hover:text-foreground transition">
             Çıkış
           </button>
         </div>
@@ -179,9 +372,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
               key={sec}
               onClick={() => setActiveSection(sec)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${
-                activeSection === sec
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-accent"
+                activeSection === sec ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
               }`}
             >
               {SECTION_LABELS[sec] ?? sec}
@@ -189,7 +380,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
           ))}
         </aside>
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-3xl">
             <h2 className="text-lg font-semibold text-foreground mb-1">
               {SECTION_LABELS[activeSection] ?? activeSection}
@@ -204,46 +395,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
               </div>
             ) : (
               <div className="space-y-4">
-                {filtered.map((row) => (
-                  <div key={row.id} className="bg-card border border-border rounded-xl p-5">
-                    <label className="block text-sm font-medium text-foreground mb-2">{row.label}</label>
-                    {row.value.length > 100 ? (
-                      <textarea
-                        className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-none"
-                        rows={4}
-                        value={editValues[row.id] ?? row.value}
-                        onChange={(e) =>
-                          setEditValues((prev) => ({ ...prev, [row.id]: e.target.value }))
-                        }
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                        value={editValues[row.id] ?? row.value}
-                        onChange={(e) =>
-                          setEditValues((prev) => ({ ...prev, [row.id]: e.target.value }))
-                        }
-                      />
-                    )}
-                    <div className="flex items-center justify-between mt-3">
-                      <p className="text-xs text-muted-foreground">
-                        Son güncelleme: {new Date(row.updatedAt).toLocaleString("tr-TR")}
-                      </p>
-                      <button
-                        onClick={() => handleSave(row)}
-                        disabled={saving === row.id || editValues[row.id] === row.value}
-                        className="px-4 py-1.5 rounded-lg text-sm font-medium transition disabled:opacity-50 bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        {saving === row.id
-                          ? "Kaydediliyor..."
-                          : saved === row.id
-                          ? "✓ Kaydedildi"
-                          : "Kaydet"}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                {filtered.map((row) => renderField(row))}
               </div>
             )}
           </div>
@@ -272,9 +424,6 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return <LoginPage onLogin={setUser} />;
-  }
-
+  if (!user) return <LoginPage onLogin={setUser} />;
   return <ContentEditor username={user} onLogout={() => setUser(null)} />;
 }

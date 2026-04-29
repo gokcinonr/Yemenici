@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
 import imgHomaAppliances7ZQgZg8Mwe0Unsplash1 from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
-import imgRandyFathDDc0VuVhLuUnsplash from "../../imports/HomePageNavOff1/b80dc09c5a52f3e3e52927149605238ed9e82d03.png";
 import imgRicardoGomezAngel41X6FwTwPh4Unsplash from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
 import imgSimonKadula8Gr6BObQloiUnsplash2 from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
 import { imgHomaAppliances7ZQgZg8Mwe0Unsplash, imgSimonKadula8Gr6BObQloiUnsplash1 } from "../../imports/HomePageNavOff1/svg-phvyl";
@@ -36,26 +35,24 @@ function IndustryCard({
   cardLeft,
   title,
   paragraph,
-  imageSrc,
+  imageUrl,
+  linkUrl,
+  hoverTextColor,
 }: {
   cardLeft: number;
   title: string;
   paragraph: string;
-  imageSrc?: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  hoverTextColor?: string;
 }) {
   const [hovered, setHovered] = useState(false);
-  const isDark = !!imageSrc;
+  const showImage = hovered && !!imageUrl;
+  const hoverColor = hoverTextColor === "dark" ? "#202429" : "#ffffff";
 
-  const titleColor = isDark
-    ? (hovered ? "#202429" : "#ffffff")
-    : (hovered ? "#ffffff" : "#969696");
-  const paraColor = isDark
-    ? (hovered ? "#202429" : "#ffffff")
-    : (hovered ? "#ffffff" : "#000000");
-  const arrowFill = isDark
-    ? (hovered ? "#202429" : "#ffffff")
-    : (hovered ? "#ffffff" : "#000000");
-  const bgColor = isDark ? undefined : (hovered ? "#202429" : "#ffffff");
+  const handleClick = () => {
+    if (linkUrl && linkUrl !== "#") window.open(linkUrl, "_blank");
+  };
 
   return (
     <div
@@ -65,28 +62,22 @@ function IndustryCard({
         top: 1150.05,
         width: 419.566,
         height: 306.354,
-        backgroundColor: bgColor,
-        transition: "background-color 0.3s ease",
+        backgroundColor: "#ffffff",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={handleClick}
     >
-      {imageSrc && (
-        <>
-          <img
-            alt=""
-            className="absolute inset-0 size-full object-cover pointer-events-none rounded-[15px]"
-            src={imageSrc}
-          />
-          <div
-            className="absolute inset-0 rounded-[15px]"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.78)",
-              opacity: hovered ? 1 : 0,
-              transition: "opacity 0.3s ease",
-            }}
-          />
-        </>
+      {imageUrl && (
+        <img
+          alt=""
+          className="absolute inset-0 size-full object-cover pointer-events-none rounded-[15px]"
+          src={imageUrl}
+          style={{
+            opacity: showImage ? 1 : 0,
+            transition: "opacity 0.35s ease",
+          }}
+        />
       )}
       <p
         className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] not-italic text-[40px]"
@@ -94,20 +85,21 @@ function IndustryCard({
           left: 38.2,
           top: 35,
           width: 369,
-          color: titleColor,
-          transition: "color 0.3s ease",
+          color: showImage ? hoverColor : "#969696",
+          transition: "color 0.35s ease",
         }}
       >
         {title}
       </p>
       <p
-        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px]"
+        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px] text-black"
         style={{
           left: 38.2,
           top: 105,
           width: 357,
-          color: paraColor,
-          transition: "color 0.3s ease",
+          opacity: showImage ? 0 : 1,
+          transition: "opacity 0.2s ease",
+          pointerEvents: "none",
         }}
       >
         {paragraph}
@@ -119,8 +111,8 @@ function IndustryCard({
         <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
           <path
             d={svgPaths.pef3cc00}
-            fill={arrowFill}
-            style={{ transition: "fill 0.3s ease" }}
+            fill={showImage ? hoverColor : "#000000"}
+            style={{ transition: "fill 0.35s ease" }}
           />
         </svg>
       </div>
@@ -367,9 +359,22 @@ function MegaMenuOverlay() {
   );
 }
 
+type ContentRow = { section: string; key: string; value: string };
+
+function useContent() {
+  const [content, setContent] = useState<ContentRow[]>([]);
+  useEffect(() => {
+    fetch("/api/content").then((r) => r.json()).then(setContent).catch(() => {});
+  }, []);
+  const get = (section: string, key: string) =>
+    content.find((c) => c.section === section && c.key === key)?.value ?? "";
+  return get;
+}
+
 export default function HomePage() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [vw, setVw] = useState(typeof window !== "undefined" ? window.innerWidth : DESIGN_WIDTH);
+  const getContent = useContent();
 
   useEffect(() => {
     const update = () => setVw(window.innerWidth);
@@ -408,17 +413,25 @@ export default function HomePage() {
           cardLeft={65}
           title="Mobility"
           paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
+          imageUrl={getContent("cards", "mobility_image") || undefined}
+          linkUrl={getContent("cards", "mobility_link") || undefined}
+          hoverTextColor={getContent("cards", "mobility_hover_text") || "white"}
         />
         <IndustryCard
           cardLeft={507}
           title="Industries"
           paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
+          imageUrl={getContent("cards", "industries_image") || undefined}
+          linkUrl={getContent("cards", "industries_link") || undefined}
+          hoverTextColor={getContent("cards", "industries_hover_text") || "white"}
         />
         <IndustryCard
           cardLeft={950}
           title="Agriculture"
           paragraph="We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."
-          imageSrc={imgRandyFathDDc0VuVhLuUnsplash}
+          imageUrl={getContent("cards", "agriculture_image") || undefined}
+          linkUrl={getContent("cards", "agriculture_link") || undefined}
+          hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
         />
         <div className="absolute bg-black h-[35px] left-[80px] rounded-[20px] top-[625.05px] w-[199px]" />
         <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[179.5px] not-italic text-[12px] text-center text-white top-[634.05px] whitespace-nowrap">LEARN MORE</p>
