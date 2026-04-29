@@ -98,7 +98,7 @@ function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; on
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="max-w-[1280px] mx-auto px-8 pt-[93px] pb-8 grid grid-cols-3 gap-6">
+      <div className="max-w-[1280px] mx-auto px-8 pt-[127px] pb-8 grid grid-cols-3 gap-6">
         {/* Sütun 1 */}
         <div
           className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
@@ -264,7 +264,7 @@ export default function HomePage() {
 
       {/* ─── Navbar ─────────────────────────────────────── */}
       <div
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[14px] px-4 md:px-8"
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[28px] px-4 md:px-8"
         onMouseLeave={scheduleClose}
       >
         <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
