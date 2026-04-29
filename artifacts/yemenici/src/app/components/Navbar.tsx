@@ -115,10 +115,10 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
       onMouseLeave={onMouseLeave}
     >
       <div className="px-4 md:px-8 pt-[127px] pb-8">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-2 gap-6">
+        <div className="max-w-[1280px] mx-auto flex gap-6">
 
-          {/* Col 1 — Automotive, Industrial, Agriculture */}
-          <div className="flex flex-col gap-3" style={colStyle(0.18)}>
+          {/* Col 1 (65%) — Automotive, Industrial, Agriculture in 2-sub-column grid */}
+          <div className="grid grid-cols-2 gap-3" style={{ width: "65%", ...colStyle(0.18) }}>
             {[
               { label: "Automotive", href: "/solutions/industries/automotive", desc: "Rubber and rubber-to-metal components engineered for OEM automotive platforms — vibration isolation, sealing, and structural damping." },
               { label: "Industrial", href: "/solutions/industries/industrial", desc: "Heavy-duty rubber parts designed for machinery, conveyors, and industrial equipment operating under high load and temperature extremes." },
@@ -126,7 +126,7 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
             ].map(({ label, href, desc }, i) => (
               <Link key={label} href={href}>
                 <div
-                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200"
+                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 h-full cursor-pointer transition-colors duration-200"
                   style={colStyle(0.18 + i * 0.06)}
                 >
                   <p style={titleStyle}>{label}</p>
@@ -136,8 +136,8 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
             ))}
           </div>
 
-          {/* Col 2 — Certification, Laboratory & Testing */}
-          <div className="flex flex-col gap-3" style={colStyle(0.30)}>
+          {/* Col 2 (35%) — Certification, Laboratory & Testing */}
+          <div className="flex flex-col gap-3" style={{ flex: 1, ...colStyle(0.30) }}>
             {[
               { label: "Certification", href: "/quality/certification", desc: "Our facilities and processes hold internationally recognized quality certifications, ensuring compliance with the most demanding industry standards." },
               { label: "Laboratory & Testing", href: "/quality/laboratory-testing", desc: "In-house laboratory capabilities covering material testing, dimensional inspection, and performance validation across all product lines." },
