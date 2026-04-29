@@ -89,22 +89,19 @@ function MegaMenu() {
 
   return (
     <div
-      className="absolute left-0 right-0 top-[79px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-[20px] shadow-lg overflow-hidden"
+      className="absolute left-0 right-0 top-[95px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-[20px] shadow-lg overflow-hidden"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(-10px)",
         transition: "opacity 0.25s ease, transform 0.25s ease",
       }}
     >
-      <div
-        className="px-8 py-8 grid grid-cols-3 gap-6"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateX(0)" : "translateX(-18px)",
-          transition: "opacity 0.3s ease 0.18s, transform 0.3s ease 0.18s",
-        }}
-      >
-        <div className="bg-[#202429]/5 rounded-[15px] overflow-hidden">
+      <div className="px-8 py-8 grid grid-cols-3 gap-6">
+        {/* Sütun 1 */}
+        <div
+          className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
+          style={{ opacity: visible ? 1 : 0, transition: "opacity 0.35s ease 0.12s" }}
+        >
           <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
           <div className="p-4">
             <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">INDUSTRIES</p>
@@ -113,7 +110,11 @@ function MegaMenu() {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-3">
+        {/* Sütun 2 */}
+        <div
+          className="flex flex-col gap-3"
+          style={{ opacity: visible ? 1 : 0, transition: "opacity 0.35s ease 0.24s" }}
+        >
           <div className="bg-[#202429]/[0.02] rounded-[15px] p-4 flex-1">
             <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Mobility</p>
             <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
@@ -127,7 +128,10 @@ function MegaMenu() {
             </p>
           </div>
         </div>
-        <div>
+        {/* Sütun 3 */}
+        <div
+          style={{ opacity: visible ? 1 : 0, transition: "opacity 0.35s ease 0.36s" }}
+        >
           <div className="bg-[#202429]/[0.02] rounded-[15px] p-4">
             <p className="font-['Poppins:SemiBold',sans-serif] text-[17px] text-black mb-2">Agriculture</p>
             <p className="text-[12px] text-[#000f29] leading-[18px] opacity-88">
