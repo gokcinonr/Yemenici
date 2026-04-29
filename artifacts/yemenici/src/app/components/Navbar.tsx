@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { Link, useLocation } from "wouter";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
-import imgMegaMenu from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
 
 function Logo() {
   return (
@@ -116,63 +115,43 @@ function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: {
       onMouseLeave={onMouseLeave}
     >
       <div className="px-4 md:px-8 pt-[127px] pb-8">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-3 gap-6">
+        <div className="max-w-[1280px] mx-auto grid grid-cols-2 gap-6">
 
-          {/* Col 1 — Solutions overview */}
-          <Link href="/solutions">
-            <div
-              className="bg-[#202429]/5 hover:bg-[#202429]/[0.08] rounded-[15px] overflow-hidden cursor-pointer transition-colors duration-200"
-              style={colStyle(0.18)}
-            >
-              <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
-              <div className="p-4">
-                <p style={titleStyle}>SOLUTIONS</p>
-                <p style={{ ...paraStyle, color: "#000" }}>
-                  We engineer custom rubber and rubber-to-metal components for the most demanding industrial applications worldwide.
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          {/* Col 2 — Production + Industries */}
-          <div className="flex flex-col gap-3" style={colStyle(0.28)}>
-            <Link href="/solutions/production">
-              <div className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
-                <p style={titleStyle}>Production</p>
-                <p style={{ ...paraStyle, color: "#000f29" }}>
-                  State-of-the-art manufacturing facilities with precision tooling and full process control from compound to finished part.
-                </p>
-              </div>
-            </Link>
-            <Link href="/solutions/industries">
-              <div className="bg-[#202429]/[0.01] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
-                <p style={titleStyle}>Industries</p>
-                <p style={{ ...paraStyle, color: "#000f29" }}>
-                  Serving automotive, industrial, and agricultural sectors with components built for performance and longevity.
-                </p>
-              </div>
-            </Link>
+          {/* Col 1 — Automotive, Industrial, Agriculture */}
+          <div className="flex flex-col gap-3" style={colStyle(0.18)}>
+            {[
+              { label: "Automotive", href: "/solutions/industries/automotive", desc: "Rubber and rubber-to-metal components engineered for OEM automotive platforms — vibration isolation, sealing, and structural damping." },
+              { label: "Industrial", href: "/solutions/industries/industrial", desc: "Heavy-duty rubber parts designed for machinery, conveyors, and industrial equipment operating under high load and temperature extremes." },
+              { label: "Agriculture", href: "/solutions/industries/agriculture", desc: "Rugged rubber components for agricultural vehicles and machinery, built to withstand harsh field conditions and extended service cycles." },
+            ].map(({ label, href, desc }, i) => (
+              <Link key={label} href={href}>
+                <div
+                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200"
+                  style={colStyle(0.18 + i * 0.06)}
+                >
+                  <p style={titleStyle}>{label}</p>
+                  <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
+                </div>
+              </Link>
+            ))}
           </div>
 
-          {/* Col 3 — Industry sub-pages */}
-          <div style={colStyle(0.38)}>
-            <div className="bg-[#202429]/[0.02] rounded-[15px] p-4">
-              <p style={{ ...titleStyle, fontSize: 13, opacity: 0.5, marginBottom: 12 }}>INDUSTRIES</p>
-              {[
-                { label: "Automotive", href: "/solutions/industries/automotive" },
-                { label: "Industrial", href: "/solutions/industries/industrial" },
-                { label: "Agriculture", href: "/solutions/industries/agriculture" },
-              ].map(({ label, href }) => (
-                <Link key={label} href={href}>
-                  <span
-                    className="block py-2 border-b border-black/[0.06] last:border-0 hover:opacity-60 transition-opacity cursor-pointer"
-                    style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: 15, color: "#000" }}
-                  >
-                    {label}
-                  </span>
-                </Link>
-              ))}
-            </div>
+          {/* Col 2 — Certification, Laboratory & Testing */}
+          <div className="flex flex-col gap-3" style={colStyle(0.30)}>
+            {[
+              { label: "Certification", href: "/quality/certification", desc: "Our facilities and processes hold internationally recognized quality certifications, ensuring compliance with the most demanding industry standards." },
+              { label: "Laboratory & Testing", href: "/quality/laboratory-testing", desc: "In-house laboratory capabilities covering material testing, dimensional inspection, and performance validation across all product lines." },
+            ].map(({ label, href, desc }, i) => (
+              <Link key={label} href={href}>
+                <div
+                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200"
+                  style={colStyle(0.30 + i * 0.06)}
+                >
+                  <p style={titleStyle}>{label}</p>
+                  <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
+                </div>
+              </Link>
+            ))}
           </div>
 
         </div>
