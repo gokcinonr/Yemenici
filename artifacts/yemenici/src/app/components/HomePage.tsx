@@ -298,8 +298,7 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const scale = Math.min(1, vw / DESIGN_WIDTH);
-  const marginLeft = vw > DESIGN_WIDTH ? (vw - DESIGN_WIDTH) / 2 : 0;
+  const scale = vw / DESIGN_WIDTH;
 
   return (
     <div
@@ -311,9 +310,8 @@ export default function HomePage() {
         style={{
           width: `${DESIGN_WIDTH}px`,
           height: `${DESIGN_HEIGHT}px`,
-          transform: scale < 1 ? `scale(${scale})` : undefined,
+          transform: `scale(${scale})`,
           transformOrigin: "top left",
-          marginLeft: `${marginLeft}px`,
         }}
       >
         <div className="absolute bg-[#f2f3f5] h-[2150.379px] left-0 top-[767.06px] w-[1440.004px]" />
