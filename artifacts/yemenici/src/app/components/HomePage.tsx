@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, type CSSProperties } from "react";
+import { useState, useEffect } from "react";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
 import imgHero from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
 import imgQuality from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
-import imgMegaMenu from "../../imports/HomePageNavOff1/2f9bdbc3609d8ce423367872caa5663ab4809774.png";
+import Layout from "./Layout";
 
 type ContentRow = { section: string; key: string; value: string };
 
@@ -16,156 +16,6 @@ function useContent() {
   }, []);
   return (section: string, key: string) =>
     content.find((c) => c.section === section && c.key === key)?.value ?? "";
-}
-
-function Logo() {
-  return (
-    <div className="flex-shrink-0">
-      <svg fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 73.1252 59.4171" width="62" height="50">
-        <g>
-          <path d={svgPaths.p37316a20} fill="#ED1C24" />
-          <path d={svgPaths.p31385980} fill="#ED1C24" />
-          <path d={svgPaths.p3ac7f580} fill="#ED1C24" />
-          <path d={svgPaths.p16f0f780} fill="#004FA3" />
-          <path d={svgPaths.p2103e00} fill="#ED1C24" />
-          <path d={svgPaths.p24ba1980} fill="#004FA3" />
-          <g>
-            <path d={svgPaths.p7462380} fill="#ED1C24" />
-            <path d={svgPaths.p8d24a80} fill="#ED1C24" />
-            <path d={svgPaths.p17b4a0f0} fill="#ED1C24" />
-            <path d={svgPaths.pe2feb80} fill="#ED1C24" />
-            <path d={svgPaths.p313b00} fill="#ED1C24" />
-            <path d={svgPaths.pef51d00} fill="#ED1C24" />
-            <path d={svgPaths.p25acb700} fill="#ED1C24" />
-            <path d={svgPaths.p6d8f2c0} fill="#ED1C24" />
-          </g>
-          <path d={svgPaths.p3615a6a0} fill="#004FA3" />
-          <path d={svgPaths.p1f194e00} fill="#004FA3" />
-          <path d={svgPaths.pa919000} fill="#004FA3" />
-          <path d={svgPaths.p1b5ac300} fill="#004FA3" />
-          <path d={svgPaths.paf57780} fill="#004FA3" />
-          <path d={svgPaths.p3c5ad00} fill="white" />
-          <path d={svgPaths.p1758cb00} fill="white" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function ChevronIcon({ color = "#898C90" }: { color?: string }) {
-  return (
-    <svg width="11" height="7" fill="none" viewBox="0 0 11 6.00098">
-      <path d={svgPaths.p24717480} stroke={color} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function LanguageSelector() {
-  const [active, setActive] = useState("EN");
-  return (
-    <div className="flex items-center gap-1">
-      {["TR", "DE", "EN"].map((code) => (
-        <button
-          key={code}
-          onClick={() => setActive(code)}
-          className={`rounded-[7px] px-2 py-0.5 text-[11px] font-['Poppins:Medium',sans-serif] font-medium text-white uppercase tracking-[0.275px] transition-colors ${
-            active === code ? "bg-[#151619]" : "bg-[#D1D5DB] hover:bg-[#B0B7C3]"
-          }`}
-        >
-          {code}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-const titleStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 17, color: "#000", marginBottom: 8 };
-const paraStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: 12, lineHeight: "18px", opacity: 0.88 };
-
-function MegaMenu({ isOpen, onMouseEnter, onMouseLeave }: { isOpen: boolean; onMouseEnter: () => void; onMouseLeave: () => void }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      const id = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(id);
-    } else {
-      setVisible(false);
-    }
-  }, [isOpen]);
-
-  return (
-    <div
-      className="fixed left-0 right-0 top-0 z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(-30px)",
-        transition: "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)",
-        pointerEvents: visible ? "auto" : "none",
-      }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <div className="px-4 md:px-8 pt-[127px] pb-8">
-      <div className="max-w-[1280px] mx-auto grid grid-cols-3 gap-6">
-        {/* Sütun 1 */}
-        <div
-          className="bg-[#202429]/5 hover:bg-[#202429]/[0.08] rounded-[15px] overflow-hidden cursor-pointer transition-colors duration-200"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.18s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.18s",
-          }}
-        >
-          <img src={imgMegaMenu} alt="" className="w-full h-[105px] object-cover" />
-          <div className="p-4">
-            <p style={titleStyle}>INDUSTRIES</p>
-            <p style={{ ...paraStyle, color: "#000" }}>
-              We support the mobility industry with custom-engineered rubber and rubber-to-metal components developed to meet the complex demands of OEM and Tier-1 customers.
-            </p>
-          </div>
-        </div>
-        {/* Sütun 2 */}
-        <div
-          className="flex flex-col gap-3"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.28s",
-          }}
-        >
-          <div className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
-            <p style={titleStyle}>Mobility</p>
-            <p style={{ ...paraStyle, color: "#000f29" }}>
-              We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.
-            </p>
-          </div>
-          <div className="bg-[#202429]/[0.01] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 flex-1 cursor-pointer transition-colors duration-200">
-            <p style={titleStyle}>Industrial</p>
-            <p style={{ ...paraStyle, color: "#000f29" }}>
-              We support a wide range of industrial applications with components engineered for durability, sealing performance, and mechanical integrity.
-            </p>
-          </div>
-        </div>
-        {/* Sütun 3 */}
-        <div
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s, transform 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s",
-          }}
-        >
-          <div className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200">
-            <p style={titleStyle}>Agriculture</p>
-            <p style={{ ...paraStyle, color: "#000f29" }}>
-              We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions.
-            </p>
-          </div>
-        </div>
-      </div>
-      </div>
-    </div>
-  );
 }
 
 function IndustryCard({
@@ -233,183 +83,11 @@ function IndustryCard({
   );
 }
 
-function LinkedinIcon() {
-  return (
-    <a href="#" className="text-black hover:opacity-70 transition-opacity">
-      <svg width="21" height="20" fill="none" viewBox="0 0 20.9219 20">
-        <g clipPath="url(#li)">
-          <path d={svgPaths.pbd79500} fill="currentColor" />
-        </g>
-        <defs>
-          <clipPath id="li">
-            <rect width="20.9219" height="20" fill="white" />
-          </clipPath>
-        </defs>
-      </svg>
-    </a>
-  );
-}
-
-function HamburgerButton({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-10 h-10 flex flex-col items-center justify-center cursor-pointer gap-[5px]"
-      aria-label={isOpen ? "Close menu" : "Open menu"}
-    >
-      <span
-        className="block h-px bg-black origin-center transition-all duration-300"
-        style={{ width: 22, transform: isOpen ? "translateY(6px) rotate(45deg)" : "none" }}
-      />
-      <span
-        className="block h-px bg-black transition-all duration-300"
-        style={{ width: 22, opacity: isOpen ? 0 : 1 }}
-      />
-      <span
-        className="block h-px bg-black origin-center transition-all duration-300"
-        style={{ width: 22, transform: isOpen ? "translateY(-6px) rotate(-45deg)" : "none" }}
-      />
-    </button>
-  );
-}
-
-function MobileMenu({ isOpen }: { isOpen: boolean }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      const id = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(id);
-    } else {
-      setVisible(false);
-    }
-  }, [isOpen]);
-
-  const navStyle: CSSProperties = { fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 22, letterSpacing: "0.4px" };
-
-  return (
-    <div
-      className="fixed left-0 right-0 top-0 bottom-0 z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px]"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(-16px)",
-        transition: "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)",
-        pointerEvents: visible ? "auto" : "none",
-      }}
-    >
-      <div className="px-6 pt-[127px] flex flex-col">
-        {(["SOLUTIONS", "QUALITY", "COMPANY", "CONTACT"] as const).map((label, i) => (
-          <button
-            key={label}
-            className="flex items-center justify-between w-full px-2 py-4 rounded-[14px] text-black hover:bg-black/[0.04] transition-colors duration-200 border-b border-black/[0.06] last:border-0"
-            style={{
-              ...navStyle,
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(10px)",
-              transition: `opacity 0.45s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.06}s, transform 0.45s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.06}s, background-color 0.2s`,
-            }}
-          >
-            {label}
-            <ChevronIcon color="#B0B7C3" />
-          </button>
-        ))}
-        <div
-          className="mt-8 px-2"
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1) 0.36s",
-          }}
-        >
-          <LanguageSelector />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const getContent = useContent();
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const openMenu = () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    setIsMegaMenuOpen(true);
-  };
-
-  const scheduleClose = () => {
-    closeTimerRef.current = setTimeout(() => setIsMegaMenuOpen(false), 80);
-  };
-
-  const closeMenu = () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    setIsMegaMenuOpen(false);
-  };
 
   return (
-    <div className="min-h-screen bg-[#fafbfb]">
-
-      {/* ─── Navbar ─────────────────────────────────────── */}
-      <div
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[28px] px-4 md:px-8"
-        onMouseLeave={scheduleClose}
-      >
-        <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
-          <Logo />
-
-          {/* Desktop nav — hidden on mobile */}
-          <nav className="hidden md:flex items-center gap-1">
-            <button
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer transition-colors duration-200"
-              style={{
-                fontFamily: "Poppins, sans-serif",
-                fontWeight: 600,
-                background: isMegaMenuOpen ? "rgba(249,249,249,0.97)" : "transparent",
-              }}
-              onMouseEnter={openMenu}
-              onClick={() => setIsMegaMenuOpen((v) => !v)}
-            >
-              SOLUTIONS <ChevronIcon color={isMegaMenuOpen ? "#000" : "#898C90"} />
-            </button>
-            <button
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
-              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
-            >
-              QUALITY <ChevronIcon />
-            </button>
-            <button
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
-              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
-            >
-              COMPANY <ChevronIcon />
-            </button>
-            <button
-              className="px-3 py-2 rounded-[12px] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:bg-black/[0.04] transition-colors duration-200"
-              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
-            >
-              CONTACT
-            </button>
-          </nav>
-
-          {/* Desktop language selector — hidden on mobile */}
-          <div className="hidden md:flex">
-            <LanguageSelector />
-          </div>
-
-          {/* Mobile hamburger — hidden on desktop */}
-          <div className="md:hidden">
-            <HamburgerButton isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen((v) => !v)} />
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Mega Menu — desktop only (full-width, z-40) ── */}
-      <MegaMenu isOpen={isMegaMenuOpen} onMouseEnter={openMenu} onMouseLeave={closeMenu} />
-
-      {/* ─── Mobile Menu — full screen, below header ── */}
-      <MobileMenu isOpen={isMobileMenuOpen} />
-
+    <Layout>
       {/* ─── Hero ──────────────────────────────────────── */}
       <section className="relative w-full h-[780px] overflow-hidden">
         <img
@@ -421,13 +99,16 @@ export default function HomePage() {
 
         <div className="relative h-full max-w-[1280px] mx-auto px-8 flex flex-col justify-center">
           <div
-            className="font-['Poppins:Bold',sans-serif] text-[78px] text-white leading-[82px] max-w-[1000px] mt-24"
-            style={{ textShadow: "0px 3px 6px rgba(0,0,0,0.16)" }}
+            className="text-[78px] text-white leading-[82px] max-w-[1000px] mt-24"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, textShadow: "0px 3px 6px rgba(0,0,0,0.16)" }}
           >
             <p className="leading-[82px] mb-0">Leading Software for </p>
             <p className="leading-[82px]">AR Remote Assistance &amp; Digital Work Instructions </p>
           </div>
-          <button className="mt-12 bg-black text-white font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2 w-fit">
+          <button
+            className="mt-12 bg-black text-white text-[12px] tracking-wide rounded-full px-8 py-2 w-fit"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}
+          >
             LEARN MORE
           </button>
         </div>
@@ -444,7 +125,10 @@ export default function HomePage() {
           </p>
 
           <div className="mt-8">
-            <button className="bg-white text-black text-[12px] tracking-wide rounded-full px-8 py-2" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}>
+            <button
+              className="bg-white text-black text-[12px] tracking-wide rounded-full px-8 py-2"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}
+            >
               DISCOVER INDUSTRIES
             </button>
           </div>
@@ -485,10 +169,16 @@ export default function HomePage() {
               className="w-full h-[580px] object-cover rounded-t-[25px]"
             />
             <div className="bg-[#202429] rounded-b-[25px] px-16 py-16">
-              <p className="font-['Poppins:ExtraLight',sans-serif] text-[30px] text-white leading-[42px] max-w-[806px]">
+              <p
+                className="text-[30px] text-white leading-[42px] max-w-[806px]"
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200 }}
+              >
                 We see quality as a system of relationships, not just between parts and processes, but between people, teams, and shared goals.
               </p>
-              <button className="mt-10 bg-white text-black font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
+              <button
+                className="mt-10 bg-white text-black text-[12px] tracking-wide rounded-full px-8 py-2"
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}
+              >
                 QUALITY AS A CULTURE
               </button>
             </div>
@@ -500,59 +190,27 @@ export default function HomePage() {
       <section className="bg-[#f2f3f5] pb-20">
         <div className="max-w-[1280px] mx-auto px-8">
           <div className="border-t border-[#9AA4B7] pt-16">
-            <p className="font-['Poppins:Medium',sans-serif] text-[40px] text-black leading-normal max-w-[593px]">
+            <p
+              className="text-[40px] text-black leading-normal max-w-[593px]"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+            >
               Learn more about Yemenici
             </p>
-            <p className="font-['Poppins:Regular',sans-serif] text-[16px] text-black leading-[26px] max-w-[703px] mt-6">
+            <p
+              className="text-[16px] text-black leading-[26px] max-w-[703px] mt-6"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}
+            >
               Learn how Yemenici can streamline your field service, maintenance, onboarding, and training operations. Boost efficiency, reduce downtime, and empower your workforce with innovative tools designed for digital transformation.
             </p>
-            <button className="mt-10 bg-black text-white font-['Poppins:Light',sans-serif] text-[12px] tracking-wide rounded-full px-8 py-2">
+            <button
+              className="mt-10 bg-black text-white text-[12px] tracking-wide rounded-full px-8 py-2"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}
+            >
               CONTACT US
             </button>
           </div>
         </div>
       </section>
-
-      {/* ─── Footer Links ───────────────────────────────── */}
-      <footer className="bg-white">
-        <div className="max-w-[1280px] mx-auto px-8 pt-16 pb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Solutions</p>
-              {["Industries", "Mobility", "Agriculture", "Industry"].map((l) => (
-                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
-              ))}
-            </div>
-            <div>
-              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Quality</p>
-              {["Certification", "Laboratory Testing"].map((l) => (
-                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
-              ))}
-            </div>
-            <div>
-              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Company</p>
-              {["About Us", "Our Values", "Mining", "Healthcare", "Construction"].map((l) => (
-                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
-              ))}
-            </div>
-            <div>
-              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4">Contact</p>
-              {["Contact Us", "Career"].map((l) => (
-                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
-              ))}
-              <p className="font-['Poppins:SemiBold',sans-serif] text-[15px] text-black mb-4 mt-6">Policies</p>
-              {["Privacy Policy", "Terms of Use", "Security & GDPR", "Imprint"].map((l) => (
-                <p key={l} className="font-['Poppins:Regular',sans-serif] text-[14px] text-black leading-[32px] cursor-pointer hover:opacity-60 transition-opacity">{l}</p>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-[#9AA4B7] pt-6 flex items-center justify-between">
-            <p className="font-['Poppins:Regular',sans-serif] text-[14px] text-black">Copyright © 2025 Yemenici</p>
-            <LinkedinIcon />
-          </div>
-        </div>
-      </footer>
-    </div>
+    </Layout>
   );
 }
