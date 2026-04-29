@@ -47,12 +47,19 @@ function IndustryCard({
   hoverTextColor?: string;
 }) {
   const [hovered, setHovered] = useState(false);
-  const showImage = hovered && !!imageUrl;
+  const hasImage = !!imageUrl;
+  const showImage = hovered && hasImage;
   const hoverColor = hoverTextColor === "dark" ? "#202429" : "#ffffff";
 
   const handleClick = () => {
     if (linkUrl && linkUrl !== "#") window.open(linkUrl, "_blank");
   };
+
+  const bgColor = hovered && !hasImage ? "#202429" : "#ffffff";
+  const titleColor = showImage ? hoverColor : hovered && !hasImage ? "#ffffff" : "#969696";
+  const arrowColor = showImage ? hoverColor : hovered && !hasImage ? "#ffffff" : "#000000";
+  const paraOpacity = showImage ? 0 : hovered && !hasImage ? 0 : 1;
+  const paraColor = hovered && !hasImage ? "#ffffff" : "#000000";
 
   return (
     <div
@@ -62,7 +69,8 @@ function IndustryCard({
         top: 1150.05,
         width: 419.566,
         height: 306.354,
-        backgroundColor: "#ffffff",
+        backgroundColor: bgColor,
+        transition: "background-color 0.35s ease",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -85,20 +93,21 @@ function IndustryCard({
           left: 38.2,
           top: 35,
           width: 369,
-          color: showImage ? hoverColor : "#969696",
+          color: titleColor,
           transition: "color 0.35s ease",
         }}
       >
         {title}
       </p>
       <p
-        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px] text-black"
+        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px]"
         style={{
           left: 38.2,
           top: 105,
           width: 357,
-          opacity: showImage ? 0 : 1,
-          transition: "opacity 0.2s ease",
+          color: paraColor,
+          opacity: paraOpacity,
+          transition: "opacity 0.2s ease, color 0.35s ease",
           pointerEvents: "none",
         }}
       >
@@ -111,7 +120,7 @@ function IndustryCard({
         <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
           <path
             d={svgPaths.pef3cc00}
-            fill={showImage ? hoverColor : "#000000"}
+            fill={arrowColor}
             style={{ transition: "fill 0.35s ease" }}
           />
         </svg>
