@@ -32,18 +32,98 @@ function Hero() {
   );
 }
 
-function Group3() {
+function IndustryCard({
+  cardLeft,
+  title,
+  paragraph,
+  imageSrc,
+}: {
+  cardLeft: number;
+  title: string;
+  paragraph: string;
+  imageSrc?: string;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const isDark = !!imageSrc;
+
+  const titleColor = isDark
+    ? (hovered ? "#202429" : "#ffffff")
+    : (hovered ? "#ffffff" : "#969696");
+  const paraColor = isDark
+    ? (hovered ? "#202429" : "#ffffff")
+    : (hovered ? "#ffffff" : "#000000");
+  const arrowFill = isDark
+    ? (hovered ? "#202429" : "#ffffff")
+    : (hovered ? "#ffffff" : "#000000");
+  const bgColor = isDark ? undefined : (hovered ? "#202429" : "#ffffff");
+
   return (
-    <div className="absolute contents left-[950px] top-[1150.05px]">
-      <div className="absolute h-[306.354px] left-[950px] rounded-[15px] top-[1150.05px] w-[419.566px]" data-name="randy-fath-dDc0vuVH_LU-unsplash">
-        <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[15px] size-full" src={imgRandyFathDDc0VuVhLuUnsplash} />
-      </div>
-      <div className="absolute h-[20.964px] left-[988.2px] top-[1395.07px] w-[30.562px]" data-name="east_FILL1_wght500_GRAD0_opsz48">
+    <div
+      className="absolute rounded-[15px] overflow-hidden cursor-pointer"
+      style={{
+        left: cardLeft,
+        top: 1150.05,
+        width: 419.566,
+        height: 306.354,
+        backgroundColor: bgColor,
+        transition: "background-color 0.3s ease",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {imageSrc && (
+        <>
+          <img
+            alt=""
+            className="absolute inset-0 size-full object-cover pointer-events-none rounded-[15px]"
+            src={imageSrc}
+          />
+          <div
+            className="absolute inset-0 rounded-[15px]"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.78)",
+              opacity: hovered ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          />
+        </>
+      )}
+      <p
+        className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] not-italic text-[40px]"
+        style={{
+          left: 38.2,
+          top: 35,
+          width: 369,
+          color: titleColor,
+          transition: "color 0.3s ease",
+        }}
+      >
+        {title}
+      </p>
+      <p
+        className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] not-italic text-[16px]"
+        style={{
+          left: 38.2,
+          top: 105,
+          width: 357,
+          color: paraColor,
+          transition: "color 0.3s ease",
+        }}
+      >
+        {paragraph}
+      </p>
+      <div
+        className="absolute"
+        style={{ left: 38.2, top: 245, width: 30.562, height: 20.964 }}
+      >
         <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
-          <path d={svgPaths.pef3cc00} fill="var(--fill-0, white)" id="east_FILL1_wght500_GRAD0_opsz48" />
+          <path
+            d={svgPaths.pef3cc00}
+            fill={arrowFill}
+            style={{ transition: "fill 0.3s ease" }}
+          />
         </svg>
       </div>
-      <p className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] left-[993.2px] not-italic text-[40px] text-white top-[1185.07px] w-[369.518px]">Agriculture</p>
     </div>
   );
 }
@@ -324,23 +404,22 @@ export default function HomePage() {
           <p className="leading-[82px] mb-0">{`Leading Software for `}</p>
           <p className="leading-[82px]">{`AR Remote Assistance & Digital Work Instructions `}</p>
         </div>
-        <div className="absolute bg-white h-[306.354px] left-[65px] rounded-[15px] top-[1150.05px] w-[419.566px]" />
-        <div className="absolute h-[20.964px] left-[103.2px] top-[1395.07px] w-[30.562px]">
-          <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
-            <path d={svgPaths.pef3cc00} fill="var(--fill-0, black)" />
-          </svg>
-        </div>
-        <p className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] left-[103.2px] not-italic text-[16px] text-black top-[1255.07px] w-[356.863px]">We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.</p>
-        <p className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] left-[103.2px] not-italic text-[#969696] text-[40px] top-[1185.07px] w-[369.518px]">Mobility</p>
-        <div className="absolute bg-white h-[306.354px] left-[507px] rounded-[15px] top-[1150.05px] w-[419.566px]" />
-        <div className="absolute h-[20.964px] left-[545.2px] top-[1395.07px] w-[30.562px]">
-          <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 30.5624 20.9637">
-            <path d={svgPaths.pef3cc00} fill="var(--fill-0, black)" />
-          </svg>
-        </div>
-        <p className="absolute font-['Poppins:Regular',sans-serif] leading-[26px] left-[545.2px] not-italic text-[16px] text-black top-[1255.07px] w-[356.863px]">We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications.</p>
-        <p className="absolute font-['Poppins:ExtraLight',sans-serif] leading-[normal] left-[545.2px] not-italic text-[#969696] text-[40px] top-[1185.07px] w-[369.518px]">Industries</p>
-        <Group3 />
+        <IndustryCard
+          cardLeft={65}
+          title="Mobility"
+          paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
+        />
+        <IndustryCard
+          cardLeft={507}
+          title="Industries"
+          paragraph="We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."
+        />
+        <IndustryCard
+          cardLeft={950}
+          title="Agriculture"
+          paragraph="We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."
+          imageSrc={imgRandyFathDDc0VuVhLuUnsplash}
+        />
         <div className="absolute bg-black h-[35px] left-[80px] rounded-[20px] top-[625.05px] w-[199px]" />
         <p className="-translate-x-1/2 absolute font-['Poppins:Light',sans-serif] leading-[18px] left-[179.5px] not-italic text-[12px] text-center text-white top-[634.05px] whitespace-nowrap">LEARN MORE</p>
         <div className="absolute h-[733.568px] left-[67.72px] rounded-[25px] top-[1599.02px] w-[1304.566px]">
