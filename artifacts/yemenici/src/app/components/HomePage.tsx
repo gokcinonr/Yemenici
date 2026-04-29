@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
 import imgHero from "../../imports/HomePageNavOff1/153966913a29b3daaa643feeaa3babb72214688a.png";
 import imgQuality from "../../imports/HomePageNavOff1/10c8093b458c8e44f1487f7e76048706f449e5cf.png";
@@ -79,7 +79,7 @@ function LanguageSelector() {
   );
 }
 
-function MegaMenu() {
+function MegaMenu({ onMouseEnter, onMouseLeave }: { onMouseEnter: () => void; onMouseLeave: () => void }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -89,14 +89,16 @@ function MegaMenu() {
 
   return (
     <div
-      className="absolute left-0 right-0 top-[95px] z-40 bg-[rgba(249,249,249,0.95)] backdrop-blur-[30px] rounded-[20px] shadow-lg overflow-hidden"
+      className="fixed left-0 right-0 top-[93px] z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(-14px)",
+        transform: visible ? "translateY(0)" : "translateY(-20px)",
         transition: "opacity 0.45s cubic-bezier(0.16,1,0.3,1), transform 0.45s cubic-bezier(0.16,1,0.3,1)",
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      <div className="px-8 py-8 grid grid-cols-3 gap-6">
+      <div className="max-w-[1280px] mx-auto px-8 py-8 grid grid-cols-3 gap-6">
         {/* Sütun 1 */}
         <div
           className="bg-[#202429]/5 rounded-[15px] overflow-hidden"
@@ -241,6 +243,21 @@ function LinkedinIcon() {
 export default function HomePage() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const getContent = useContent();
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openMenu = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setIsMegaMenuOpen(true);
+  };
+
+  const scheduleClose = () => {
+    closeTimerRef.current = setTimeout(() => setIsMegaMenuOpen(false), 80);
+  };
+
+  const closeMenu = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setIsMegaMenuOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#fafbfb]">
@@ -248,7 +265,7 @@ export default function HomePage() {
       {/* ─── Navbar ─────────────────────────────────────── */}
       <div
         className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[14px] px-4 md:px-8"
-        onMouseLeave={() => setIsMegaMenuOpen(false)}
+        onMouseLeave={scheduleClose}
       >
         <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
           <Logo />
@@ -256,7 +273,7 @@ export default function HomePage() {
           <nav className="flex items-center gap-6 md:gap-8">
             <button
               className="flex items-center gap-1.5 font-['Poppins:SemiBold',sans-serif] text-[14px] text-black tracking-[0.35px] uppercase cursor-pointer hover:opacity-70 transition-opacity"
-              onMouseEnter={() => setIsMegaMenuOpen(true)}
+              onMouseEnter={openMenu}
               onClick={() => setIsMegaMenuOpen((v) => !v)}
             >
               SOLUTIONS <ChevronIcon color={isMegaMenuOpen ? "#000" : "#898C90"} />
@@ -273,10 +290,11 @@ export default function HomePage() {
           </nav>
 
           <LanguageSelector />
-
-          {isMegaMenuOpen && <MegaMenu />}
         </div>
       </div>
+
+      {/* ─── Mega Menu (full-width, z-40 — header stays on top at z-50) ── */}
+      {isMegaMenuOpen && <MegaMenu onMouseEnter={openMenu} onMouseLeave={closeMenu} />}
 
       {/* ─── Hero ──────────────────────────────────────── */}
       <section className="relative w-full h-[780px] overflow-hidden">
