@@ -75712,15 +75712,11 @@ var app_default = app;
 
 // src/index.ts
 var rawPort = process.env["PORT"];
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided."
-  );
-}
-var port = Number(rawPort);
+var port = rawPort ? Number(rawPort) : 3e3;
 if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
+  logger.error({ rawPort }, "Invalid PORT value \u2014 defaulting to 3000");
 }
+var listenPort = Number.isNaN(port) || port <= 0 ? 3e3 : port;
 async function seedAdminUser() {
   try {
     const existing = await db.select().from(adminUsersTable).limit(1);
@@ -75734,16 +75730,16 @@ async function seedAdminUser() {
       logger.info("Default admin user created");
     }
   } catch (err) {
-    logger.error({ err }, "Failed to seed admin user");
+    logger.error({ err }, "Failed to seed admin user \u2014 continuing startup");
   }
 }
 seedAdminUser().then(() => {
-  app_default.listen(port, (err) => {
+  app_default.listen(listenPort, "0.0.0.0", (err) => {
     if (err) {
       logger.error({ err }, "Error listening on port");
       process.exit(1);
     }
-    logger.info({ port }, "Server listening");
+    logger.info({ port: listenPort }, "Server listening");
   });
 });
 /*! Bundled license information:

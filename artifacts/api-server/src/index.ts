@@ -3,19 +3,16 @@ import { logger } from "./lib/logger";
 import bcrypt from "bcryptjs";
 import { db, adminUsersTable } from "@workspace/db";
 
+// Hostinger may provide PORT, or use a standard default.
+// Fall back to 3000 so the server always starts.
 const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
-const port = Number(rawPort);
+const port = rawPort ? Number(rawPort) : 3000;
 
 if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
+  logger.error({ rawPort }, "Invalid PORT value — defaulting to 3000");
 }
+
+const listenPort = Number.isNaN(port) || port <= 0 ? 3000 : port;
 
 async function seedAdminUser() {
   try {
@@ -30,17 +27,16 @@ async function seedAdminUser() {
       logger.info("Default admin user created");
     }
   } catch (err) {
-    logger.error({ err }, "Failed to seed admin user");
+    logger.error({ err }, "Failed to seed admin user — continuing startup");
   }
 }
 
 seedAdminUser().then(() => {
-  app.listen(port, (err) => {
+  app.listen(listenPort, "0.0.0.0", (err?: Error) => {
     if (err) {
       logger.error({ err }, "Error listening on port");
       process.exit(1);
     }
-
-    logger.info({ port }, "Server listening");
+    logger.info({ port: listenPort }, "Server listening");
   });
 });
