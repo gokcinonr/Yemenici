@@ -18676,7 +18676,7 @@ var require_view = __commonJS({
     "use strict";
     var debug = require_src()("express:view");
     var path3 = __require("node:path");
-    var fs2 = __require("node:fs");
+    var fs = __require("node:fs");
     var dirname = path3.dirname;
     var basename = path3.basename;
     var extname = path3.extname;
@@ -18756,7 +18756,7 @@ var require_view = __commonJS({
     function tryStat(path4) {
       debug('stat "%s"', path4);
       try {
-        return fs2.statSync(path4);
+        return fs.statSync(path4);
       } catch (e) {
         return void 0;
       }
@@ -22396,7 +22396,7 @@ var require_send = __commonJS({
     var escapeHtml = require_escape_html();
     var etag = require_etag();
     var fresh = require_fresh();
-    var fs2 = __require("fs");
+    var fs = __require("fs");
     var mime = require_mime_types();
     var ms = require_ms();
     var onFinished = require_on_finished();
@@ -22678,7 +22678,7 @@ var require_send = __commonJS({
       var i = 0;
       var self2 = this;
       debug('stat "%s"', path4);
-      fs2.stat(path4, function onstat(err, stat) {
+      fs.stat(path4, function onstat(err, stat) {
         var pathEndsWithSep = path4[path4.length - 1] === sep;
         if (err && err.code === "ENOENT" && !extname(path4) && !pathEndsWithSep) {
           return next(err);
@@ -22695,7 +22695,7 @@ var require_send = __commonJS({
         }
         var p = path4 + "." + self2._extensions[i++];
         debug('stat "%s"', p);
-        fs2.stat(p, function(err2, stat) {
+        fs.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p, stat);
@@ -22713,7 +22713,7 @@ var require_send = __commonJS({
         }
         var p = join(path4, self2._index[i]);
         debug('stat "%s"', p);
-        fs2.stat(p, function(err2, stat) {
+        fs.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self2.emit("file", p, stat);
@@ -22725,7 +22725,7 @@ var require_send = __commonJS({
     SendStream.prototype.stream = function stream(path4, options) {
       var self2 = this;
       var res = this.res;
-      var stream2 = fs2.createReadStream(path4, options);
+      var stream2 = fs.createReadStream(path4, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -25017,7 +25017,7 @@ var require_atomic_sleep = __commonJS({
 var require_sonic_boom = __commonJS({
   "../../node_modules/.pnpm/sonic-boom@4.2.1/node_modules/sonic-boom/index.js"(exports, module) {
     "use strict";
-    var fs2 = __require("fs");
+    var fs = __require("fs");
     var EventEmitter = __require("events");
     var inherits = __require("util").inherits;
     var path3 = __require("path");
@@ -25074,20 +25074,20 @@ var require_sonic_boom = __commonJS({
       const mode = sonic.mode;
       if (sonic.sync) {
         try {
-          if (sonic.mkdir) fs2.mkdirSync(path3.dirname(file2), { recursive: true });
-          const fd = fs2.openSync(file2, flags, mode);
+          if (sonic.mkdir) fs.mkdirSync(path3.dirname(file2), { recursive: true });
+          const fd = fs.openSync(file2, flags, mode);
           fileOpened(null, fd);
         } catch (err) {
           fileOpened(err);
           throw err;
         }
       } else if (sonic.mkdir) {
-        fs2.mkdir(path3.dirname(file2), { recursive: true }, (err) => {
+        fs.mkdir(path3.dirname(file2), { recursive: true }, (err) => {
           if (err) return fileOpened(err);
-          fs2.open(file2, flags, mode, fileOpened);
+          fs.open(file2, flags, mode, fileOpened);
         });
       } else {
-        fs2.open(file2, flags, mode, fileOpened);
+        fs.open(file2, flags, mode, fileOpened);
       }
     }
     function SonicBoom(opts) {
@@ -25128,8 +25128,8 @@ var require_sonic_boom = __commonJS({
         this.flush = flushBuffer;
         this.flushSync = flushBufferSync;
         this._actualWrite = actualWriteBuffer;
-        fsWriteSync = () => fs2.writeSync(this.fd, this._writingBuf);
-        fsWrite = () => fs2.write(this.fd, this._writingBuf, this.release);
+        fsWriteSync = () => fs.writeSync(this.fd, this._writingBuf);
+        fsWrite = () => fs.write(this.fd, this._writingBuf, this.release);
       } else if (contentMode === void 0 || contentMode === kContentModeUtf8) {
         this._writingBuf = "";
         this.write = write;
@@ -25138,15 +25138,15 @@ var require_sonic_boom = __commonJS({
         this._actualWrite = actualWrite;
         fsWriteSync = () => {
           if (Buffer.isBuffer(this._writingBuf)) {
-            return fs2.writeSync(this.fd, this._writingBuf);
+            return fs.writeSync(this.fd, this._writingBuf);
           }
-          return fs2.writeSync(this.fd, this._writingBuf, "utf8");
+          return fs.writeSync(this.fd, this._writingBuf, "utf8");
         };
         fsWrite = () => {
           if (Buffer.isBuffer(this._writingBuf)) {
-            return fs2.write(this.fd, this._writingBuf, this.release);
+            return fs.write(this.fd, this._writingBuf, this.release);
           }
-          return fs2.write(this.fd, this._writingBuf, "utf8", this.release);
+          return fs.write(this.fd, this._writingBuf, "utf8", this.release);
         };
       } else {
         throw new Error(`SonicBoom supports "${kContentModeUtf8}" and "${kContentModeBuffer}", but passed ${contentMode}`);
@@ -25203,7 +25203,7 @@ var require_sonic_boom = __commonJS({
           }
         }
         if (this._fsync) {
-          fs2.fsyncSync(this.fd);
+          fs.fsyncSync(this.fd);
         }
         const len = this._len;
         if (this._reopening) {
@@ -25317,7 +25317,7 @@ var require_sonic_boom = __commonJS({
       const onDrain = () => {
         if (!this._fsync) {
           try {
-            fs2.fsync(this.fd, (err) => {
+            fs.fsync(this.fd, (err) => {
               this._flushPending = false;
               cb(err);
             });
@@ -25419,7 +25419,7 @@ var require_sonic_boom = __commonJS({
       const fd = this.fd;
       this.once("ready", () => {
         if (fd !== this.fd) {
-          fs2.close(fd, (err) => {
+          fs.close(fd, (err) => {
             if (err) {
               return this.emit("error", err);
             }
@@ -25468,7 +25468,7 @@ var require_sonic_boom = __commonJS({
           buf = this._bufs[0];
         }
         try {
-          const n = Buffer.isBuffer(buf) ? fs2.writeSync(this.fd, buf) : fs2.writeSync(this.fd, buf, "utf8");
+          const n = Buffer.isBuffer(buf) ? fs.writeSync(this.fd, buf) : fs.writeSync(this.fd, buf, "utf8");
           const releasedBufObj = releaseWritingBuf(buf, this._len, n);
           buf = releasedBufObj.writingBuf;
           this._len = releasedBufObj.len;
@@ -25484,7 +25484,7 @@ var require_sonic_boom = __commonJS({
         }
       }
       try {
-        fs2.fsyncSync(this.fd);
+        fs.fsyncSync(this.fd);
       } catch {
       }
     }
@@ -25505,7 +25505,7 @@ var require_sonic_boom = __commonJS({
           buf = mergeBuf(this._bufs[0], this._lens[0]);
         }
         try {
-          const n = fs2.writeSync(this.fd, buf);
+          const n = fs.writeSync(this.fd, buf);
           buf = buf.subarray(n);
           this._len = Math.max(this._len - n, 0);
           if (buf.length <= 0) {
@@ -25533,13 +25533,13 @@ var require_sonic_boom = __commonJS({
       this._writingBuf = this._writingBuf.length ? this._writingBuf : this._bufs.shift() || "";
       if (this.sync) {
         try {
-          const written = Buffer.isBuffer(this._writingBuf) ? fs2.writeSync(this.fd, this._writingBuf) : fs2.writeSync(this.fd, this._writingBuf, "utf8");
+          const written = Buffer.isBuffer(this._writingBuf) ? fs.writeSync(this.fd, this._writingBuf) : fs.writeSync(this.fd, this._writingBuf, "utf8");
           release(null, written);
         } catch (err) {
           release(err);
         }
       } else {
-        fs2.write(this.fd, this._writingBuf, release);
+        fs.write(this.fd, this._writingBuf, release);
       }
     }
     function actualWriteBuffer() {
@@ -25548,7 +25548,7 @@ var require_sonic_boom = __commonJS({
       this._writingBuf = this._writingBuf.length ? this._writingBuf : mergeBuf(this._bufs.shift(), this._lens.shift());
       if (this.sync) {
         try {
-          const written = fs2.writeSync(this.fd, this._writingBuf);
+          const written = fs.writeSync(this.fd, this._writingBuf);
           release(null, written);
         } catch (err) {
           release(err);
@@ -25557,7 +25557,7 @@ var require_sonic_boom = __commonJS({
         if (kCopyBuffer) {
           this._writingBuf = Buffer.from(this._writingBuf);
         }
-        fs2.write(this.fd, this._writingBuf, release);
+        fs.write(this.fd, this._writingBuf, release);
       }
     }
     function actualClose(sonic) {
@@ -25573,12 +25573,12 @@ var require_sonic_boom = __commonJS({
       sonic._lens = [];
       assert2(typeof sonic.fd === "number", `sonic.fd must be a number, got ${typeof sonic.fd}`);
       try {
-        fs2.fsync(sonic.fd, closeWrapped);
+        fs.fsync(sonic.fd, closeWrapped);
       } catch {
       }
       function closeWrapped() {
         if (sonic.fd !== 1 && sonic.fd !== 2) {
-          fs2.close(sonic.fd, done);
+          fs.close(sonic.fd, done);
         } else {
           done();
         }
@@ -28839,8 +28839,8 @@ var require_node2 = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs = __require("fs");
+          stream2 = new fs.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -42874,7 +42874,7 @@ var require_make_middleware = __commonJS({
 // ../../node_modules/.pnpm/multer@2.1.1/node_modules/multer/storage/disk.js
 var require_disk = __commonJS({
   "../../node_modules/.pnpm/multer@2.1.1/node_modules/multer/storage/disk.js"(exports, module) {
-    var fs2 = __require("fs");
+    var fs = __require("fs");
     var os = __require("os");
     var path3 = __require("path");
     var crypto2 = __require("crypto");
@@ -42889,7 +42889,7 @@ var require_disk = __commonJS({
     function DiskStorage(opts) {
       this.getFilename = opts.filename || getFilename;
       if (typeof opts.destination === "string") {
-        fs2.mkdirSync(opts.destination, { recursive: true });
+        fs.mkdirSync(opts.destination, { recursive: true });
         this.getDestination = function($0, $1, cb) {
           cb(null, opts.destination);
         };
@@ -42904,7 +42904,7 @@ var require_disk = __commonJS({
         that.getFilename(req, file2, function(err2, filename) {
           if (err2) return cb(err2);
           var finalPath = path3.join(destination, filename);
-          var outStream = fs2.createWriteStream(finalPath);
+          var outStream = fs.createWriteStream(finalPath);
           file2.stream.pipe(outStream);
           outStream.on("error", cb);
           outStream.on("finish", function() {
@@ -42923,7 +42923,7 @@ var require_disk = __commonJS({
       delete file2.destination;
       delete file2.filename;
       delete file2.path;
-      fs2.unlink(path4, cb);
+      fs.unlink(path4, cb);
     };
     module.exports = function(opts) {
       return new DiskStorage(opts);
@@ -48013,15 +48013,15 @@ var require_pg_connection_string = __commonJS({
       if (config2.sslcert || config2.sslkey || config2.sslrootcert || config2.sslmode) {
         config2.ssl = {};
       }
-      const fs2 = config2.sslcert || config2.sslkey || config2.sslrootcert ? __require("fs") : null;
+      const fs = config2.sslcert || config2.sslkey || config2.sslrootcert ? __require("fs") : null;
       if (config2.sslcert) {
-        config2.ssl.cert = fs2.readFileSync(config2.sslcert).toString();
+        config2.ssl.cert = fs.readFileSync(config2.sslcert).toString();
       }
       if (config2.sslkey) {
-        config2.ssl.key = fs2.readFileSync(config2.sslkey).toString();
+        config2.ssl.key = fs.readFileSync(config2.sslkey).toString();
       }
       if (config2.sslrootcert) {
-        config2.ssl.ca = fs2.readFileSync(config2.sslrootcert).toString();
+        config2.ssl.ca = fs.readFileSync(config2.sslrootcert).toString();
       }
       if (options.useLibpqCompat && config2.uselibpqcompat) {
         throw new Error("Both useLibpqCompat and uselibpqcompat are set. Please use only one of them.");
@@ -49958,15 +49958,15 @@ var require_lib5 = __commonJS({
   "../../node_modules/.pnpm/pgpass@1.0.5/node_modules/pgpass/lib/index.js"(exports, module) {
     "use strict";
     var path3 = __require("path");
-    var fs2 = __require("fs");
+    var fs = __require("fs");
     var helper = require_helper();
     module.exports = function(connInfo, cb) {
       var file2 = helper.getFileName();
-      fs2.stat(file2, function(err, stat) {
+      fs.stat(file2, function(err, stat) {
         if (err || !helper.usePgPass(stat, file2)) {
           return cb(void 0);
         }
-        var st = fs2.createReadStream(file2);
+        var st = fs.createReadStream(file2);
         helper.getPassword(connInfo, st, cb);
       });
     };
@@ -51492,7 +51492,6 @@ var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 var import_express_session = __toESM(require_express_session(), 1);
 import path2 from "path";
-import fs from "fs";
 
 // src/routes/index.ts
 var import_express3 = __toESM(require_express2(), 1);
@@ -75512,11 +75511,9 @@ var insertSiteImageSchema = createInsertSchema(siteImagesTable).omit({ id: true,
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
-var connectionString = process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
+var connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  throw new Error(
-    "SUPABASE_DATABASE_URL (or DATABASE_URL) must be set."
-  );
+  throw new Error("DATABASE_URL must be set.");
 }
 var pool = new Pool3({ connectionString });
 var db = drizzle(pool, { schema: schema_exports });
@@ -75599,11 +75596,11 @@ router2.post(
   }
 );
 router2.get("/admin/media", requireAuth, (_req, res) => {
-  const fs2 = __require("fs");
+  const fs = __require("fs");
   const uploadDir = path.join(process.cwd(), "public/uploads");
   try {
-    const files = fs2.readdirSync(uploadDir).filter((f) => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f)).map((f) => {
-      const stat = fs2.statSync(path.join(uploadDir, f));
+    const files = fs.readdirSync(uploadDir).filter((f) => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f)).map((f) => {
+      const stat = fs.statSync(path.join(uploadDir, f));
       return { filename: f, url: `/api/uploads/${f}`, size: stat.size, createdAt: stat.birthtime };
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     res.json(files);
@@ -75612,11 +75609,11 @@ router2.get("/admin/media", requireAuth, (_req, res) => {
   }
 });
 router2.delete("/admin/media/:filename", requireAuth, (req, res) => {
-  const fs2 = __require("fs");
+  const fs = __require("fs");
   const filename = path.basename(req.params.filename);
   const filePath = path.join(process.cwd(), "public/uploads", filename);
   try {
-    if (__require("fs").existsSync(filePath)) fs2.unlinkSync(filePath);
+    if (__require("fs").existsSync(filePath)) fs.unlinkSync(filePath);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: "Delete failed" });
@@ -75659,18 +75656,21 @@ var logger = (0, import_pino.default)({
 
 // src/app.ts
 var app = (0, import_express4.default)();
-var publicDir = path2.join(__dirname, "..", "public");
-var uploadsDir = path2.join(publicDir, "uploads");
-fs.mkdirSync(uploadsDir, { recursive: true });
 app.use(
   (0, import_pino_http.default)({
     logger,
     serializers: {
       req(req) {
-        return { id: req.id, method: req.method, url: req.url?.split("?")[0] };
+        return {
+          id: req.id,
+          method: req.method,
+          url: req.url?.split("?")[0]
+        };
       },
       res(res) {
-        return { statusCode: res.statusCode };
+        return {
+          statusCode: res.statusCode
+        };
       }
     }
   })
@@ -75678,45 +75678,29 @@ app.use(
 app.use((0, import_cors.default)({ origin: true, credentials: true }));
 app.use(import_express4.default.json());
 app.use(import_express4.default.urlencoded({ extended: true }));
-var isProd = process.env.NODE_ENV === "production";
 app.use(
   (0, import_express_session.default)({
     secret: process.env.SESSION_SECRET || "yemenici-admin-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 8 * 60 * 60 * 1e3,
-      secure: isProd,
-      sameSite: isProd ? "strict" : "lax"
-    }
+    cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1e3 }
   })
 );
-app.use("/api/uploads", import_express4.default.static(uploadsDir));
+app.use("/api/uploads", import_express4.default.static(path2.join(process.cwd(), "public/uploads")));
 app.use("/api", routes_default);
-var adminDist = path2.join(publicDir, "admin");
-if (fs.existsSync(adminDist)) {
-  app.use("/admin", import_express4.default.static(adminDist));
-  app.get("/admin/*splat", (_req, res) => {
-    res.sendFile(path2.join(adminDist, "index.html"));
-  });
-}
-var yemeniciDist = path2.join(publicDir, "yemenici");
-if (fs.existsSync(yemeniciDist)) {
-  app.use(import_express4.default.static(yemeniciDist));
-  app.get("*splat", (_req, res) => {
-    res.sendFile(path2.join(yemeniciDist, "index.html"));
-  });
-}
 var app_default = app;
 
 // src/index.ts
 var rawPort = process.env["PORT"];
-var port = rawPort ? Number(rawPort) : 3e3;
-if (Number.isNaN(port) || port <= 0) {
-  logger.error({ rawPort }, "Invalid PORT value \u2014 defaulting to 3000");
+if (!rawPort) {
+  throw new Error(
+    "PORT environment variable is required but was not provided."
+  );
 }
-var listenPort = Number.isNaN(port) || port <= 0 ? 3e3 : port;
+var port = Number(rawPort);
+if (Number.isNaN(port) || port <= 0) {
+  throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
 async function seedAdminUser() {
   try {
     const existing = await db.select().from(adminUsersTable).limit(1);
@@ -75730,16 +75714,16 @@ async function seedAdminUser() {
       logger.info("Default admin user created");
     }
   } catch (err) {
-    logger.error({ err }, "Failed to seed admin user \u2014 continuing startup");
+    logger.error({ err }, "Failed to seed admin user");
   }
 }
 seedAdminUser().then(() => {
-  app_default.listen(listenPort, "0.0.0.0", (err) => {
+  app_default.listen(port, (err) => {
     if (err) {
       logger.error({ err }, "Error listening on port");
       process.exit(1);
     }
-    logger.info({ port: listenPort }, "Server listening");
+    logger.info({ port }, "Server listening");
   });
 });
 /*! Bundled license information:
