@@ -2,7 +2,12 @@
 /**
  * Hostinger production build script.
  * Uses only Node.js built-ins — no pre-installed deps needed.
- * Run with: node scripts/build-hostinger.mjs
+ *
+ * Called either:
+ *   A) Directly:   node scripts/build-hostinger.mjs
+ *   B) Via pnpm postinstall when NODE_ENV=production
+ *
+ * In case B, pnpm install already ran so we skip the install step.
  */
 import { execSync } from "node:child_process";
 import { cpSync, mkdirSync } from "node:fs";
@@ -11,6 +16,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
+
+// True when called from a pnpm lifecycle script (postinstall)
+const calledFromLifecycle = Boolean(process.env.npm_lifecycle_event);
 
 function run(cmd, env = {}) {
   console.log(`\n▶ ${cmd}`);
@@ -30,10 +38,12 @@ try {
   run("npm install -g pnpm");
 }
 
-// ── 2. Install all workspace dependencies ────────────────────────────────────
-// onlyBuiltDependencies in package.json + pnpm-workspace.yaml controls which
-// packages may run install scripts — no interactive "approve-builds" needed.
-run("pnpm install --frozen-lockfile");
+// ── 2. Install workspace dependencies (skip if called from postinstall) ──────
+if (calledFromLifecycle) {
+  console.log("✓ Skipping pnpm install (already done by lifecycle)");
+} else {
+  run("pnpm install --frozen-lockfile");
+}
 
 // ── 3. Build Yemenici (base path = /) ────────────────────────────────────────
 run("pnpm --filter @workspace/yemenici run build", {
