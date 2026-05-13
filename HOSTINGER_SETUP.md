@@ -1,34 +1,37 @@
 # Hostinger Web Apps Hosting — Kurulum Kılavuzu
 
-## 1. GitHub Repo Bağlama
+## Nasıl Çalışır?
 
-1. Projeyi GitHub'a push edin
-2. Hostinger hPanel → **Web Apps** → **Create New App**
-3. Bağlantı türü: **GitHub**
-4. Repo ve branch seçin (genellikle `main`)
+Bu proje **pre-built** olarak GitHub'a gönderilir. Hostinger'ın bir build adımı
+çalıştırmasına gerek yoktur — derlenmiş sunucu dosyaları (`artifacts/api-server/dist/`)
+ve statik siteler (`artifacts/api-server/public/`) doğrudan repo'da bulunur.
 
-## 2. Framework Seçimi
+## 1. Deploy Öncesi (Replit'te)
 
-Otomatik algılama başarısız olursa **Express** seçin.
+Her deploy öncesinde Replit'te bir kez çalıştırın:
 
-## 3. Build & Start Komutları
+```bash
+node scripts/build-hostinger.mjs
+```
 
-Bu proje pnpm monorepo yapısında olduğu için Hostinger'ın kendi `npm install`
-adımı **çalışmaz**. Aşağıdaki ayarlarla tüm kurulum build komutuna bırakılmalı:
+Sonra oluşan dosyaları **GitHub'a commit edin** (Replit'in Git sekmesi).
+Git izlenecek dosyalar:
+- `artifacts/api-server/dist/`   ← derlenmiş Express sunucu
+- `artifacts/api-server/public/` ← Yemenici + Admin statik dosyaları
+
+## 2. Hostinger Ayarları
 
 | Alan | Değer |
 |------|-------|
-| **Install command** | `echo "Handled by build script"` |
-| **Build command** | `npm install -g pnpm && node scripts/build-hostinger.mjs` |
-| **Start command** | `node artifacts/api-server/dist/index.mjs` |
-| **Node.js version** | 20 veya üzeri |
+| **Framework** | Express |
+| **Paket yöneticisi** | npm |
+| **Giriş dosyası** | `artifacts/api-server/dist/index.mjs` |
 
-> **Kritik:** Install command'ı `echo "Handled by build script"` olarak girin.
-> Build komutu pnpm'i kurar ve tüm workspace bağımlılıklarını doğru şekilde halleder.
+> **Önemli:** Build / postinstall adımı yoktur. Hostinger sadece sunucuyu başlatır.
 
-## 4. Environment Variables
+## 3. Environment Variables
 
-hPanel → **Web Apps** → uygulamanız → **Environment Variables** bölümünden ekleyin:
+hPanel → **Web Apps** → uygulamanız → **Environment Variables**:
 
 | Değişken | Değer | Açıklama |
 |----------|-------|----------|
@@ -40,7 +43,7 @@ hPanel → **Web Apps** → uygulamanız → **Environment Variables** bölümü
 ### SUPABASE_DATABASE_URL Nasıl Alınır?
 
 1. [Supabase](https://supabase.com) → projeniz → **Settings** → **Database**
-2. **Connection string** bölümünden **Transaction Pooler** URI'sini kopyalayın
+2. **Transaction Pooler** bağlantı string'ini kopyalayın
 3. Sonuna `?sslmode=require` ekleyin (yoksa)
 
 ### SESSION_SECRET Üretme
@@ -49,13 +52,14 @@ hPanel → **Web Apps** → uygulamanız → **Environment Variables** bölümü
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-## 5. Veritabanı
+## 4. Tekrar Deploy (Kod Değişikliğinde)
 
-Veritabanı Supabase'de. Hostinger'de ayrıca kurulum gerekmez.
-Sunucu ilk açılışta `admin_users` tablosu boşsa `admin / ADMIN_PASSWORD` kullanıcısını otomatik oluşturur.
+1. Replit'te `node scripts/build-hostinger.mjs` çalıştırın
+2. Git sekmesinden değişiklikleri commit + push edin
+3. Hostinger otomatik olarak yeni versiyonu deploy eder
 
-## 6. Deploy Sonrası Kontrol
+## 5. Deploy Sonrası Kontrol
 
 - `https://alanadi.com/` → Yemenici sitesi
-- `https://alanadi.com/admin/` → Admin paneli
+- `https://alanadi.com/admin/` → Admin paneli (admin / ADMIN_PASSWORD)
 - `https://alanadi.com/api/healthz` → API sağlık kontrolü

@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock'",
-    "postinstall": "sh -c '[ \"$NODE_ENV\" = \"production\" ] && node scripts/build-hostinger.mjs || echo \"Skipping production build in dev\"'",
     "build": "node scripts/build-hostinger.mjs",
     "start": "node artifacts/api-server/dist/index.mjs",
     "typecheck:libs": "tsc --build",

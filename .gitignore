@@ -5,6 +5,10 @@ dist
 tmp
 out-tsc
 *.tsbuildinfo
+
+# Pre-built server bundle committed for Hostinger deployment (no build step needed)
+!artifacts/api-server/dist/
+!artifacts/api-server/public/
 .expo
 .expo-shared
 
