@@ -15,11 +15,13 @@ Otomatik algılama başarısız olursa **Express** seçin.
 
 | Alan | Değer |
 |------|-------|
+| **Install command** | (boş bırakın veya `echo skip`) |
 | **Build command** | `node scripts/build-hostinger.mjs` |
 | **Start command** | `node artifacts/api-server/dist/index.mjs` |
 | **Node.js version** | 20 veya üzeri |
 
-> Build komutu hem pnpm kurulumunu hem de tüm derleme adımlarını otomatik yapar.
+> **Önemli:** Install command'ı boş bırakın ya da `echo skip` yazın.
+> Build komutu pnpm kurulumunu ve tüm derleme adımlarını otomatik halleder.
 
 ## 4. Environment Variables
 
@@ -40,27 +42,17 @@ hPanel → **Web Apps** → uygulamanız → **Environment Variables** bölümü
 
 ### SESSION_SECRET Üretme
 
-Terminal veya [random.org](https://www.random.org/strings/) ile:
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ## 5. Veritabanı
 
-Veritabanı Supabase'de. Hostinger'de ayrıca veritabanı kurmanıza gerek yok.
-`SUPABASE_DATABASE_URL` env variable'ı ile Supabase'e bağlanıyor.
+Veritabanı Supabase'de. Hostinger'de ayrıca kurulum gerekmez.
+Sunucu ilk açılışta `admin_users` tablosu boşsa `admin / ADMIN_PASSWORD` kullanıcısını otomatik oluşturur.
 
-Sunucu ilk açılışta tablolar boşsa otomatik olarak `admin / ADMIN_PASSWORD` kullanıcısını oluşturur.
-
-## 6. Yüklenen Görseller (Uploads)
-
-Admin panelinden yüklenen görseller sunucunun `public/uploads/` klasöründe tutulur.
-Bu klasör her deploy'da sıfırlanabilir.
-
-**Kalıcı depolama için:** Hostinger hPanel → **File Manager** üzerinden mevcut görselleri yeni deployment sonrası yeniden yükleyin, ya da ilerleyen süreçte Supabase Storage / Cloudflare R2 gibi bir çözüme geçin.
-
-## 7. Deploy Sonrası Kontrol
+## 6. Deploy Sonrası Kontrol
 
 - `https://alanadi.com/` → Yemenici sitesi
-- `https://alanadi.com/admin/` → Admin paneli (admin / ADMIN_PASSWORD)
+- `https://alanadi.com/admin/` → Admin paneli
 - `https://alanadi.com/api/healthz` → API sağlık kontrolü

@@ -5,7 +5,7 @@
  * Run with: node scripts/build-hostinger.mjs
  */
 import { execSync } from "node:child_process";
-import { cpSync, mkdirSync, existsSync } from "node:fs";
+import { cpSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,6 +31,8 @@ try {
 }
 
 // ── 2. Install all workspace dependencies ────────────────────────────────────
+// onlyBuiltDependencies in package.json + pnpm-workspace.yaml controls which
+// packages may run install scripts — no interactive "approve-builds" needed.
 run("pnpm install --frozen-lockfile");
 
 // ── 3. Build Yemenici (base path = /) ────────────────────────────────────────
