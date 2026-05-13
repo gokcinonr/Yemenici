@@ -2,7 +2,6 @@
   "name": "workspace",
   "version": "0.0.0",
   "license": "MIT",
-  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock'",
     "postinstall": "sh -c '[ \"$NODE_ENV\" = \"production\" ] && node scripts/build-hostinger.mjs || echo \"Skipping production build in dev\"'",
