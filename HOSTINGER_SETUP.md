@@ -13,15 +13,18 @@ Otomatik algılama başarısız olursa **Express** seçin.
 
 ## 3. Build & Start Komutları
 
+Bu proje pnpm monorepo yapısında olduğu için Hostinger'ın kendi `npm install`
+adımı **çalışmaz**. Aşağıdaki ayarlarla tüm kurulum build komutuna bırakılmalı:
+
 | Alan | Değer |
 |------|-------|
-| **Install command** | (boş bırakın veya `echo skip`) |
-| **Build command** | `node scripts/build-hostinger.mjs` |
+| **Install command** | `echo "Handled by build script"` |
+| **Build command** | `npm install -g pnpm && node scripts/build-hostinger.mjs` |
 | **Start command** | `node artifacts/api-server/dist/index.mjs` |
 | **Node.js version** | 20 veya üzeri |
 
-> **Önemli:** Install command'ı boş bırakın ya da `echo skip` yazın.
-> Build komutu pnpm kurulumunu ve tüm derleme adımlarını otomatik halleder.
+> **Kritik:** Install command'ı `echo "Handled by build script"` olarak girin.
+> Build komutu pnpm'i kurar ve tüm workspace bağımlılıklarını doğru şekilde halleder.
 
 ## 4. Environment Variables
 

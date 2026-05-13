@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) [ -n \"$CI\" ] && exit 0; echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
+    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Warning: This project uses pnpm. Dependencies will be installed by the build script.\" >&2 ;; esac'",
     "build": "node scripts/build-hostinger.mjs",
     "start": "node artifacts/api-server/dist/index.mjs",
     "typecheck:libs": "tsc --build",
