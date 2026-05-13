@@ -45,3 +45,16 @@ Content management panel for Yemenici website. Communicates via `/api` routes.
 
 ### API Server (`artifacts/api-server`) — Express 5
 Handles `/api/content`, `/api/uploads`, `/api/media` endpoints. PostgreSQL + Drizzle ORM.
+
+## Database
+
+**Provider**: Supabase (PostgreSQL 17) — Transaction Pooler, eu-west-1, port 6543
+
+**Connection variable precedence** (`lib/db/src/index.ts`, `lib/db/drizzle.config.ts`):
+1. `SUPABASE_DATABASE_URL` — canonical variable; set this in every environment (Replit dev + Hostinger prod)
+2. `DATABASE_URL` — fallback only; Replit runtime-managed, points to legacy Replit DB (do not rely on it)
+
+**Schema push** (dev): `DATABASE_URL=... pnpm --filter @workspace/db run push`
+- Or override inline: `SUPABASE_DATABASE_URL='...' pnpm --filter @workspace/db run push`
+
+**Tables**: `public.admin_users`, `public.site_content`, `public.site_images`
