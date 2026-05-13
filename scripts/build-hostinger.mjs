@@ -30,12 +30,20 @@ function run(cmd, env = {}) {
 }
 
 // ── 1. Ensure pnpm is available ──────────────────────────────────────────────
+// pnpm is activated by corepack via the "packageManager" field in package.json.
+// No global install needed — just verify it's accessible.
 try {
-  execSync("pnpm --version", { stdio: "pipe" });
-  console.log("✓ pnpm found");
+  const version = execSync("pnpm --version", { stdio: "pipe" }).toString().trim();
+  console.log(`✓ pnpm ${version} found`);
 } catch {
-  console.log("Installing pnpm globally...");
-  run("npm install -g pnpm");
+  // corepack may need activating (some environments require this once)
+  try {
+    execSync("corepack enable pnpm", { stdio: "inherit" });
+    console.log("✓ pnpm enabled via corepack");
+  } catch {
+    console.error("ERROR: pnpm is not available. Ensure Node.js 16+ with corepack is installed.");
+    process.exit(1);
+  }
 }
 
 // ── 2. Install workspace dependencies (skip if called from postinstall) ──────
