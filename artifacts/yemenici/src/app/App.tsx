@@ -1,6 +1,7 @@
 import { Switch, Route, Router } from "wouter";
 import HomePage from "./components/HomePage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import SiteGate from "./components/SiteGate";
 
 function Routes() {
   return (
@@ -59,8 +60,10 @@ function Routes() {
 
 export default function App() {
   return (
-    <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-      <Routes />
-    </Router>
+    <SiteGate>
+      <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <Routes />
+      </Router>
+    </SiteGate>
   );
 }

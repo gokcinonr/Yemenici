@@ -75619,6 +75619,22 @@ router2.delete("/admin/media/:filename", requireAuth, (req, res) => {
     res.status(500).json({ error: "Delete failed" });
   }
 });
+router2.post("/site-access", async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: "Password required" });
+    }
+    const [user] = await db.select().from(adminUsersTable).where(eq(adminUsersTable.username, "admin")).limit(1);
+    if (!user || !await bcryptjs_default.compare(password, user.passwordHash)) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 router2.get("/content", async (req, res) => {
   try {
     const rows = await db.select().from(siteContentTable);
