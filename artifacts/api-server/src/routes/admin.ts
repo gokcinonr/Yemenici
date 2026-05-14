@@ -128,6 +128,28 @@ router.delete("/admin/media/:filename", requireAuth, (req, res) => {
   }
 });
 
+router.post("/site-access", async (req, res) => {
+  try {
+    const { password } = req.body as { password: string };
+    if (!password) {
+      return res.status(400).json({ error: "Password required" });
+    }
+    const [user] = await db
+      .select()
+      .from(adminUsersTable)
+      .where(eq(adminUsersTable.username, "admin"))
+      .limit(1);
+
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.get("/content", async (req, res) => {
   try {
     const rows = await db.select().from(siteContentTable);
