@@ -1063,18 +1063,51 @@ function ProdElementEditor({ section, label, rows, onSaveRow }: {
   onSaveRow: SaveRowFn;
 }) {
   const [lang, setLang] = useState("en");
-  const titleEn = useField(rows, section, "title_en", onSaveRow);
-  const titleDe = useField(rows, section, "title_de", onSaveRow);
-  const titleTr = useField(rows, section, "title_tr", onSaveRow);
-  const bodyEn  = useField(rows, section, "body_en",  onSaveRow);
-  const bodyDe  = useField(rows, section, "body_de",  onSaveRow);
-  const bodyTr  = useField(rows, section, "body_tr",  onSaveRow);
-  const image   = useField(rows, section, "image",    onSaveRow);
+  const [showPicker, setShowPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const titleField = lang === "en" ? titleEn : lang === "de" ? titleDe : titleTr;
-  const bodyField  = lang === "en" ? bodyEn  : lang === "de" ? bodyDe  : bodyTr;
+  const getVal = (key: string) =>
+    rows.find((r) => r.section === section && r.key === key)?.value ?? "";
+
+  const initVals = () => ({
+    title_en: getVal("title_en"), title_de: getVal("title_de"), title_tr: getVal("title_tr"),
+    body_en:  getVal("body_en"),  body_de:  getVal("body_de"),  body_tr:  getVal("body_tr"),
+    image:    getVal("image"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  }, [
+    getVal("title_en"), getVal("title_de"), getVal("title_tr"),
+    getVal("body_en"),  getVal("body_de"),  getVal("body_tr"),
+    getVal("image"),
+  ]);
+
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    const KEYS = ["title_en","title_de","title_tr","body_en","body_de","body_tr","image"] as const;
+    setSaving(true);
+    try {
+      await Promise.all(KEYS.map((key) => {
+        const row = rows.find((r) => r.section === section && r.key === key);
+        return onSaveRow(row?.id ?? null, section, key, vals[key]);
+      }));
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1084,53 +1117,101 @@ function ProdElementEditor({ section, label, rows, onSaveRow }: {
       const form = new FormData();
       form.append("file", file);
       const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      if (!res.ok) throw new Error();
       const { url } = await res.json() as { url: string };
-      await image.onSave(url);
+      set("image")(url);
     } catch { alert("Yükleme başarısız."); }
     finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
   };
 
+  const titleKey = `title_${lang}` as "title_en" | "title_de" | "title_tr";
+  const bodyKey  = `body_${lang}`  as "body_en"  | "body_de"  | "body_tr";
+
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-        <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">{label}</p>
-      </div>
-      <div className="p-4 space-y-4">
-        <LangTabs lang={lang} setLang={setLang} />
-        <TextField label="Başlık" {...titleField} />
-        <TextField label="İçerik" multiline {...bodyField} />
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Görsel</label>
-          <div className="flex gap-3 items-start">
-            <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
-              {image.value
-                ? <img src={image.value} alt="" className="w-full h-full object-cover" />
-                : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              }
-            </div>
-            <div className="flex-1 space-y-2">
-              <input
-                type="text" value={image.value}
-                onChange={(e) => image.setValue(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
-              />
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                  {uploading ? "Yükleniyor..." : "Yükle"}
-                </button>
-                <SaveBtn onSave={image.onSave} saving={image.saving} dirty={image.dirty} justSaved={image.justSaved} />
+    <>
+      {showPicker && (
+        <MediaPickerModal
+          onSelect={(url) => { set("image")(url); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">{label}</p>
+        </div>
+        <div className="p-4 space-y-4">
+          <LangTabs lang={lang} setLang={setLang} />
+
+          {/* Başlık */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Başlık</label>
+            <input
+              type="text" value={vals[titleKey]}
+              onChange={(e) => set(titleKey)(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+            />
+          </div>
+
+          {/* İçerik */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">İçerik</label>
+            <textarea
+              rows={4} value={vals[bodyKey]}
+              onChange={(e) => set(bodyKey)(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition resize-none"
+            />
+          </div>
+
+          {/* Görsel */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Görsel</label>
+            <div className="flex gap-3 items-start">
+              <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
+                {vals.image
+                  ? <img src={vals.image} alt="" className="w-full h-full object-cover" />
+                  : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                }
               </div>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              <div className="flex-1 space-y-2">
+                <input
+                  type="text" value={vals.image}
+                  onChange={(e) => set("image")(e.target.value)}
+                  placeholder="https://... veya aşağıdan seçin"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => fileRef.current?.click()} disabled={uploading}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    {uploading ? "Yükleniyor..." : "Yükle"}
+                  </button>
+                  <button
+                    onClick={() => setShowPicker(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    Kütüphaneden Seç
+                  </button>
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Tek kaydet butonu */}
+        <div className="px-4 py-3 border-t border-gray-100 flex justify-end">
+          <button
+            onClick={handleSave} disabled={saving || !dirty}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+          >
+            {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
