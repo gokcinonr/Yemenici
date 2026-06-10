@@ -83,25 +83,12 @@ function LoginPage({ onLogin }: { onLogin: (u: string) => void }) {
 }
 
 /* ────────────────────────────── Sidebar nav ────────────────────────────── */
-type SectionKey = "hero" | "cards" | "industries" | "quality" | "footer" | "media";
+type PageKey = "homepage" | "footer" | "media";
 
-const NAV: { group: string; items: { key: SectionKey; label: string; icon: string }[] }[] = [
-  {
-    group: "Ana Sayfa",
-    items: [
-      { key: "hero", label: "Hero", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-      { key: "cards", label: "Kartlar", icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" },
-      { key: "industries", label: "Endüstriler", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
-      { key: "quality", label: "Kalite", icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" },
-    ],
-  },
-  {
-    group: "Genel",
-    items: [
-      { key: "footer", label: "Footer", icon: "M4 6h16M4 12h16M4 18h7" },
-      { key: "media", label: "Medya Kütüphanesi", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    ],
-  },
+const NAV: { key: PageKey; label: string; icon: string }[] = [
+  { key: "homepage", label: "Ana Sayfa", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+  { key: "footer", label: "Footer", icon: "M4 6h16M4 12h16M4 18h7" },
+  { key: "media", label: "Medya Kütüphanesi", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
 ];
 
 /* ────────────────────────────── useField hook ────────────────────────────── */
@@ -628,20 +615,66 @@ function MediaLibrary() {
   );
 }
 
+/* ────────────────────────────── Section divider ────────────────────────────── */
+function SectionBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+        <h3 className="text-sm font-bold text-gray-800 tracking-tight">{title}</h3>
+      </div>
+      <div className="p-6">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────── Homepage panel ────────────────────────────── */
+function HomepagePanel({ rows, onSaveRow, loading }: {
+  rows: ContentRow[];
+  onSaveRow: (id: number, v: string) => Promise<void>;
+  loading: boolean;
+}) {
+  if (loading) return (
+    <div className="space-y-4">
+      {[1, 2, 3, 4].map((i) => <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />)}
+    </div>
+  );
+  return (
+    <div className="space-y-6">
+      <SectionBlock title="Hero">
+        <HeroSection rows={rows} onSaveRow={onSaveRow} />
+      </SectionBlock>
+      <SectionBlock title="Kartlar">
+        <CardsSection rows={rows} onSaveRow={onSaveRow} />
+      </SectionBlock>
+      <SectionBlock title="Endüstriler Bölümü">
+        <IndustriesSection rows={rows} onSaveRow={onSaveRow} />
+      </SectionBlock>
+      <SectionBlock title="Kalite Bölümü">
+        <QualitySection rows={rows} onSaveRow={onSaveRow} />
+      </SectionBlock>
+    </div>
+  );
+}
+
 /* ────────────────────────────── Content Editor ────────────────────────────── */
-const SECTION_TITLES: Record<SectionKey, string> = {
-  hero: "Hero",
-  cards: "Kartlar",
-  industries: "Endüstriler",
-  quality: "Kalite",
+const PAGE_TITLES: Record<PageKey, string> = {
+  homepage: "Ana Sayfa",
   footer: "Footer",
   media: "Medya Kütüphanesi",
+};
+
+const PAGE_SUBTITLES: Record<PageKey, string> = {
+  homepage: "Ana sayfanın tüm bölümlerini buradan düzenleyin.",
+  footer: "Footer bölümü içeriklerini düzenleyin.",
+  media: "Yüklenen görselleri yönetin, URL kopyalayın veya silin.",
 };
 
 function ContentEditor({ username, onLogout }: { username: string; onLogout: () => void }) {
   const [rows, setRows] = useState<ContentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState<SectionKey>("hero");
+  const [active, setActive] = useState<PageKey>("homepage");
 
   useEffect(() => {
     apiFetch("/admin/content").then((r: ContentRow[]) => setRows(r)).finally(() => setLoading(false));
@@ -660,19 +693,16 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
     onLogout();
   };
 
-  const renderSection = () => {
-    if (active === "media") return <MediaLibrary />;
-    if (loading) return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />)}
-      </div>
-    );
+  const renderPage = () => {
     switch (active) {
-      case "hero": return <HeroSection rows={rows} onSaveRow={onSaveRow} />;
-      case "cards": return <CardsSection rows={rows} onSaveRow={onSaveRow} />;
-      case "industries": return <IndustriesSection rows={rows} onSaveRow={onSaveRow} />;
-      case "quality": return <QualitySection rows={rows} onSaveRow={onSaveRow} />;
-      case "footer": return <FooterSection rows={rows} onSaveRow={onSaveRow} />;
+      case "homepage":
+        return <HomepagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "footer":
+        return loading
+          ? <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+          : <div className="border border-gray-200 rounded-2xl bg-white p-6"><FooterSection rows={rows} onSaveRow={onSaveRow} /></div>;
+      case "media":
+        return <MediaLibrary />;
     }
   };
 
@@ -695,34 +725,22 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
 
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-52 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto py-5 px-3">
-          {NAV.map((group) => (
-            <div key={group.group} className="mb-5">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-1.5">{group.group}</p>
-              {group.items.map((item) => (
-                <button key={item.key} onClick={() => setActive(item.key)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-0.5 flex items-center gap-2.5 ${active === item.key ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"}`}>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                  </svg>
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          {NAV.map((item) => (
+            <button key={item.key} onClick={() => setActive(item.key)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-0.5 flex items-center gap-2.5 ${active === item.key ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"}`}>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+              </svg>
+              {item.label}
+            </button>
           ))}
         </aside>
 
         <main className="flex-1 overflow-y-auto p-8">
           <div className={active === "media" ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"}>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">{SECTION_TITLES[active]}</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {active === "cards" && "Her kartı ayrı ayrı düzenleyip kaydedin."}
-              {active === "media" && "Yüklenen görselleri yönetin, URL kopyalayın veya silin."}
-              {active === "hero" && "Ana sayfa hero bölümü içeriklerini düzenleyin."}
-              {active === "industries" && "Endüstriler bölümü içeriklerini düzenleyin."}
-              {active === "quality" && "Kalite bölümü içeriklerini düzenleyin."}
-              {active === "footer" && "Footer bölümü içeriklerini düzenleyin."}
-            </p>
-            {renderSection()}
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{PAGE_TITLES[active]}</h2>
+            <p className="text-sm text-gray-500 mb-6">{PAGE_SUBTITLES[active]}</p>
+            {renderPage()}
           </div>
         </main>
       </div>
