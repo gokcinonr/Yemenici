@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { Link, useLocation } from "wouter";
+import { useLanguage } from "../contexts/LanguageContext";
 import svgPaths from "../../imports/HomePageNavOff1/svg-1yo7sszy22";
 
 /* ─── Logo ──────────────────────────────────────────────────────────────── */
@@ -51,19 +52,24 @@ function ChevronIcon({ color = "#898C90", rotate }: { color?: string; rotate?: b
 
 /* ─── LanguageSelector ───────────────────────────────────────────────────── */
 function LanguageSelector() {
-  const [active, setActive] = useState("EN");
+  const { lang, setLang } = useLanguage();
+  const codes: Array<{ display: string; value: "en" | "de" | "tr" }> = [
+    { display: "TR", value: "tr" },
+    { display: "DE", value: "de" },
+    { display: "EN", value: "en" },
+  ];
   return (
     <div className="flex items-center gap-1">
-      {["TR", "DE", "EN"].map((code) => (
+      {codes.map(({ display, value }) => (
         <button
-          key={code}
-          onClick={() => setActive(code)}
+          key={value}
+          onClick={() => setLang(value)}
           className={`rounded-[7px] px-2 py-0.5 text-[11px] font-medium text-white uppercase tracking-[0.275px] transition-colors ${
-            active === code ? "bg-[#151619]" : "bg-[#D1D5DB] hover:bg-[#B0B7C3]"
+            lang === value ? "bg-[#151619]" : "bg-[#D1D5DB] hover:bg-[#B0B7C3]"
           }`}
           style={{ fontFamily: "Poppins, sans-serif" }}
         >
-          {code}
+          {display}
         </button>
       ))}
     </div>

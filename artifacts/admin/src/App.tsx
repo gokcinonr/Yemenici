@@ -91,6 +91,7 @@ type PageKey =
   | "company" | "company_about" | "company_values"
   | "contact"
   | "menu_solutions" | "menu_quality"
+  | "prod_elements"
   | "footer" | "media";
 
 type NavItem = { key: PageKey; label: string; indent?: 1 | 2 };
@@ -103,6 +104,7 @@ const NAV_GROUPS: NavGroup[] = [
       { key: "homepage", label: "Ana Sayfa" },
       { key: "solutions", label: "Solutions" },
       { key: "solutions_production", label: "Production", indent: 1 },
+      { key: "prod_elements", label: "Elementler", indent: 2 },
       { key: "solutions_industries", label: "Industries", indent: 1 },
       { key: "solutions_automotive", label: "Automotive", indent: 2 },
       { key: "solutions_industrial", label: "Industrial", indent: 2 },
@@ -813,6 +815,7 @@ const PAGE_SECTION: Record<PageKey, string> = {
   company_about: "page_company_about",
   company_values: "page_company_values",
   contact: "page_contact",
+  prod_elements: "prod_elements",
   menu_solutions: "nav_menu_solutions",
   menu_quality: "nav_menu_quality",
   footer: "footer",
@@ -855,6 +858,23 @@ function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
   const heroTitle = useField(rows, section, "hero_title", onSaveRow);
   const heroSubtitle = useField(rows, section, "hero_subtitle", onSaveRow);
   const heroBgColor = useField(rows, section, "hero_bg_color", onSaveRow);
+  const heroBgImage = useField(rows, section, "hero_bg_image", onSaveRow);
+  const [imgUploading, setImgUploading] = useState(false);
+  const imgFileRef = useRef<HTMLInputElement>(null);
+
+  const handleBgImgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImgUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      const { url } = await res.json() as { url: string };
+      await heroBgImage.onSave(url);
+    } catch { alert("Yükleme başarısız."); }
+    finally { setImgUploading(false); if (imgFileRef.current) imgFileRef.current.value = ""; }
+  };
 
   if (loading) return (
     <div className="space-y-4">
@@ -867,6 +887,38 @@ function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
         <TextField label="Başlık" placeholder="Sayfa başlığı" {...heroTitle} />
         <TextField label="Alt Başlık" multiline placeholder="Kısa açıklama..." {...heroSubtitle} />
         <ColorField label="Arkaplan Rengi" {...heroBgColor} />
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Hero Arka Plan Görseli</label>
+          <div className="flex gap-3 items-start">
+            <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
+              {heroBgImage.value
+                ? <img src={heroBgImage.value} alt="" className="w-full h-full object-cover" />
+                : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              }
+            </div>
+            <div className="flex-1 space-y-2">
+              <input
+                type="text"
+                value={heroBgImage.value}
+                onChange={(e) => heroBgImage.setValue(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+              />
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => imgFileRef.current?.click()}
+                  disabled={imgUploading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  {imgUploading ? "Yükleniyor..." : "Yükle"}
+                </button>
+                <SaveBtn onSave={heroBgImage.onSave} saving={heroBgImage.saving} dirty={heroBgImage.dirty} justSaved={heroBgImage.justSaved} />
+              </div>
+              <input ref={imgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgImgUpload} />
+            </div>
+          </div>
+        </div>
       </div>
     </SectionBlock>
   );
@@ -985,6 +1037,124 @@ function QualityMenuPanel({ rows, onSaveRow, loading }: { rows: ContentRow[]; on
   );
 }
 
+/* ────────────────────────────── ProductionElementsPanel ───────────────────── */
+function LangTabs({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
+  return (
+    <div className="flex gap-1.5 border-b border-gray-100 pb-3 mb-4">
+      {[{ code: "en", label: "English" }, { code: "de", label: "Deutsch" }, { code: "tr", label: "Türkçe" }].map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => setLang(code)}
+          className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition ${
+            lang === code ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ProdElementEditor({ section, label, rows, onSaveRow }: {
+  section: string;
+  label: string;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const [lang, setLang] = useState("en");
+  const titleEn = useField(rows, section, "title_en", onSaveRow);
+  const titleDe = useField(rows, section, "title_de", onSaveRow);
+  const titleTr = useField(rows, section, "title_tr", onSaveRow);
+  const bodyEn  = useField(rows, section, "body_en",  onSaveRow);
+  const bodyDe  = useField(rows, section, "body_de",  onSaveRow);
+  const bodyTr  = useField(rows, section, "body_tr",  onSaveRow);
+  const image   = useField(rows, section, "image",    onSaveRow);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const titleField = lang === "en" ? titleEn : lang === "de" ? titleDe : titleTr;
+  const bodyField  = lang === "en" ? bodyEn  : lang === "de" ? bodyDe  : bodyTr;
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      const { url } = await res.json() as { url: string };
+      await image.onSave(url);
+    } catch { alert("Yükleme başarısız."); }
+    finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+      <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+        <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">{label}</p>
+      </div>
+      <div className="p-4 space-y-4">
+        <LangTabs lang={lang} setLang={setLang} />
+        <TextField label="Başlık" {...titleField} />
+        <TextField label="İçerik" multiline {...bodyField} />
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Görsel</label>
+          <div className="flex gap-3 items-start">
+            <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
+              {image.value
+                ? <img src={image.value} alt="" className="w-full h-full object-cover" />
+                : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              }
+            </div>
+            <div className="flex-1 space-y-2">
+              <input
+                type="text" value={image.value}
+                onChange={(e) => image.setValue(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+              />
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => fileRef.current?.click()} disabled={uploading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  {uploading ? "Yükleniyor..." : "Yükle"}
+                </button>
+                <SaveBtn onSave={image.onSave} saving={image.saving} dirty={image.dirty} justSaved={image.justSaved} />
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductionElementsPanel({ rows, onSaveRow, loading }: { rows: ContentRow[]; onSaveRow: SaveRowFn; loading: boolean }) {
+  if (loading) return (
+    <div className="space-y-4">
+      {[1, 2, 3, 4].map((i) => <div key={i} className="h-48 bg-gray-100 rounded-2xl animate-pulse" />)}
+    </div>
+  );
+  const elements = [
+    { section: "prod_element_mixing",       label: "01 — Compound Mixing" },
+    { section: "prod_element_vulcanization", label: "02 — Vulcanization" },
+    { section: "prod_element_toolcenter",   label: "03 — Tool Center" },
+    { section: "prod_element_metalprep",    label: "04 — Metal Preparation" },
+  ];
+  return (
+    <div className="space-y-4">
+      {elements.map((el) => (
+        <ProdElementEditor key={el.section} section={el.section} label={el.label} rows={rows} onSaveRow={onSaveRow} />
+      ))}
+    </div>
+  );
+}
+
 /* ────────────────────────────── Content Editor ────────────────────────────── */
 const PAGE_TITLES: Record<PageKey, string> = {
   homepage: "Ana Sayfa",
@@ -1001,6 +1171,7 @@ const PAGE_TITLES: Record<PageKey, string> = {
   company_about: "About Us",
   company_values: "Our Values",
   contact: "Contact",
+  prod_elements: "Production Elementleri",
   menu_solutions: "Solutions Menü",
   menu_quality: "Quality Menü",
   footer: "Footer",
@@ -1022,6 +1193,7 @@ const PAGE_SUBTITLES: Record<PageKey, string> = {
   company_about: "About Us sayfası hero bölümünü düzenleyin.",
   company_values: "Our Values sayfası hero bölümünü düzenleyin.",
   contact: "Contact sayfası hero bölümünü düzenleyin.",
+  prod_elements: "Production sayfasındaki 4 elementi yönetin — başlık, içerik ve görsel (EN/DE/TR).",
   menu_solutions: "Solutions mega menüsündeki Industries ve Production kutularını yönetin.",
   menu_quality: "Quality mega menüsündeki Certification ve Laboratory kutularını yönetin.",
   footer: "Footer bölümü içeriklerini düzenleyin.",
@@ -1076,6 +1248,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
           : <div className="border border-gray-200 rounded-2xl bg-white p-6"><FooterSection rows={rows} onSaveRow={onSaveRow} /></div>;
       case "media":
         return <MediaLibrary />;
+      case "prod_elements":
+        return <ProductionElementsPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "menu_solutions":
         return <SolutionsMenuPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "menu_quality":

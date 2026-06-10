@@ -1,7 +1,9 @@
 import { Switch, Route, Router } from "wouter";
 import HomePage from "./components/HomePage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ProductionPage from "./pages/ProductionPage";
 import SiteGate from "./components/SiteGate";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 function Routes() {
   return (
@@ -12,7 +14,7 @@ function Routes() {
         {() => <PlaceholderPage title="Solutions" subtitle="What We Offer" sectionKey="page_solutions" />}
       </Route>
       <Route path="/solutions/production">
-        {() => <PlaceholderPage title="Production" subtitle="Solutions" sectionKey="page_solutions_production" />}
+        {() => <ProductionPage sectionKey="page_solutions_production" />}
       </Route>
       <Route path="/solutions/industries">
         {() => <PlaceholderPage title="Industries" subtitle="Solutions" sectionKey="page_solutions_industries" />}
@@ -61,9 +63,11 @@ function Routes() {
 export default function App() {
   return (
     <SiteGate>
-      <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Routes />
-      </Router>
+      <LanguageProvider>
+        <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <Routes />
+        </Router>
+      </LanguageProvider>
     </SiteGate>
   );
 }
