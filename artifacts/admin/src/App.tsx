@@ -83,12 +83,45 @@ function LoginPage({ onLogin }: { onLogin: (u: string) => void }) {
 }
 
 /* ────────────────────────────── Sidebar nav ────────────────────────────── */
-type PageKey = "homepage" | "footer" | "media";
+type PageKey =
+  | "homepage"
+  | "solutions" | "solutions_production" | "solutions_industries"
+  | "solutions_automotive" | "solutions_industrial" | "solutions_agriculture"
+  | "quality" | "quality_certification" | "quality_laboratory"
+  | "company" | "company_about" | "company_values"
+  | "contact"
+  | "footer" | "media";
 
-const NAV: { key: PageKey; label: string; icon: string }[] = [
-  { key: "homepage", label: "Ana Sayfa", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-  { key: "footer", label: "Footer", icon: "M4 6h16M4 12h16M4 18h7" },
-  { key: "media", label: "Medya Kütüphanesi", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+type NavItem = { key: PageKey; label: string; indent?: 1 | 2 };
+type NavGroup = { groupLabel: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    groupLabel: "Sayfalar",
+    items: [
+      { key: "homepage", label: "Ana Sayfa" },
+      { key: "solutions", label: "Solutions" },
+      { key: "solutions_production", label: "Production", indent: 1 },
+      { key: "solutions_industries", label: "Industries", indent: 1 },
+      { key: "solutions_automotive", label: "Automotive", indent: 2 },
+      { key: "solutions_industrial", label: "Industrial", indent: 2 },
+      { key: "solutions_agriculture", label: "Agriculture", indent: 2 },
+      { key: "quality", label: "Quality" },
+      { key: "quality_certification", label: "Certification", indent: 1 },
+      { key: "quality_laboratory", label: "Lab. & Testing", indent: 1 },
+      { key: "company", label: "Company" },
+      { key: "company_about", label: "About Us", indent: 1 },
+      { key: "company_values", label: "Our Values", indent: 1 },
+      { key: "contact", label: "Contact" },
+    ],
+  },
+  {
+    groupLabel: "Genel",
+    items: [
+      { key: "footer", label: "Footer" },
+      { key: "media", label: "Medya Kütüphanesi" },
+    ],
+  },
 ];
 
 /* ────────────────────────────── Site pages ────────────────────────────── */
@@ -175,7 +208,9 @@ function LinkSelector({ value, onChange }: { value: string; onChange: (v: string
 }
 
 /* ────────────────────────────── useField hook ────────────────────────────── */
-function useField(rows: ContentRow[], section: string, key: string, onSaveRow: (id: number, value: string) => Promise<void>) {
+type SaveRowFn = (id: number | null, section: string, key: string, value: string) => Promise<void>;
+
+function useField(rows: ContentRow[], section: string, key: string, onSaveRow: SaveRowFn) {
   const row = rows.find((r) => r.section === section && r.key === key);
   const [value, setValue] = useState(row?.value ?? "");
   const [saving, setSaving] = useState(false);
@@ -188,17 +223,16 @@ function useField(rows: ContentRow[], section: string, key: string, onSaveRow: (
   const dirty = value !== (row?.value ?? "");
 
   const onSave = useCallback(async (overrideValue?: string) => {
-    if (!row) return;
     const val = overrideValue !== undefined ? overrideValue : value;
     setSaving(true);
     try {
-      await onSaveRow(row.id, val);
+      await onSaveRow(row?.id ?? null, section, key, val);
       if (overrideValue !== undefined) setValue(overrideValue);
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2500);
     } catch { alert("Kaydetme başarısız."); }
     finally { setSaving(false); }
-  }, [row, value, onSaveRow]);
+  }, [row, value, onSaveRow, section, key]);
 
   return { value, setValue, saving, dirty, onSave, justSaved };
 }
@@ -390,7 +424,7 @@ function ImageField({
 }
 
 /* ────────────────────────────── Section components ────────────────────────────── */
-function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
   const title1 = useField(rows, "hero", "title_line1", onSaveRow);
   const title2 = useField(rows, "hero", "title_line2", onSaveRow);
   const subtitle = useField(rows, "hero", "subtitle", onSaveRow);
@@ -406,7 +440,7 @@ function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: 
 }
 
 function CardGroup({ rows, prefix, title, onSaveRow }: {
-  rows: ContentRow[]; prefix: string; title: string; onSaveRow: (id: number, v: string) => Promise<void>;
+  rows: ContentRow[]; prefix: string; title: string; onSaveRow: SaveRowFn;
 }) {
   const getRow = (k: string) => rows.find((r) => r.section === "cards" && r.key === `${prefix}_${k}`);
 
@@ -447,14 +481,16 @@ function CardGroup({ rows, prefix, title, onSaveRow }: {
 
   const handleSave = async () => {
     const rows4 = [
-      { row: getRow("title"), val: vals.title },
-      { row: getRow("desc"), val: vals.desc },
-      { row: getRow("image"), val: vals.image },
-      { row: getRow("link"), val: vals.link },
+      { fieldKey: "title", row: getRow("title"), val: vals.title },
+      { fieldKey: "desc", row: getRow("desc"), val: vals.desc },
+      { fieldKey: "image", row: getRow("image"), val: vals.image },
+      { fieldKey: "link", row: getRow("link"), val: vals.link },
     ];
     setSaving(true);
     try {
-      await Promise.all(rows4.filter((r) => r.row).map(({ row, val }) => onSaveRow(row!.id, val)));
+      await Promise.all(rows4.map(({ fieldKey, row, val }) =>
+        onSaveRow(row?.id ?? null, "cards", `${prefix}_${fieldKey}`, val),
+      ));
       setOrig({ ...vals });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -548,7 +584,7 @@ function CardGroup({ rows, prefix, title, onSaveRow }: {
   );
 }
 
-function CardsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+function CardsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
   return (
     <div className="space-y-5">
       <CardGroup rows={rows} prefix="mobility" title="KART 1 — Mobilite" onSaveRow={onSaveRow} />
@@ -558,7 +594,7 @@ function CardsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id:
   );
 }
 
-function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
   const text = useField(rows, "industries", "section_text", onSaveRow);
   const btn = useField(rows, "industries", "discover_button", onSaveRow);
   const btnUrl = useField(rows, "industries", "discover_button_url", onSaveRow);
@@ -571,7 +607,7 @@ function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow:
   );
 }
 
-function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
   const text = useField(rows, "quality", "text", onSaveRow);
   const btn = useField(rows, "quality", "button", onSaveRow);
   const btnUrl = useField(rows, "quality", "button_url", onSaveRow);
@@ -584,7 +620,7 @@ function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (i
   );
 }
 
-function FooterSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (id: number, v: string) => Promise<void> }) {
+function FooterSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
   const copy = useField(rows, "footer", "copyright", onSaveRow);
   return (
     <div className="space-y-6">
@@ -727,7 +763,7 @@ function SectionBlock({ title, children }: { title: string; children: React.Reac
 /* ────────────────────────────── Homepage panel ────────────────────────────── */
 function HomepagePanel({ rows, onSaveRow, loading }: {
   rows: ContentRow[];
-  onSaveRow: (id: number, v: string) => Promise<void>;
+  onSaveRow: SaveRowFn;
   loading: boolean;
 }) {
   if (loading) return (
@@ -753,15 +789,114 @@ function HomepagePanel({ rows, onSaveRow, loading }: {
   );
 }
 
+/* ────────────────────────────── Page section map ────────────────────────────── */
+const PAGE_SECTION: Record<PageKey, string> = {
+  homepage: "hero",
+  solutions: "page_solutions",
+  solutions_production: "page_solutions_production",
+  solutions_industries: "page_solutions_industries",
+  solutions_automotive: "page_solutions_automotive",
+  solutions_industrial: "page_solutions_industrial",
+  solutions_agriculture: "page_solutions_agriculture",
+  quality: "page_quality",
+  quality_certification: "page_quality_certification",
+  quality_laboratory: "page_quality_laboratory",
+  company: "page_company",
+  company_about: "page_company_about",
+  company_values: "page_company_values",
+  contact: "page_contact",
+  footer: "footer",
+  media: "media",
+};
+
+/* ────────────────────────────── ColorField ────────────────────────────── */
+function ColorField({ label, value, setValue, onSave, saving, dirty, justSaved }: ReturnType<typeof useField> & { label: string }) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          value={value || "#1e3a5f"}
+          onChange={(e) => setValue(e.target.value)}
+          className="h-9 w-14 rounded-lg border border-gray-300 cursor-pointer p-1 flex-shrink-0"
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="#1e3a5f"
+          className="flex-1 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+        />
+        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────── InnerPagePanel ────────────────────────────── */
+function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
+  pageKey: PageKey;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const section = PAGE_SECTION[pageKey];
+  const heroTitle = useField(rows, section, "hero_title", onSaveRow);
+  const heroSubtitle = useField(rows, section, "hero_subtitle", onSaveRow);
+  const heroBgColor = useField(rows, section, "hero_bg_color", onSaveRow);
+
+  if (loading) return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />)}
+    </div>
+  );
+  return (
+    <SectionBlock title="Hero Bölümü">
+      <div className="space-y-6">
+        <TextField label="Başlık" placeholder="Sayfa başlığı" {...heroTitle} />
+        <TextField label="Alt Başlık" multiline placeholder="Kısa açıklama..." {...heroSubtitle} />
+        <ColorField label="Arkaplan Rengi" {...heroBgColor} />
+      </div>
+    </SectionBlock>
+  );
+}
+
 /* ────────────────────────────── Content Editor ────────────────────────────── */
 const PAGE_TITLES: Record<PageKey, string> = {
   homepage: "Ana Sayfa",
+  solutions: "Solutions",
+  solutions_production: "Production",
+  solutions_industries: "Industries",
+  solutions_automotive: "Automotive",
+  solutions_industrial: "Industrial",
+  solutions_agriculture: "Agriculture",
+  quality: "Quality",
+  quality_certification: "Certification",
+  quality_laboratory: "Laboratory & Testing",
+  company: "Company",
+  company_about: "About Us",
+  company_values: "Our Values",
+  contact: "Contact",
   footer: "Footer",
   media: "Medya Kütüphanesi",
 };
 
 const PAGE_SUBTITLES: Record<PageKey, string> = {
   homepage: "Ana sayfanın tüm bölümlerini buradan düzenleyin.",
+  solutions: "Solutions sayfası hero bölümünü düzenleyin.",
+  solutions_production: "Production sayfası hero bölümünü düzenleyin.",
+  solutions_industries: "Industries sayfası hero bölümünü düzenleyin.",
+  solutions_automotive: "Automotive sayfası hero bölümünü düzenleyin.",
+  solutions_industrial: "Industrial sayfası hero bölümünü düzenleyin.",
+  solutions_agriculture: "Agriculture sayfası hero bölümünü düzenleyin.",
+  quality: "Quality sayfası hero bölümünü düzenleyin.",
+  quality_certification: "Certification sayfası hero bölümünü düzenleyin.",
+  quality_laboratory: "Laboratory & Testing sayfası hero bölümünü düzenleyin.",
+  company: "Company sayfası hero bölümünü düzenleyin.",
+  company_about: "About Us sayfası hero bölümünü düzenleyin.",
+  company_values: "Our Values sayfası hero bölümünü düzenleyin.",
+  contact: "Contact sayfası hero bölümünü düzenleyin.",
   footer: "Footer bölümü içeriklerini düzenleyin.",
   media: "Yüklenen görselleri yönetin, URL kopyalayın veya silin.",
 };
@@ -775,12 +910,28 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
     apiFetch("/admin/content").then((r: ContentRow[]) => setRows(r)).finally(() => setLoading(false));
   }, []);
 
-  const onSaveRow = useCallback(async (id: number, value: string) => {
-    const updated: ContentRow = await apiFetch(`/admin/content/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ value }),
-    });
-    setRows((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+  const onSaveRow = useCallback<SaveRowFn>(async (id, section, key, value) => {
+    if (id !== null) {
+      const updated: ContentRow = await apiFetch(`/admin/content/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ value }),
+      });
+      setRows((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    } else {
+      const created: ContentRow = await apiFetch("/admin/content", {
+        method: "POST",
+        body: JSON.stringify({ section, key, value, label: key }),
+      });
+      setRows((prev) => {
+        const idx = prev.findIndex((r) => r.section === created.section && r.key === created.key);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = created;
+          return next;
+        }
+        return [...prev, created];
+      });
+    }
   }, []);
 
   const handleLogout = async () => {
@@ -798,6 +949,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
           : <div className="border border-gray-200 rounded-2xl bg-white p-6"><FooterSection rows={rows} onSaveRow={onSaveRow} /></div>;
       case "media":
         return <MediaLibrary />;
+      default:
+        return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }
   };
 
@@ -819,15 +972,25 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-52 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto py-5 px-3">
-          {NAV.map((item) => (
-            <button key={item.key} onClick={() => setActive(item.key)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition mb-0.5 flex items-center gap-2.5 ${active === item.key ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"}`}>
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-              </svg>
-              {item.label}
-            </button>
+        <aside className="w-52 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto py-5 px-2">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.groupLabel} className="mb-4">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-1.5">
+                {group.groupLabel}
+              </p>
+              {group.items.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setActive(item.key)}
+                  className={`w-full text-left py-1.5 rounded-lg text-sm font-medium transition mb-0.5 ${
+                    active === item.key ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                  style={{ paddingLeft: `${12 + (item.indent ?? 0) * 14}px` }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           ))}
         </aside>
 

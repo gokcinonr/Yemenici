@@ -9,46 +9,46 @@ function Routes() {
       <Route path="/" component={HomePage} />
 
       <Route path="/solutions">
-        {() => <PlaceholderPage title="Solutions" subtitle="What We Offer" />}
+        {() => <PlaceholderPage title="Solutions" subtitle="What We Offer" sectionKey="page_solutions" />}
       </Route>
       <Route path="/solutions/production">
-        {() => <PlaceholderPage title="Production" subtitle="Solutions" />}
+        {() => <PlaceholderPage title="Production" subtitle="Solutions" sectionKey="page_solutions_production" />}
       </Route>
       <Route path="/solutions/industries">
-        {() => <PlaceholderPage title="Industries" subtitle="Solutions" />}
+        {() => <PlaceholderPage title="Industries" subtitle="Solutions" sectionKey="page_solutions_industries" />}
       </Route>
       <Route path="/solutions/industries/automotive">
-        {() => <PlaceholderPage title="Automotive" subtitle="Industries" />}
+        {() => <PlaceholderPage title="Automotive" subtitle="Industries" sectionKey="page_solutions_automotive" />}
       </Route>
       <Route path="/solutions/industries/industrial">
-        {() => <PlaceholderPage title="Industrial" subtitle="Industries" />}
+        {() => <PlaceholderPage title="Industrial" subtitle="Industries" sectionKey="page_solutions_industrial" />}
       </Route>
       <Route path="/solutions/industries/agriculture">
-        {() => <PlaceholderPage title="Agriculture" subtitle="Industries" />}
+        {() => <PlaceholderPage title="Agriculture" subtitle="Industries" sectionKey="page_solutions_agriculture" />}
       </Route>
 
       <Route path="/quality">
-        {() => <PlaceholderPage title="Quality" subtitle="Our Standards" />}
+        {() => <PlaceholderPage title="Quality" subtitle="Our Standards" sectionKey="page_quality" />}
       </Route>
       <Route path="/quality/certification">
-        {() => <PlaceholderPage title="Certification" subtitle="Quality" />}
+        {() => <PlaceholderPage title="Certification" subtitle="Quality" sectionKey="page_quality_certification" />}
       </Route>
       <Route path="/quality/laboratory-testing">
-        {() => <PlaceholderPage title="Laboratory & Testing" subtitle="Quality" />}
+        {() => <PlaceholderPage title="Laboratory & Testing" subtitle="Quality" sectionKey="page_quality_laboratory" />}
       </Route>
 
       <Route path="/company">
-        {() => <PlaceholderPage title="Company" subtitle="Who We Are" />}
+        {() => <PlaceholderPage title="Company" subtitle="Who We Are" sectionKey="page_company" />}
       </Route>
       <Route path="/company/about-us">
-        {() => <PlaceholderPage title="About Us" subtitle="Company" />}
+        {() => <PlaceholderPage title="About Us" subtitle="Company" sectionKey="page_company_about" />}
       </Route>
       <Route path="/company/our-values">
-        {() => <PlaceholderPage title="Our Values" subtitle="Company" />}
+        {() => <PlaceholderPage title="Our Values" subtitle="Company" sectionKey="page_company_values" />}
       </Route>
 
       <Route path="/contact">
-        {() => <PlaceholderPage title="Contact" subtitle="Get in Touch" />}
+        {() => <PlaceholderPage title="Contact" subtitle="Get in Touch" sectionKey="page_contact" />}
       </Route>
 
       <Route>

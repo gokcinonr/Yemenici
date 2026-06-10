@@ -75543,11 +75543,13 @@ router2.post("/admin/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
+      res.status(400).json({ error: "Username and password required" });
+      return;
     }
     const [user] = await db.select().from(adminUsersTable).where(eq(adminUsersTable.username, username)).limit(1);
     if (!user || !await bcryptjs_default.compare(password, user.passwordHash)) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
     }
     req.session.adminId = user.id;
     req.session.adminUsername = user.username;
@@ -75569,6 +75571,26 @@ router2.get("/admin/content", requireAuth, async (req, res) => {
   try {
     const rows = await db.select().from(siteContentTable);
     res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+router2.post("/admin/content", requireAuth, async (req, res) => {
+  try {
+    const { section, key, value, label } = req.body;
+    if (!section || !key) {
+      res.status(400).json({ error: "section and key are required" });
+      return;
+    }
+    const existing = await db.select().from(siteContentTable).where(eq(siteContentTable.section, section)).then((rows) => rows.find((r) => r.key === key));
+    if (existing) {
+      const [updated] = await db.update(siteContentTable).set({ value: value ?? "", updatedAt: /* @__PURE__ */ new Date() }).where(eq(siteContentTable.id, existing.id)).returning();
+      res.json(updated);
+      return;
+    }
+    const [created] = await db.insert(siteContentTable).values({ section, key, value: value ?? "", label: label ?? key, updatedAt: /* @__PURE__ */ new Date() }).returning();
+    res.json(created);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Server error" });
@@ -75623,11 +75645,13 @@ router2.post("/site-access", async (req, res) => {
   try {
     const { password } = req.body;
     if (!password) {
-      return res.status(400).json({ error: "Password required" });
+      res.status(400).json({ error: "Password required" });
+      return;
     }
     const [user] = await db.select().from(adminUsersTable).where(eq(adminUsersTable.username, "admin")).limit(1);
     if (!user || !await bcryptjs_default.compare(password, user.passwordHash)) {
-      return res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: "Invalid password" });
+      return;
     }
     res.json({ ok: true });
   } catch (err) {
