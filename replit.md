@@ -32,7 +32,7 @@ See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and pa
 Rubber company website. Key architecture:
 - **Routing**: wouter, `Router` base = `import.meta.env.BASE_URL` in `src/app/App.tsx`
 - **Layout**: `src/app/components/Layout.tsx` — wraps all pages with `Navbar` + `Footer`
-- **Navbar**: `src/app/components/Navbar.tsx` — full navbar with SOLUTIONS mega menu (3-col: overview / Production+Industries / Automotive+Industrial+Agriculture sub-links), and mobile accordion menu with full sitemap hierarchy
+- **Navbar**: `src/app/components/Navbar.tsx` — dual mega menu navbar. SOLUTIONS (hover/click): Col1=Industries grid (Automotive/Industrial/Agriculture), Col2=Production double-height box (image top, title+desc bottom). QUALITY (hover/click): Certification + Laboratory & Testing boxes. Both menus use `activeMegaMenu: "solutions"|"quality"|null` state. Content dynamic via `useNavContent()` hook → `/api/content` with DB sections `nav_box_automotive/industrial/agriculture/production/certification/laboratory`. Mobile accordion unchanged.
 - **Footer**: `src/app/components/Footer.tsx` — site tree (Solutions, Quality, Company, Contact), company address, T&C/Privacy links, LinkedIn
 - **Pages**: `src/app/pages/PlaceholderPage.tsx` — generic "coming soon" template used for all sub-pages
 - **Sitemap routes**: `/solutions`, `/solutions/production`, `/solutions/industries`, `/solutions/industries/automotive`, `/solutions/industries/industrial`, `/solutions/industries/agriculture`, `/quality`, `/quality/certification`, `/quality/laboratory-testing`, `/company`, `/company/about-us`, `/company/our-values`, `/contact`
