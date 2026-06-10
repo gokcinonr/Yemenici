@@ -8,6 +8,7 @@ import CertificationPage from "./pages/CertificationPage";
 import LaboratoryPage from "./pages/LaboratoryPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import OurValuesPage from "./pages/OurValuesPage";
+import ContactPage from "./pages/ContactPage";
 import SiteGate from "./components/SiteGate";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -56,7 +57,7 @@ function Routes() {
       </Route>
 
       <Route path="/contact">
-        {() => <PlaceholderPage title="Contact" subtitle="Get in Touch" sectionKey="page_contact" />}
+        {() => <ContactPage />}
       </Route>
 
       <Route>

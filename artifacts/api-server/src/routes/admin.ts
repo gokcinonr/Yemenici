@@ -2,8 +2,8 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import multer from "multer";
 import path from "path";
-import { db, adminUsersTable, siteContentTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, adminUsersTable, siteContentTable, contactSubmissionsTable } from "@workspace/db";
+import { eq, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -183,6 +183,20 @@ router.delete("/admin/media/:filename", requireAuth, (req, res) => {
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: "Delete failed" });
+  }
+});
+
+router.get("/admin/submissions", requireAuth, async (req, res) => {
+  try {
+    const submissions = await db
+      .select()
+      .from(contactSubmissionsTable)
+      .orderBy(desc(contactSubmissionsTable.createdAt))
+      .limit(50);
+    res.json(submissions);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

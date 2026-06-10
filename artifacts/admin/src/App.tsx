@@ -89,7 +89,7 @@ type PageKey =
   | "solutions_automotive" | "solutions_industrial" | "solutions_agriculture"
   | "quality" | "quality_certification" | "quality_laboratory"
   | "company" | "company_about" | "company_values"
-  | "contact"
+  | "contact" | "contact_settings"
   | "menu_solutions" | "menu_quality"
   | "prod_elements"
   | "footer" | "media";
@@ -116,6 +116,7 @@ const NAV_GROUPS: NavGroup[] = [
       { key: "company_about", label: "About Us", indent: 1 },
       { key: "company_values", label: "Our Values", indent: 1 },
       { key: "contact", label: "Contact" },
+      { key: "contact_settings", label: "Form & E-posta", indent: 1 },
     ],
   },
   {
@@ -901,6 +902,7 @@ const PAGE_SECTION: Record<PageKey, string> = {
   company_about: "page_company_about",
   company_values: "page_company_values",
   contact: "page_contact",
+  contact_settings: "contact_settings",
   prod_elements: "prod_elements",
   menu_solutions: "nav_menu_solutions",
   menu_quality: "nav_menu_quality",
@@ -2632,6 +2634,7 @@ const PAGE_TITLES: Record<PageKey, string> = {
   company_about: "About Us",
   company_values: "Our Values",
   contact: "Contact",
+  contact_settings: "Form & E-posta Ayarları",
   prod_elements: "Production Elementleri",
   menu_solutions: "Solutions Menü",
   menu_quality: "Quality Menü",
@@ -2654,12 +2657,204 @@ const PAGE_SUBTITLES: Record<PageKey, string> = {
   company_about: "About Us sayfası hero bölümünü düzenleyin.",
   company_values: "Our Values sayfası hero bölümünü düzenleyin.",
   contact: "Contact sayfası hero bölümünü düzenleyin.",
+  contact_settings: "E-posta bildirim ayarları ve son form gönderimleri.",
   prod_elements: "Production sayfasındaki 4 elementi yönetin — başlık, içerik ve görsel (EN/DE/TR).",
   menu_solutions: "Solutions mega menüsündeki Industries ve Production kutularını yönetin.",
   menu_quality: "Quality mega menüsündeki Certification ve Laboratory kutularını yönetin.",
   footer: "Footer bölümü içeriklerini düzenleyin.",
   media: "Yüklenen görselleri yönetin, URL kopyalayın veya silin.",
 };
+
+/* ──────────────── ContactSettingsPanel ──────────────── */
+type Submission = {
+  id: number; firstName: string; lastName: string; email: string;
+  phone: string | null; position: string | null; companyName: string;
+  message: string; lang: string; consentGiven: boolean; createdAt: string;
+};
+
+function ContactSettingsPanel({
+  rows, onSaveRow, loading,
+}: { rows: ContentRow[]; onSaveRow: SaveRowFn; loading: boolean }) {
+  const SEC = "contact_settings";
+  const gv = (key: string) => rows.find((r) => r.section === SEC && r.key === key)?.value || "";
+  const [vals, setVals] = useState({
+    recipient_email: "", smtp_host: "", smtp_port: "587",
+    smtp_user: "", smtp_pass: "", smtp_from: "", smtp_from_name: "Yemenici",
+  });
+  const [orig, setOrig] = useState({ ...vals });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [subs, setSubs] = useState<Submission[]>([]);
+  const [subsLoading, setSubsLoading] = useState(true);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (loading) return;
+    const next = {
+      recipient_email: gv("recipient_email"),
+      smtp_host: gv("smtp_host"),
+      smtp_port: gv("smtp_port") || "587",
+      smtp_user: gv("smtp_user"),
+      smtp_pass: gv("smtp_pass"),
+      smtp_from: gv("smtp_from"),
+      smtp_from_name: gv("smtp_from_name") || "Yemenici",
+    };
+    setVals(next);
+    setOrig(next);
+  }, [loading, rows]);
+
+  useEffect(() => {
+    apiFetch("/admin/submissions")
+      .then((d: Submission[]) => setSubs(d))
+      .catch(() => {})
+      .finally(() => setSubsLoading(false));
+  }, []);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        Object.entries(vals).map(([k, v]) => onSaveRow(null, SEC, k, v))
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const sf = (k: keyof typeof vals) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setVals((p) => ({ ...p, [k]: e.target.value }));
+
+  const inputCls = "w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white";
+  const labelCls2 = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5";
+
+  return (
+    <div className="space-y-8">
+      {/* Email settings */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-gray-900 mb-1">E-posta Bildirimleri</h3>
+        <p className="text-xs text-gray-500 mb-5">Form gönderimlerinde bildirim e-postası alan adres ve SMTP ayarları.</p>
+
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls2}>Alıcı E-posta *</label>
+            <input value={vals.recipient_email} onChange={sf("recipient_email")} type="email"
+              placeholder="info@yemenici.com" className={inputCls} />
+            <p className="text-xs text-gray-400 mt-1">Her form gönderiminde buraya bildirim e-postası gönderilir.</p>
+          </div>
+
+          <div className="pt-2 border-t border-gray-100">
+            <p className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">SMTP Yapılandırması</p>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelCls2}>SMTP Host</label>
+                <input value={vals.smtp_host} onChange={sf("smtp_host")} type="text"
+                  placeholder="smtp.gmail.com" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls2}>Port</label>
+                <input value={vals.smtp_port} onChange={sf("smtp_port")} type="text"
+                  placeholder="587" className={inputCls} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelCls2}>Kullanıcı Adı</label>
+                <input value={vals.smtp_user} onChange={sf("smtp_user")} type="text"
+                  placeholder="mail@yemenici.com" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls2}>Şifre</label>
+                <input value={vals.smtp_pass} onChange={sf("smtp_pass")} type="password"
+                  placeholder="••••••••" className={inputCls} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls2}>Gönderen E-posta</label>
+                <input value={vals.smtp_from} onChange={sf("smtp_from")} type="email"
+                  placeholder="noreply@yemenici.com" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls2}>Gönderen Adı</label>
+                <input value={vals.smtp_from_name} onChange={sf("smtp_from_name")} type="text"
+                  placeholder="Yemenici" className={inputCls} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 mt-5 pt-5 border-t border-gray-100">
+          <button
+            onClick={handleSave}
+            disabled={!dirty || saving}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition"
+          >
+            {saving ? "Kaydediliyor…" : "Kaydet"}
+          </button>
+          {saved && <span className="text-xs text-green-600 font-semibold">✓ Kaydedildi</span>}
+        </div>
+      </div>
+
+      {/* Submissions */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-gray-900 mb-1">Son Gönderimler</h3>
+        <p className="text-xs text-gray-500 mb-4">Son 50 form gönderimi — en yeniden en eskiye.</p>
+        {subsLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />)}
+          </div>
+        ) : subs.length === 0 ? (
+          <div className="text-center py-10 text-sm text-gray-400">Henüz form gönderimi yok.</div>
+        ) : (
+          <div className="space-y-2">
+            {subs.map((s) => (
+              <div key={s.id} className="border border-gray-100 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setExpanded(expanded === s.id ? null : s.id)}
+                  className="w-full flex items-center gap-4 px-4 py-3 text-left hover:bg-gray-50 transition"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {s.firstName} {s.lastName}
+                      <span className="ml-2 text-xs font-normal text-gray-500">{s.companyName}</span>
+                    </p>
+                    <p className="text-xs text-gray-400 truncate">{s.email} · {s.lang.toUpperCase()}</p>
+                  </div>
+                  <span className="text-xs text-gray-400 flex-shrink-0">
+                    {new Date(s.createdAt).toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${expanded === s.id ? "rotate-180" : ""}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {expanded === s.id && (
+                  <div className="px-4 pb-4 border-t border-gray-100 bg-gray-50">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 mb-3">
+                      {s.phone && <div><span className="text-[10px] text-gray-400 uppercase tracking-wide">Phone</span><p className="text-sm text-gray-700">{s.phone}</p></div>}
+                      {s.position && <div><span className="text-[10px] text-gray-400 uppercase tracking-wide">Position</span><p className="text-sm text-gray-700">{s.position}</p></div>}
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Message</span>
+                      <p className="text-sm text-gray-700 mt-1 leading-relaxed whitespace-pre-wrap">{s.message}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ContentEditor({ username, onLogout }: { username: string; onLogout: () => void }) {
   const [rows, setRows] = useState<ContentRow[]>([]);
@@ -2725,6 +2920,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         return <CertificatesManagerPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "quality_laboratory":
         return <LaboratoryPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "contact_settings":
+        return <ContactSettingsPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }

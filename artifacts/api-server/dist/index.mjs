@@ -20499,27 +20499,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router4;
+    module.exports = Router5;
     module.exports.Route = Route;
-    function Router4(options) {
-      if (!(this instanceof Router4)) {
-        return new Router4(options);
+    function Router5(options) {
+      if (!(this instanceof Router5)) {
+        return new Router5(options);
       }
       const opts = options || {};
-      function router4(req, res, next) {
-        router4.handle(req, res, next);
+      function router5(req, res, next) {
+        router5.handle(req, res, next);
       }
-      Object.setPrototypeOf(router4, this);
-      router4.caseSensitive = opts.caseSensitive;
-      router4.mergeParams = opts.mergeParams;
-      router4.params = {};
-      router4.strict = opts.strict;
-      router4.stack = [];
-      return router4;
+      Object.setPrototypeOf(router5, this);
+      router5.caseSensitive = opts.caseSensitive;
+      router5.mergeParams = opts.mergeParams;
+      router5.params = {};
+      router5.strict = opts.strict;
+      router5.stack = [];
+      return router5;
     }
-    Router4.prototype = function() {
+    Router5.prototype = function() {
     };
-    Router4.prototype.param = function param(name, fn) {
+    Router5.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20539,7 +20539,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router4.prototype.handle = function handle(req, res, callback) {
+    Router5.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20666,7 +20666,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router4.prototype.use = function use(handler) {
+    Router5.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -20699,7 +20699,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router4.prototype.route = function route(path3) {
+    Router5.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -20714,7 +20714,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router4.prototype[method] = function(path3) {
+      Router5.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20897,13 +20897,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router4 = require_router();
+    var Router5 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router4 = null;
+      var router5 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20912,13 +20912,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router4 === null) {
-            router4 = new Router4({
+          if (router5 === null) {
+            router5 = new Router5({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router4;
+          return router5;
         }
       });
     };
@@ -20989,15 +20989,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router4 = this.router;
+      var router5 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router4.use(path3, fn2);
+          return router5.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router4.use(path3, function mounted_app(req, res, next) {
+        router5.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23524,7 +23524,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router4 = require_router();
+    var Router5 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23546,8 +23546,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router4.Route;
-    exports.Router = Router4;
+    exports.Route = Router5.Route;
+    exports.Router = Router5;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -51487,14 +51487,14 @@ var require_lib6 = __commonJS({
 });
 
 // src/app.ts
-var import_express4 = __toESM(require_express2(), 1);
+var import_express5 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 var import_express_session = __toESM(require_express_session(), 1);
 import path2 from "path";
 
 // src/routes/index.ts
-var import_express3 = __toESM(require_express2(), 1);
+var import_express4 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -64090,7 +64090,9 @@ function drizzle(...params) {
 var schema_exports = {};
 __export(schema_exports, {
   adminUsersTable: () => adminUsersTable,
+  contactSubmissionsTable: () => contactSubmissionsTable,
   insertAdminUserSchema: () => insertAdminUserSchema,
+  insertContactSchema: () => insertContactSchema,
   insertSiteContentSchema: () => insertSiteContentSchema,
   insertSiteImageSchema: () => insertSiteImageSchema,
   siteContentTable: () => siteContentTable,
@@ -75509,6 +75511,25 @@ var siteImagesTable = pgTable("site_images", {
 });
 var insertSiteImageSchema = createInsertSchema(siteImagesTable).omit({ id: true, updatedAt: true });
 
+// ../../lib/db/src/schema/contact.ts
+var contactSubmissionsTable = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  position: text("position"),
+  companyName: text("company_name").notNull(),
+  message: text("message").notNull(),
+  lang: text("lang").notNull().default("en"),
+  consentGiven: boolean("consent_given").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+var insertContactSchema = createInsertSchema(contactSubmissionsTable).omit({
+  id: true,
+  createdAt: true
+});
+
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
 var connectionString = process.env.DATABASE_URL;
@@ -75617,6 +75638,24 @@ router2.post(
     res.json({ url: url2, filename: req.file.filename });
   }
 );
+var pdfUpload = (0, import_multer.default)({
+  storage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_req, file2, cb) => {
+    if (file2.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files allowed"));
+  }
+});
+router2.post(
+  "/admin/upload-pdf",
+  requireAuth,
+  pdfUpload.single("file"),
+  (req, res) => {
+    if (!req.file) return res.status(400).json({ error: "No file" });
+    const url2 = `/api/uploads/${req.file.filename}`;
+    res.json({ url: url2, filename: req.file.filename });
+  }
+);
 router2.get("/admin/media", requireAuth, (_req, res) => {
   const fs = __require("fs");
   const uploadDir = path.join(process.cwd(), "public/uploads");
@@ -75639,6 +75678,15 @@ router2.delete("/admin/media/:filename", requireAuth, (req, res) => {
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: "Delete failed" });
+  }
+});
+router2.get("/admin/submissions", requireAuth, async (req, res) => {
+  try {
+    const submissions = await db.select().from(contactSubmissionsTable).orderBy(desc(contactSubmissionsTable.createdAt)).limit(50);
+    res.json(submissions);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 router2.post("/site-access", async (req, res) => {
@@ -75670,11 +75718,139 @@ router2.get("/content", async (req, res) => {
 });
 var admin_default = router2;
 
-// src/routes/index.ts
+// src/routes/contact.ts
+var import_express3 = __toESM(require_express2(), 1);
+import nodemailer from "nodemailer";
 var router3 = (0, import_express3.Router)();
-router3.use(health_default);
-router3.use(admin_default);
-var routes_default = router3;
+async function getSmtpConfig() {
+  const rows = await db.select().from(siteContentTable).where(eq(siteContentTable.section, "contact_settings"));
+  const get = (key) => rows.find((r) => r.key === key)?.value || "";
+  return {
+    host: get("smtp_host"),
+    port: parseInt(get("smtp_port") || "587", 10),
+    user: get("smtp_user"),
+    pass: get("smtp_pass"),
+    from: get("smtp_from") || "noreply@yemenici.com",
+    fromName: get("smtp_from_name") || "Yemenici",
+    recipient: get("recipient_email")
+  };
+}
+function buildEmailHtml(data) {
+  const esc2 = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const fields = [
+    ["Name", `${data.firstName} ${data.lastName}`],
+    ["Email", data.email],
+    ...data.phone ? [["Phone", data.phone]] : [],
+    ...data.position ? [["Position", data.position]] : [],
+    ["Company", data.companyName],
+    ["Language", data.lang.toUpperCase()]
+  ];
+  const rows = fields.map(
+    ([k, v]) => `<tr>
+          <td style="padding:8px 14px;background:#f8f9fb;border:1px solid #e5e7eb;font-weight:600;font-size:13px;color:#374151;width:130px;white-space:nowrap">${esc2(k)}</td>
+          <td style="padding:8px 14px;border:1px solid #e5e7eb;font-size:13px;color:#111827">${esc2(v)}</td>
+        </tr>`
+  ).join("");
+  return `<!DOCTYPE html>
+<html><body style="font-family:Arial,Helvetica,sans-serif;background:#f5f5f7;padding:32px;margin:0">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
+  <div style="background:#004FA3;padding:24px 32px">
+    <p style="margin:0;color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:0.12em;text-transform:uppercase">Yemenici Contact Form</p>
+    <h2 style="margin:6px 0 0;color:#fff;font-size:20px;font-weight:700">New Submission</h2>
+  </div>
+  <div style="padding:28px 32px">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">${rows}</table>
+    <div style="padding:16px;background:#f8f9fb;border-radius:8px;border:1px solid #e5e7eb">
+      <p style="margin:0 0 8px;font-weight:600;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em">Message</p>
+      <p style="margin:0;font-size:13px;color:#111827;line-height:1.7;white-space:pre-wrap">${esc2(data.message)}</p>
+    </div>
+  </div>
+  <div style="padding:16px 32px;border-top:1px solid #e5e7eb;background:#fafafa">
+    <p style="margin:0;font-size:11px;color:#9ca3af">Sent automatically by the Yemenici website contact form &bull; ${(/* @__PURE__ */ new Date()).toUTCString()}</p>
+  </div>
+</div>
+</body></html>`;
+}
+router3.post("/contact", async (req, res) => {
+  try {
+    const { firstName, lastName, email: email3, phone, position, companyName, message, lang, consent } = req.body;
+    if (!firstName?.trim() || !lastName?.trim()) {
+      res.status(400).json({ error: "First name and last name are required." });
+      return;
+    }
+    if (!email3?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email3.trim())) {
+      res.status(400).json({ error: "A valid email address is required." });
+      return;
+    }
+    if (!companyName?.trim()) {
+      res.status(400).json({ error: "Company name is required." });
+      return;
+    }
+    if (!message?.trim()) {
+      res.status(400).json({ error: "Message is required." });
+      return;
+    }
+    if (!consent) {
+      res.status(400).json({ error: "You must accept the Terms & Conditions and Privacy Policy." });
+      return;
+    }
+    const [submission] = await db.insert(contactSubmissionsTable).values({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email3.trim().toLowerCase(),
+      phone: phone?.trim() || null,
+      position: position?.trim() || null,
+      companyName: companyName.trim(),
+      message: message.trim(),
+      lang: lang || "en",
+      consentGiven: true
+    }).returning();
+    req.log.info({ submissionId: submission.id, email: submission.email }, "Contact form saved");
+    try {
+      const smtp = await getSmtpConfig();
+      if (smtp.host && smtp.user && smtp.pass && smtp.recipient) {
+        const transporter = nodemailer.createTransport({
+          host: smtp.host,
+          port: smtp.port,
+          secure: smtp.port === 465,
+          auth: { user: smtp.user, pass: smtp.pass }
+        });
+        await transporter.sendMail({
+          from: `"${smtp.fromName}" <${smtp.from}>`,
+          to: smtp.recipient,
+          subject: `New Contact: ${firstName.trim()} ${lastName.trim()} \u2014 ${companyName.trim()}`,
+          html: buildEmailHtml({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email3.trim(),
+            phone: phone?.trim() || null,
+            position: position?.trim() || null,
+            companyName: companyName.trim(),
+            message: message.trim(),
+            lang: lang || "en"
+          })
+        });
+        req.log.info({ submissionId: submission.id }, "Email notification sent");
+      } else {
+        req.log.warn("SMTP not configured \u2014 email skipped");
+      }
+    } catch (emailErr) {
+      req.log.error(emailErr, "Email send failed (submission already saved)");
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+var contact_default = router3;
+
+// src/routes/index.ts
+var router4 = (0, import_express4.Router)();
+router4.use(health_default);
+router4.use(contact_default);
+router4.use(admin_default);
+var routes_default = router4;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -75695,7 +75871,7 @@ var logger = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express4.default)();
+var app = (0, import_express5.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -75716,8 +75892,8 @@ app.use(
   })
 );
 app.use((0, import_cors.default)({ origin: true, credentials: true }));
-app.use(import_express4.default.json());
-app.use(import_express4.default.urlencoded({ extended: true }));
+app.use(import_express5.default.json());
+app.use(import_express5.default.urlencoded({ extended: true }));
 app.use(
   (0, import_express_session.default)({
     secret: process.env.SESSION_SECRET || "yemenici-admin-secret",
@@ -75726,7 +75902,7 @@ app.use(
     cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1e3 }
   })
 );
-app.use("/api/uploads", import_express4.default.static(path2.join(process.cwd(), "public/uploads")));
+app.use("/api/uploads", import_express5.default.static(path2.join(process.cwd(), "public/uploads")));
 app.use("/api", routes_default);
 var app_default = app;
 
