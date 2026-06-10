@@ -1224,6 +1224,270 @@ function QualityMenuPanel({ rows, onSaveRow, loading }: { rows: ContentRow[]; on
   );
 }
 
+/* ────────────────────────────── IndustryDetailPanel ─────────────────────── */
+
+const ADMIN_INDUSTRY_CONFIG: Record<string, {
+  section: string;
+  products: Array<{ section: string; label: string }>;
+}> = {
+  solutions_automotive: {
+    section: "page_solutions_automotive",
+    products: [
+      { section: "auto_prod_passenger", label: "Passenger Vehicles" },
+      { section: "auto_prod_commercial", label: "Commercial Vehicles" },
+      { section: "auto_prod_buses", label: "Buses" },
+    ],
+  },
+  solutions_industrial: {
+    section: "page_solutions_industrial",
+    products: [
+      { section: "ind_prod_construction", label: "Building & Construction" },
+      { section: "ind_prod_hvac", label: "HVAC Industry" },
+      { section: "ind_prod_appliance", label: "Commercial Appliance Systems" },
+    ],
+  },
+  solutions_agriculture: {
+    section: "page_solutions_agriculture",
+    products: [
+      { section: "agri_prod_vehicles", label: "Agricultural Vehicles" },
+      { section: "agri_prod_equipment", label: "Agricultural Equipment" },
+    ],
+  },
+};
+
+function OverviewSection({
+  section,
+  rows,
+  onSaveRow,
+}: {
+  section: string;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+  const initVals = () => ({
+    overview_en: gv("overview_en"),
+    overview_de: gv("overview_de"),
+    overview_tr: gv("overview_tr"),
+  });
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [lang, setLang] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gv("overview_en"), gv("overview_de"), gv("overview_tr")]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        (["overview_en", "overview_de", "overview_tr"] as const).map((key) => {
+          const row = rows.find((r) => r.section === section && r.key === key);
+          return onSaveRow(row?.id ?? null, section, key, vals[key]);
+        })
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      alert("Kaydetme başarısız.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const lk = `overview_${lang}` as "overview_en" | "overview_de" | "overview_tr";
+
+  return (
+    <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+        <h3 className="text-sm font-bold text-gray-800">Sektör Tanıtımı</h3>
+        <p className="text-xs text-gray-400 mt-0.5">Sektör genel bakış paragrafı (EN / DE / TR)</p>
+      </div>
+      <div className="p-6 space-y-4">
+        <LangTabs lang={lang} setLang={setLang} />
+        <TextField
+          label={`Tanıtım Metni (${lang.toUpperCase()})`}
+          multiline
+          value={vals[lk]}
+          setValue={set(lk)}
+          placeholder="Sektör tanıtım paragrafını girin…"
+        />
+      </div>
+      <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+        <button
+          onClick={handleSave}
+          disabled={saving || !dirty}
+          className={`px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-40 ${
+            saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {saving ? "Kaydediliyor…" : saved ? "✓ Kaydedildi" : "Kaydet"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function QualityOverrideSection({
+  section,
+  rows,
+  onSaveRow,
+}: {
+  section: string;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+  const KEYS = [
+    "quality_subtitle_en", "quality_subtitle_de", "quality_subtitle_tr",
+    "quality_body_en", "quality_body_de", "quality_body_tr",
+    "quality_quote_en", "quality_quote_de", "quality_quote_tr",
+  ] as const;
+  type QKey = typeof KEYS[number];
+  const initVals = () => Object.fromEntries(KEYS.map((k) => [k, gv(k)])) as Record<QKey, string>;
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [lang, setLang] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, KEYS.map(gv));
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const set = (k: QKey) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        KEYS.map((key) => {
+          const row = rows.find((r) => r.section === section && r.key === key);
+          return onSaveRow(row?.id ?? null, section, key, vals[key]);
+        })
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      alert("Kaydetme başarısız.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const L = lang as "en" | "de" | "tr";
+
+  return (
+    <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+        <h3 className="text-sm font-bold text-gray-800">Kalite Bölümü (Override)</h3>
+        <p className="text-xs text-gray-400 mt-0.5">"Quality as a Culture" bloğu — alt başlık, paragraf ve alıntı</p>
+      </div>
+      <div className="p-6 space-y-4">
+        <LangTabs lang={lang} setLang={setLang} />
+        <TextField
+          label={`Alt Başlık (${L.toUpperCase()})`}
+          value={vals[`quality_subtitle_${L}`]}
+          setValue={set(`quality_subtitle_${L}`)}
+          placeholder="Kısa kalite ifadesi…"
+        />
+        <TextField
+          label={`Açıklama (${L.toUpperCase()})`}
+          multiline
+          value={vals[`quality_body_${L}`]}
+          setValue={set(`quality_body_${L}`)}
+          placeholder="Kalite süreçleri açıklaması…"
+        />
+        <TextField
+          label={`Alıntı (${L.toUpperCase()})`}
+          value={vals[`quality_quote_${L}`]}
+          setValue={set(`quality_quote_${L}`)}
+          placeholder='"Alıntı metni…"'
+        />
+      </div>
+      <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+        <button
+          onClick={handleSave}
+          disabled={saving || !dirty}
+          className={`px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-40 ${
+            saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {saving ? "Kaydediliyor…" : saved ? "✓ Kaydedildi" : "Kaydet"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function IndustryDetailPanel({
+  pageKey,
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  pageKey: PageKey;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const cfg = ADMIN_INDUSTRY_CONFIG[pageKey as string];
+  if (!cfg) return <InnerPagePanel pageKey={pageKey} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+
+  return (
+    <div className="space-y-6">
+      {/* Hero section */}
+      <InnerPagePanel pageKey={pageKey} rows={rows} onSaveRow={onSaveRow} loading={loading} />
+
+      {!loading && (
+        <>
+          {/* Overview */}
+          <OverviewSection section={cfg.section} rows={rows} onSaveRow={onSaveRow} />
+
+          {/* Products repeater */}
+          <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+              <h3 className="text-sm font-bold text-gray-800">Ürünler / Uygulama Alanları</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Her ürün için başlık (EN/DE/TR), içerik (EN/DE/TR) ve görsel
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              {cfg.products.map((p) => (
+                <ProdElementEditor
+                  key={p.section}
+                  section={p.section}
+                  label={p.label}
+                  rows={rows}
+                  onSaveRow={onSaveRow}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Quality override */}
+          <QualityOverrideSection section={cfg.section} rows={rows} onSaveRow={onSaveRow} />
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────── ProductionElementsPanel ───────────────────── */
 function LangTabs({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
   return (
@@ -1522,6 +1786,10 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         return <SolutionsMenuPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "menu_quality":
         return <QualityMenuPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "solutions_automotive":
+      case "solutions_industrial":
+      case "solutions_agriculture":
+        return <IndustryDetailPanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }

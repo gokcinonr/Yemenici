@@ -2,6 +2,7 @@ import { Switch, Route, Router } from "wouter";
 import HomePage from "./components/HomePage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductionPage from "./pages/ProductionPage";
+import IndustryDetailPage from "./pages/IndustryDetailPage";
 import SiteGate from "./components/SiteGate";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -20,13 +21,13 @@ function Routes() {
         {() => <PlaceholderPage title="Industries" subtitle="Solutions" sectionKey="page_solutions_industries" />}
       </Route>
       <Route path="/solutions/industries/automotive">
-        {() => <PlaceholderPage title="Automotive" subtitle="Industries" sectionKey="page_solutions_automotive" />}
+        {() => <IndustryDetailPage sectionKey="page_solutions_automotive" />}
       </Route>
       <Route path="/solutions/industries/industrial">
-        {() => <PlaceholderPage title="Industrial" subtitle="Industries" sectionKey="page_solutions_industrial" />}
+        {() => <IndustryDetailPage sectionKey="page_solutions_industrial" />}
       </Route>
       <Route path="/solutions/industries/agriculture">
-        {() => <PlaceholderPage title="Agriculture" subtitle="Industries" sectionKey="page_solutions_agriculture" />}
+        {() => <IndustryDetailPage sectionKey="page_solutions_agriculture" />}
       </Route>
 
       <Route path="/quality">
