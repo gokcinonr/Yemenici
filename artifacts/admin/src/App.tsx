@@ -1738,6 +1738,326 @@ function QualityPagePanel({
   );
 }
 
+/* ────────────────────────────── CertificatesManagerPanel ─────────────────── */
+
+function PdfUploadField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const filename = value ? value.split("/").pop() : "";
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API}/admin/upload-pdf`, {
+        method: "POST",
+        credentials: "include",
+        body: form,
+      });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      onChange(url);
+    } catch {
+      alert("PDF yükleme başarısız.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+      <div className="flex items-center gap-2">
+        {value ? (
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 text-xs truncate hover:bg-green-100 transition"
+          >
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span className="truncate">{filename}</span>
+          </a>
+        ) : (
+          <div className="flex-1 px-3 py-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-xs text-gray-400 text-center">
+            PDF yüklenmedi
+          </div>
+        )}
+        <input ref={fileRef} type="file" accept="application/pdf" className="hidden" onChange={handleFile} />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 whitespace-nowrap"
+        >
+          {uploading ? "Yükleniyor…" : value ? "Değiştir" : "PDF Yükle"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CertEntryEditor({
+  index,
+  rows,
+  onSaveRow,
+}: {
+  index: number;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const section = `cert_${index}`;
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+  const [showImgPicker, setShowImgPicker] = useState(false);
+
+  const initVals = () => ({
+    title:     gv("title"),
+    image_url: gv("image_url"),
+    pdf_en:    gv("pdf_en"),
+    pdf_de:    gv("pdf_de"),
+    pdf_tr:    gv("pdf_tr"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState(index === 1);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gv("title"), gv("image_url"), gv("pdf_en"), gv("pdf_de"), gv("pdf_tr")]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        (["title","image_url","pdf_en","pdf_de","pdf_tr"] as const).map((key) => {
+          const row = rows.find((r) => r.section === section && r.key === key);
+          return onSaveRow(row?.id ?? null, section, key, vals[key]);
+        })
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      alert("Kaydetme başarısız.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      {showImgPicker && (
+        <MediaPickerModal
+          onSelect={(url) => { set("image_url")(url); setShowImgPicker(false); }}
+          onClose={() => setShowImgPicker(false)}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl overflow-hidden">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-4 py-3 bg-gray-50/60 hover:bg-gray-100/60 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+              {index}
+            </span>
+            <span className="text-sm font-semibold text-gray-800 truncate">
+              {vals.title || `Sertifika ${index}`}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            {dirty && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+            {saved && <span className="text-xs text-green-600 font-medium">✓ Kaydedildi</span>}
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </button>
+
+        {open && (
+          <div className="p-5 bg-white space-y-5">
+            {/* Title */}
+            <TextField
+              label="Sertifika Başlığı"
+              value={vals.title}
+              setValue={set("title")}
+              placeholder="ISO 9001:2015 – Quality Management System"
+            />
+
+            {/* Image */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Önizleme Görseli</label>
+              <div className="flex gap-3 items-start">
+                <div className="w-20 h-14 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-50 flex items-center justify-center text-gray-300">
+                  {vals.image_url
+                    ? <img src={vals.image_url} alt="" className="w-full h-full object-cover" />
+                    : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  }
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text"
+                    value={vals.image_url}
+                    onChange={(e) => set("image_url")(e.target.value)}
+                    placeholder="https://… veya /api/uploads/…"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowImgPicker(true)}
+                    className="text-xs text-blue-600 hover:text-blue-700 font-medium transition"
+                  >
+                    Medya kütüphanesinden seç
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* PDF uploads */}
+            <div className="grid grid-cols-3 gap-3">
+              <PdfUploadField label="🇬🇧 PDF (EN)" value={vals.pdf_en} onChange={set("pdf_en")} />
+              <PdfUploadField label="🇩🇪 PDF (DE)" value={vals.pdf_de} onChange={set("pdf_de")} />
+              <PdfUploadField label="🇹🇷 PDF (TR)" value={vals.pdf_tr} onChange={set("pdf_tr")} />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={handleSave}
+                disabled={!dirty || saving}
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
+                  saved
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : dirty
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor…" : "Kaydet"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function CertificatesManagerPanel({
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const getCertCount = () => {
+    const v = rows.find((r) => r.section === "page_quality_certification" && r.key === "cert_count")?.value;
+    return Math.max(0, parseInt(v || "0", 10));
+  };
+
+  const certCount = getCertCount();
+
+  const updateCertCount = async (newCount: number) => {
+    const row = rows.find((r) => r.section === "page_quality_certification" && r.key === "cert_count");
+    await onSaveRow(row?.id ?? null, "page_quality_certification", "cert_count", String(newCount));
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Hero section */}
+      <InnerPagePanel pageKey="quality_certification" rows={rows} onSaveRow={onSaveRow} loading={loading} />
+
+      {!loading && (
+        <>
+          {/* Overview text */}
+          <OverviewSection section="page_quality_certification" rows={rows} onSaveRow={onSaveRow} />
+
+          {/* Certificates list */}
+          <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-800">Sertifikalar</h3>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Her sertifika için başlık, görsel ve EN/DE/TR PDF dosyaları
+                </p>
+              </div>
+              <button
+                onClick={() => updateCertCount(certCount + 1)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+                Sertifika Ekle
+              </button>
+            </div>
+
+            <div className="p-4 space-y-2">
+              {certCount === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <svg className="w-10 h-10 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-sm font-medium">Henüz sertifika eklenmedi</p>
+                  <p className="text-xs mt-1">Yukarıdaki "Sertifika Ekle" butonunu kullanın</p>
+                </div>
+              ) : (
+                Array.from({ length: certCount }, (_, i) => (
+                  <CertEntryEditor
+                    key={i + 1}
+                    index={i + 1}
+                    rows={rows}
+                    onSaveRow={onSaveRow}
+                  />
+                ))
+              )}
+            </div>
+
+            {certCount > 0 && (
+              <div className="px-4 pb-4 flex justify-end">
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Son sertifikayı (${certCount}) kaldırmak istediğinizden emin misiniz?`)) {
+                      updateCertCount(certCount - 1);
+                    }
+                  }}
+                  className="text-xs text-red-500 hover:text-red-700 transition font-medium"
+                >
+                  Son sertifikayı kaldır
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────── ProductionElementsPanel ───────────────────── */
 function LangTabs({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
   return (
@@ -2042,6 +2362,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         return <IndustryDetailPanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "quality":
         return <QualityPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "quality_certification":
+        return <CertificatesManagerPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }

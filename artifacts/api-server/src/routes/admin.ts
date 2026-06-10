@@ -137,6 +137,26 @@ router.post(
   },
 );
 
+const pdfUpload = multer({
+  storage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files allowed"));
+  },
+});
+
+router.post(
+  "/admin/upload-pdf",
+  requireAuth,
+  pdfUpload.single("file"),
+  (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No file" });
+    const url = `/api/uploads/${req.file.filename}`;
+    res.json({ url, filename: req.file.filename });
+  },
+);
+
 router.get("/admin/media", requireAuth, (_req, res) => {
   const fs = require("fs") as typeof import("fs");
   const uploadDir = path.join(process.cwd(), "public/uploads");
