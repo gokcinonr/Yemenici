@@ -92,7 +92,8 @@ type PageKey =
   | "contact" | "contact_settings"
   | "menu_solutions" | "menu_quality"
   | "prod_elements"
-  | "footer" | "media";
+  | "footer" | "media"
+  | "legal_settings";
 
 type NavItem = { key: PageKey; label: string; indent?: 1 | 2 };
 type NavGroup = { groupLabel: string; items: NavItem[] };
@@ -131,6 +132,12 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: "footer", label: "Footer" },
       { key: "media", label: "Medya Kütüphanesi" },
+    ],
+  },
+  {
+    groupLabel: "Hukuki",
+    items: [
+      { key: "legal_settings", label: "Legal Settings" },
     ],
   },
 ];
@@ -903,6 +910,7 @@ const PAGE_SECTION: Record<PageKey, string> = {
   company_values: "page_company_values",
   contact: "page_contact",
   contact_settings: "contact_settings",
+  legal_settings: "legal_settings",
   prod_elements: "prod_elements",
   menu_solutions: "nav_menu_solutions",
   menu_quality: "nav_menu_quality",
@@ -2635,6 +2643,7 @@ const PAGE_TITLES: Record<PageKey, string> = {
   company_values: "Our Values",
   contact: "Contact",
   contact_settings: "Form & E-posta Ayarları",
+  legal_settings: "Legal Settings",
   prod_elements: "Production Elementleri",
   menu_solutions: "Solutions Menü",
   menu_quality: "Quality Menü",
@@ -2658,12 +2667,302 @@ const PAGE_SUBTITLES: Record<PageKey, string> = {
   company_values: "Our Values sayfası hero bölümünü düzenleyin.",
   contact: "Contact sayfası hero bölümünü düzenleyin.",
   contact_settings: "E-posta bildirim ayarları ve son form gönderimleri.",
+  legal_settings: "Terms & Conditions, Privacy Policy ve Cookie Banner içeriklerini EN/DE/TR olarak yönetin.",
   prod_elements: "Production sayfasındaki 4 elementi yönetin — başlık, içerik ve görsel (EN/DE/TR).",
   menu_solutions: "Solutions mega menüsündeki Industries ve Production kutularını yönetin.",
   menu_quality: "Quality mega menüsündeki Certification ve Laboratory kutularını yönetin.",
   footer: "Footer bölümü içeriklerini düzenleyin.",
   media: "Yüklenen görselleri yönetin, URL kopyalayın veya silin.",
 };
+
+/* ──────────────── LegalSettingsPanel ──────────────── */
+type LegalLang = "en" | "de" | "tr";
+type LegalDoc = "terms" | "privacy" | "cookie";
+
+const LEGAL_LANG_LABELS: Record<LegalLang, string> = { en: "English", de: "Deutsch", tr: "Türkçe" };
+const LEGAL_DOC_TABS: { key: LegalDoc; label: string }[] = [
+  { key: "terms", label: "Terms & Conditions" },
+  { key: "privacy", label: "Privacy Policy" },
+  { key: "cookie", label: "Cookie Banner" },
+];
+
+const COOKIE_KEYS = [
+  { key: "title", label: "Banner Title" },
+  { key: "desc", label: "Banner Description" },
+  { key: "acceptAll", label: "Accept All Button" },
+  { key: "rejectAll", label: "Reject All Button" },
+  { key: "manage", label: "Manage Preferences Button" },
+  { key: "savePrefs", label: "Save Preferences Button" },
+  { key: "essential_name", label: "Essential Cookies Name" },
+  { key: "essential_desc", label: "Essential Cookies Description" },
+  { key: "analytics_name", label: "Analytics Cookies Name" },
+  { key: "analytics_desc", label: "Analytics Cookies Description" },
+  { key: "marketing_name", label: "Marketing Cookies Name" },
+  { key: "marketing_desc", label: "Marketing Cookies Description" },
+];
+
+function LegalDocEditor({
+  section,
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  section: string;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const [activeLang, setActiveLang] = useState<LegalLang>("en");
+  const gv = (key: string) => rows.find((r) => r.section === section && r.key === key)?.value || "";
+
+  const contentKey = `content_${activeLang}`;
+  const updatedKey = `updated_${activeLang}`;
+
+  const [vals, setVals] = useState({ content: "", updated: "" });
+  const [orig, setOrig] = useState({ content: "", updated: "" });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+    const next = { content: gv(contentKey), updated: gv(updatedKey) };
+    setVals(next);
+    setOrig(next);
+  }, [loading, rows, activeLang]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all([
+        onSaveRow(null, section, contentKey, vals.content),
+        onSaveRow(null, section, updatedKey, vals.updated),
+      ]);
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputCls = "w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white";
+
+  return (
+    <div>
+      <div className="flex gap-1 mb-4">
+        {(Object.keys(LEGAL_LANG_LABELS) as LegalLang[]).map((l) => (
+          <button
+            key={l}
+            onClick={() => setActiveLang(l)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              activeLang === l ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {LEGAL_LANG_LABELS[l]}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          <div className="h-8 bg-gray-100 rounded-lg animate-pulse" />
+          <div className="h-64 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              Last Updated
+            </label>
+            <input
+              type="text"
+              value={vals.updated}
+              onChange={(e) => setVals((p) => ({ ...p, updated: e.target.value }))}
+              placeholder={activeLang === "en" ? "June 10, 2026" : activeLang === "de" ? "10. Juni 2026" : "10 Haziran 2026"}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              Content (Markdown — use ## for headings)
+            </label>
+            <div className="text-xs text-gray-400 mb-2 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
+              Format: <code className="font-mono">## 1. Heading</code> → section, <code className="font-mono">**text**</code> → bold, <code className="font-mono">- item</code> → bullet
+            </div>
+            <textarea
+              value={vals.content}
+              onChange={(e) => setVals((p) => ({ ...p, content: e.target.value }))}
+              rows={18}
+              className={inputCls}
+              style={{ resize: "vertical", fontFamily: "monospace", fontSize: 13 }}
+            />
+          </div>
+          <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+            <button
+              onClick={handleSave}
+              disabled={!dirty || saving}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition"
+            >
+              {saving ? "Kaydediliyor…" : "Kaydet"}
+            </button>
+            {saved && <span className="text-xs text-green-600 font-semibold">✓ Kaydedildi</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CookieBannerEditor({
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const SEC = "legal_cookie";
+  const [activeLang, setActiveLang] = useState<LegalLang>("en");
+  const gv = (key: string) => rows.find((r) => r.section === SEC && r.key === key)?.value || "";
+
+  const buildVals = (lang: LegalLang) =>
+    Object.fromEntries(COOKIE_KEYS.map(({ key }) => [key, gv(`${key}_${lang}`)]));
+
+  const [vals, setVals] = useState(() => buildVals("en"));
+  const [orig, setOrig] = useState(() => buildVals("en"));
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+    const next = buildVals(activeLang);
+    setVals(next);
+    setOrig(next);
+  }, [loading, rows, activeLang]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        COOKIE_KEYS.map(({ key }) => onSaveRow(null, SEC, `${key}_${activeLang}`, vals[key] || ""))
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputCls = "w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white";
+
+  return (
+    <div>
+      <div className="flex gap-1 mb-4">
+        {(Object.keys(LEGAL_LANG_LABELS) as LegalLang[]).map((l) => (
+          <button
+            key={l}
+            onClick={() => setActiveLang(l)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              activeLang === l ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {LEGAL_LANG_LABELS[l]}
+          </button>
+        ))}
+      </div>
+      {loading ? (
+        <div className="space-y-2">
+          {[1,2,3,4].map((i) => <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />)}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {COOKIE_KEYS.map(({ key, label }) => {
+            const isLong = key.includes("desc") || key === "desc";
+            return (
+              <div key={key}>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+                {isLong ? (
+                  <textarea
+                    value={vals[key] || ""}
+                    onChange={(e) => setVals((p) => ({ ...p, [key]: e.target.value }))}
+                    rows={3}
+                    className={inputCls}
+                    style={{ resize: "vertical" }}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={vals[key] || ""}
+                    onChange={(e) => setVals((p) => ({ ...p, [key]: e.target.value }))}
+                    className={inputCls}
+                  />
+                )}
+              </div>
+            );
+          })}
+          <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+            <button
+              onClick={handleSave}
+              disabled={!dirty || saving}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition"
+            >
+              {saving ? "Kaydediliyor…" : "Kaydet"}
+            </button>
+            {saved && <span className="text-xs text-green-600 font-semibold">✓ Kaydedildi</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LegalSettingsPanel({
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  const [activeDoc, setActiveDoc] = useState<LegalDoc>("terms");
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="flex gap-1 mb-6 border-b border-gray-100 pb-4">
+        {LEGAL_DOC_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveDoc(tab.key)}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+              activeDoc === tab.key
+                ? "bg-blue-600 text-white"
+                : "text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeDoc === "terms" && (
+        <LegalDocEditor section="legal_terms" rows={rows} onSaveRow={onSaveRow} loading={loading} />
+      )}
+      {activeDoc === "privacy" && (
+        <LegalDocEditor section="legal_privacy" rows={rows} onSaveRow={onSaveRow} loading={loading} />
+      )}
+      {activeDoc === "cookie" && (
+        <CookieBannerEditor rows={rows} onSaveRow={onSaveRow} loading={loading} />
+      )}
+    </div>
+  );
+}
 
 /* ──────────────── ContactSettingsPanel ──────────────── */
 type Submission = {
@@ -2922,6 +3221,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         return <LaboratoryPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "contact_settings":
         return <ContactSettingsPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "legal_settings":
+        return <LegalSettingsPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }

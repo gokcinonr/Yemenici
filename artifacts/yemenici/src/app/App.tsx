@@ -9,6 +9,8 @@ import LaboratoryPage from "./pages/LaboratoryPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import OurValuesPage from "./pages/OurValuesPage";
 import ContactPage from "./pages/ContactPage";
+import LegalPage from "./pages/LegalPage";
+import CookieBanner from "./components/CookieBanner";
 import SiteGate from "./components/SiteGate";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -60,6 +62,13 @@ function Routes() {
         {() => <ContactPage />}
       </Route>
 
+      <Route path="/terms-conditions">
+        {() => <LegalPage pageSection="legal_terms" />}
+      </Route>
+      <Route path="/privacy-policy">
+        {() => <LegalPage pageSection="legal_privacy" />}
+      </Route>
+
       <Route>
         {() => <PlaceholderPage title="Page Not Found" subtitle="404" />}
       </Route>
@@ -73,6 +82,7 @@ export default function App() {
       <LanguageProvider>
         <Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Routes />
+          <CookieBanner />
         </Router>
       </LanguageProvider>
     </SiteGate>
