@@ -256,115 +256,139 @@ export default function ProductionPage({
         </div>
       </section>
 
-      {/* ── 4 Production Elements ────────────────────────────────────── */}
-      <section
-        style={{ backgroundColor: "#ffffff", fontFamily: "Poppins, sans-serif" }}
-        className="py-16 md:py-24"
-      >
-        <div className="max-w-[1280px] mx-auto px-6 md:px-8">
-          {/* 2 × 2 grid on md+; single column on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {ELEMENTS.map((el, i) => {
-              const Icon = ICONS[i];
-              const accent = ACCENTS[i];
-              const title = get(el.section, `title_${lang}`) || el.title[lang];
-              const body  = get(el.section, `body_${lang}`)  || el.body[lang];
-              const image = get(el.section, "image");
-              const num   = String(i + 1).padStart(2, "0");
+      {/* ── 4 Production Elements — alternating split-screen ────────── */}
+      <section style={{ fontFamily: "Poppins, sans-serif", scrollBehavior: "smooth" }}>
+        {ELEMENTS.map((el, i) => {
+          const Icon = ICONS[i];
+          const accent = ACCENTS[i];
+          const title = get(el.section, `title_${lang}`) || el.title[lang];
+          const body  = get(el.section, `body_${lang}`)  || el.body[lang];
+          const image = get(el.section, "image");
+          const num   = String(i + 1).padStart(2, "0");
 
-              return (
-                <article
-                  key={el.section}
-                  className="rounded-2xl overflow-hidden"
-                  style={{
-                    border: "1px solid rgba(0,0,0,0.07)",
-                    boxShadow: "0 2px 24px rgba(0,0,0,0.05)",
-                    transition: "box-shadow 0.25s",
-                  }}
-                >
-                  {/* ── Image / Colour band ── */}
-                  <div
+          /* i=0,2 → image LEFT; i=1,3 → image RIGHT (text LEFT) */
+          const imageOnLeft = i % 2 === 0;
+          /* Subtle gradient from image toward text for depth */
+          const overlayGradient = imageOnLeft
+            ? "to right, rgba(0,0,0,0.18), transparent"
+            : "to left,  rgba(0,0,0,0.18), transparent";
+          /* Alternate text-panel background for rhythm */
+          const textBg = i % 2 === 0 ? "#f8f9fb" : "#ffffff";
+
+          /* ── Image panel (always first in DOM → always on top on mobile) ── */
+          const imagePanel = (
+            <div
+              className="relative overflow-hidden w-full md:w-1/2"
+              style={{ minHeight: 340 }}
+            >
+              {image ? (
+                <>
+                  <img
+                    src={image}
+                    alt={title}
                     style={{
-                      backgroundColor: accent,
-                      position: "relative",
-                      overflow: "hidden",
-                      aspectRatio: "16 / 7",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      position: "absolute", inset: 0,
+                      width: "100%", height: "100%",
+                      objectFit: "cover", display: "block",
                     }}
-                  >
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={title}
-                        style={{
-                          position: "absolute", inset: 0,
-                          width: "100%", height: "100%", objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      <div style={{ color: "rgba(255,255,255,0.20)" }}>
-                        <Icon />
-                      </div>
-                    )}
-                    {/* Ghost number watermark */}
-                    <span
-                      style={{
-                        position: "absolute", bottom: 10, right: 18,
-                        fontFamily: "Poppins, sans-serif", fontWeight: 800,
-                        fontSize: 88, lineHeight: 1,
-                        color: "rgba(255,255,255,0.07)",
-                        userSelect: "none", pointerEvents: "none",
-                      }}
-                    >
-                      {num}
-                    </span>
+                  />
+                  {/* directional depth overlay */}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    background: `linear-gradient(${overlayGradient})`,
+                    pointerEvents: "none",
+                  }} />
+                </>
+              ) : (
+                /* Placeholder: solid accent + large SVG icon */
+                <div style={{
+                  position: "absolute", inset: 0,
+                  backgroundColor: accent,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <div style={{ color: "rgba(255,255,255,0.22)", transform: "scale(2.8)" }}>
+                    <Icon />
                   </div>
+                  <span style={{
+                    position: "absolute", bottom: 20, right: 28,
+                    fontFamily: "Poppins, sans-serif", fontWeight: 800,
+                    fontSize: 112, lineHeight: 1,
+                    color: "rgba(255,255,255,0.06)",
+                    userSelect: "none", pointerEvents: "none",
+                  }}>
+                    {num}
+                  </span>
+                </div>
+              )}
+            </div>
+          );
 
-                  {/* ── Content ── */}
-                  <div style={{ padding: "28px 30px 34px" }}>
-                    {/* Number + rule */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                      <span
-                        style={{
-                          display: "inline-block", width: 28, height: 2.5,
-                          borderRadius: 2, backgroundColor: accent, flexShrink: 0,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: 11, fontWeight: 700, color: accent,
-                          letterSpacing: "0.14em", textTransform: "uppercase",
-                        }}
-                      >
-                        {num}
-                      </span>
-                    </div>
+          /* ── Text panel ──────────────────────────────────────────────── */
+          const textPanel = (
+            <div
+              className="w-full md:w-1/2 flex items-center py-14 px-8 md:px-20 md:py-0"
+              style={{ backgroundColor: textBg, minHeight: 340 }}
+            >
+              <div style={{ maxWidth: 480 }}>
+                {/* Number badge + accent line */}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 12, marginBottom: 22,
+                }}>
+                  <span style={{
+                    display: "inline-block", width: 36, height: 2,
+                    borderRadius: 2, backgroundColor: accent, flexShrink: 0,
+                  }} />
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, color: accent,
+                    letterSpacing: "0.18em", textTransform: "uppercase",
+                  }}>
+                    {num}
+                  </span>
+                </div>
 
-                    <h3
-                      style={{
-                        fontWeight: 700, fontSize: 20,
-                        color: "#0d1219", margin: "0 0 14px", lineHeight: 1.25,
-                      }}
-                    >
-                      {title}
-                    </h3>
+                <h3 style={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: 700,
+                  fontSize: "clamp(22px, 2.4vw, 32px)",
+                  color: "#0d1219",
+                  margin: "0 0 18px",
+                  lineHeight: 1.2,
+                }}>
+                  {title}
+                </h3>
 
-                    <p
-                      style={{
-                        fontWeight: 400, fontSize: 14,
-                        lineHeight: 1.85, color: "#4a5568", margin: 0,
-                      }}
-                    >
-                      {body}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
+                <p style={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: 400,
+                  fontSize: 15,
+                  lineHeight: 1.9,
+                  color: "#4a5568",
+                  margin: 0,
+                }}>
+                  {body}
+                </p>
+              </div>
+            </div>
+          );
+
+          return (
+            <div
+              key={el.section}
+              /* flex-col on mobile (image always on top via DOM order),
+                 flex-row or flex-row-reverse on desktop for alternating pattern */
+              className={`flex flex-col ${imageOnLeft ? "md:flex-row" : "md:flex-row-reverse"}`}
+              style={{
+                minHeight: 560,
+                borderBottom: i < ELEMENTS.length - 1
+                  ? "1px solid rgba(0,0,0,0.06)"
+                  : undefined,
+              }}
+            >
+              {imagePanel}
+              {textPanel}
+            </div>
+          );
+        })}
       </section>
 
       {/* ── Contact block ────────────────────────────────────────────── */}
