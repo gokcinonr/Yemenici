@@ -299,6 +299,58 @@ function QualityMegaMenu({ isOpen, onMouseEnter, onMouseLeave, get }: {
   );
 }
 
+/* ─── Company Mega Menu ──────────────────────────────────────────────────── */
+function CompanyMegaMenu({ isOpen, onMouseEnter, onMouseLeave, get }: {
+  isOpen: boolean; onMouseEnter: () => void; onMouseLeave: () => void; get: GetFn;
+}) {
+  const visible = useMenuVisible(isOpen);
+
+  const boxes = [
+    {
+      label: get("nav_box_about", "title", "About Us"),
+      href: get("nav_box_about", "href", "/company/about-us"),
+      desc: get("nav_box_about", "desc", "Learn about Yemenici's history, manufacturing philosophy, and the team behind four decades of rubber engineering excellence."),
+    },
+    {
+      label: get("nav_box_values", "title", "Our Values"),
+      href: get("nav_box_values", "href", "/company/our-values"),
+      desc: get("nav_box_values", "desc", "The principles that guide every product decision, quality commitment, and customer relationship at Yemenici."),
+    },
+  ];
+
+  return (
+    <div
+      className="fixed left-0 right-0 top-0 z-40 bg-[rgba(249,249,249,0.97)] backdrop-blur-[30px] shadow-[0_8px_32px_rgba(0,0,0,0.10)]"
+      style={{
+        opacity: visible ? menuBaseStyle.opacity_on : menuBaseStyle.opacity_off,
+        transform: visible ? menuBaseStyle.transform_on : menuBaseStyle.transform_off,
+        transition: menuBaseStyle.transition,
+        pointerEvents: visible ? "auto" : "none",
+      }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="px-4 md:px-8 pt-[127px] pb-8">
+        <div className="max-w-[1280px] mx-auto">
+          <div style={animStyle(visible, 0.18)} className="flex gap-3">
+            {boxes.map(({ label, href, desc }, i) => (
+              <Link key={label} href={href} style={{ flex: 1 }}>
+                <div
+                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 h-full cursor-pointer transition-colors duration-200"
+                  style={animStyle(visible, 0.18 + i * 0.06)}
+                >
+                  <p style={titleStyle}>{label}</p>
+                  <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── HamburgerButton ────────────────────────────────────────────────────── */
 function HamburgerButton({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) {
   return (
@@ -453,7 +505,7 @@ function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
 /* ─── Navbar ─────────────────────────────────────────────────────────────── */
 export default function Navbar() {
-  const [activeMegaMenu, setActiveMegaMenu] = useState<"solutions" | "quality" | null>(null);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<"solutions" | "quality" | "company" | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [location] = useLocation();
@@ -464,7 +516,7 @@ export default function Navbar() {
     setActiveMegaMenu(null);
   }, [location]);
 
-  const openMenu = (key: "solutions" | "quality") => {
+  const openMenu = (key: "solutions" | "quality" | "company") => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setActiveMegaMenu(key);
   };
@@ -515,20 +567,29 @@ export default function Navbar() {
               QUALITY <ChevronIcon color={activeMegaMenu === "quality" ? "#000" : "#898C90"} rotate={activeMegaMenu === "quality"} />
             </button>
 
-            {/* COMPANY, CONTACT — plain links */}
-            {[
-              { label: "COMPANY", href: "/company" },
-              { label: "CONTACT", href: "/contact" },
-            ].map(({ label, href }) => (
-              <Link key={label} href={href}>
-                <span
-                  className={`${navBtnBase} hover:bg-black/[0.04]`}
-                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
-                >
-                  {label}
-                </span>
-              </Link>
-            ))}
+            {/* COMPANY — has mega menu */}
+            <button
+              className={`${navBtnBase} hover:bg-black/[0.04]`}
+              style={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 600,
+                background: activeMegaMenu === "company" ? "rgba(249,249,249,0.97)" : "transparent",
+              }}
+              onMouseEnter={() => openMenu("company")}
+              onClick={() => setActiveMegaMenu((v) => (v === "company" ? null : "company"))}
+            >
+              COMPANY <ChevronIcon color={activeMegaMenu === "company" ? "#000" : "#898C90"} rotate={activeMegaMenu === "company"} />
+            </button>
+
+            {/* CONTACT — plain link */}
+            <Link href="/contact">
+              <span
+                className={`${navBtnBase} hover:bg-black/[0.04]`}
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+              >
+                CONTACT
+              </span>
+            </Link>
           </nav>
 
           {/* Desktop language selector */}
@@ -555,6 +616,12 @@ export default function Navbar() {
       <QualityMegaMenu
         isOpen={activeMegaMenu === "quality"}
         onMouseEnter={() => openMenu("quality")}
+        onMouseLeave={scheduleClose}
+        get={get}
+      />
+      <CompanyMegaMenu
+        isOpen={activeMegaMenu === "company"}
+        onMouseEnter={() => openMenu("company")}
         onMouseLeave={scheduleClose}
         get={get}
       />

@@ -6,6 +6,8 @@ import IndustryDetailPage from "./pages/IndustryDetailPage";
 import QualityPage from "./pages/QualityPage";
 import CertificationPage from "./pages/CertificationPage";
 import LaboratoryPage from "./pages/LaboratoryPage";
+import AboutUsPage from "./pages/AboutUsPage";
+import OurValuesPage from "./pages/OurValuesPage";
 import SiteGate from "./components/SiteGate";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -47,10 +49,10 @@ function Routes() {
         {() => <PlaceholderPage title="Company" subtitle="Who We Are" sectionKey="page_company" />}
       </Route>
       <Route path="/company/about-us">
-        {() => <PlaceholderPage title="About Us" subtitle="Company" sectionKey="page_company_about" />}
+        {() => <AboutUsPage />}
       </Route>
       <Route path="/company/our-values">
-        {() => <PlaceholderPage title="Our Values" subtitle="Company" sectionKey="page_company_values" />}
+        {() => <OurValuesPage />}
       </Route>
 
       <Route path="/contact">
