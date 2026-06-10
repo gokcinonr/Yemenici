@@ -2058,6 +2058,365 @@ function CertificatesManagerPanel({
   );
 }
 
+/* ────────────────────────────── LaboratoryPagePanel ──────────────────────── */
+
+const LAB_ICONS: Array<{ key: string; label: string }> = [
+  { key: "rheometer",   label: "Rheometer" },
+  { key: "tensometer",  label: "Tensometer" },
+  { key: "ozone",       label: "Ozone" },
+  { key: "temperature", label: "Temperature" },
+  { key: "hardness",    label: "Hardness" },
+  { key: "compression", label: "Compression" },
+  { key: "viscosity",   label: "Viscosity" },
+  { key: "uv",          label: "UV" },
+  { key: "load",        label: "Load" },
+  { key: "torque",      label: "Torque" },
+  { key: "collapse",    label: "Collapse" },
+  { key: "durability",  label: "Durability" },
+  { key: "abrasion",    label: "Abrasion" },
+  { key: "microscope",  label: "Microscope" },
+  { key: "aging",       label: "Aging" },
+  { key: "density",     label: "Density" },
+];
+
+const STROKE_ADMIN = { fill: "none" as const, stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+const LAB_SVG_ADMIN = {
+  rheometer:   <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 22A10 10 0 0 1 2 12"/><polyline points="16 2 12 2 12 6"/><polyline points="8 22 12 22 12 18"/></svg>,
+  tensometer:  <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 8 2 5 5 2"/><polyline points="19 22 22 19 19 16"/><line x1="2" y1="5" x2="12" y2="5"/><line x1="12" y1="19" x2="22" y2="19"/></svg>,
+  ozone:       <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/><circle cx="12" cy="21" r="1"/></svg>,
+  temperature: <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>,
+  hardness:    <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg>,
+  compression: <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="9 8 5 12 9 16"/><polyline points="15 8 19 12 15 16"/></svg>,
+  viscosity:   <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>,
+  uv:          <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+  load:        <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/><line x1="5" y1="5" x2="19" y2="5"/></svg>,
+  torque:      <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M5 12a7 7 0 1 0 14 0"/><polyline points="16 7 19 12 22 7"/></svg>,
+  collapse:    <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 9 12 12 15 9"/><polyline points="9 15 12 12 15 15"/></svg>,
+  durability:  <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>,
+  abrasion:    <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><polyline points="2 17 6 13 10 17 14 13 18 17 22 13"/><line x1="2" y1="12" x2="22" y2="12"/></svg>,
+  microscope:  <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M6 18H4a2 2 0 0 1-2-2v-1h20v1a2 2 0 0 1-2 2h-2"/><path d="M14 10c.34.54.34 1.46 0 2"/><path d="M12 12a2 2 0 0 1 0-4V5l-2-2V2h4v1l-2 2v3a2 2 0 0 1 0 4z"/><line x1="12" y1="18" x2="12" y2="15"/></svg>,
+  aging:       <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><path d="M5 21V8a7 7 0 0 1 14 0v13"/><path d="M5 12h14"/><path d="M9 12v4l3 2 3-2v-4"/></svg>,
+  density:     <svg viewBox="0 0 24 24" {...STROKE_ADMIN}><circle cx="6" cy="6" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="18" cy="6" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/><circle cx="6" cy="18" r="1.5"/><circle cx="12" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></svg>,
+};
+
+function LabAdminIcon({ iconKey, size = 18 }: { iconKey: string; size?: number }) {
+  return (
+    <div style={{ width: size, height: size, flexShrink: 0, color: "currentColor" }}>
+      {(LAB_SVG_ADMIN as Record<string, typeof LAB_SVG_ADMIN.density>)[iconKey] ?? LAB_SVG_ADMIN.density}
+    </div>
+  );
+}
+
+function IconPickerField({ value, onChange }: { value: string; onChange: (k: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <label className="block text-xs font-medium text-gray-500 mb-1.5">Icon</label>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        type="button"
+        className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:border-blue-400 transition-colors text-sm"
+      >
+        <span className="w-5 h-5 text-blue-600"><LabAdminIcon iconKey={value} size={20} /></span>
+        <span className="font-medium text-gray-700">{LAB_ICONS.find((i) => i.key === value)?.label ?? value}</span>
+        <svg className="w-3.5 h-3.5 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1.5 p-3 bg-white border border-gray-200 rounded-xl shadow-xl w-72 grid grid-cols-4 gap-1.5">
+          {LAB_ICONS.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => { onChange(key); setOpen(false); }}
+              title={label}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg text-xs transition-colors ${value === key ? "bg-blue-50 text-blue-600 ring-1 ring-blue-400" : "hover:bg-gray-50 text-gray-600"}`}
+            >
+              <span className="w-5 h-5"><LabAdminIcon iconKey={key} size={20} /></span>
+              <span className="leading-tight text-center" style={{ fontSize: 9, lineHeight: 1.2 }}>{label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LabCapEditor({
+  index, section, rows, onSaveRow,
+}: { index: number; section: string; rows: ContentRow[]; onSaveRow: SaveRowFn }) {
+  const gv = (key: string) => rows.find((r) => r.section === section && r.key === key)?.value || "";
+  type Vals = { icon: string; name_en: string; name_de: string; name_tr: string; desc_en: string; desc_de: string; desc_tr: string };
+  const makeVals = (): Vals => ({ icon: gv("icon") || "density", name_en: gv("name_en"), name_de: gv("name_de"), name_tr: gv("name_tr"), desc_en: gv("desc_en"), desc_de: gv("desc_de"), desc_tr: gv("desc_tr") });
+  const [vals, setVals] = useState<Vals>(makeVals);
+  const [orig, setOrig] = useState<Vals>(makeVals);
+  const [lang, setLang] = useState("en");
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { const v = makeVals(); setVals(v); setOrig(v); }, [gv("icon"), gv("name_en"), gv("name_de"), gv("name_tr"), gv("desc_en"), gv("desc_de"), gv("desc_tr")]);
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  async function handleSave() {
+    setSaving(true);
+    await Promise.all(Object.entries(vals).map(([k, v]) => onSaveRow(null, section, k, v)));
+    setOrig({ ...vals }); setSaving(false); setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+  const hasName = vals.name_en || vals.name_de || vals.name_tr;
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <button onClick={() => setOpen((o) => !o)} className="w-full flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 text-left transition-colors">
+        <div className="w-7 h-7 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+          <LabAdminIcon iconKey={vals.icon} size={16} />
+        </div>
+        <span className="text-xs font-bold text-gray-400 mr-1">#{String(index).padStart(2, "0")}</span>
+        <span className="flex-1 text-sm font-medium text-gray-800 truncate">{hasName || <span className="text-gray-400 italic">Unnamed</span>}</span>
+        {dirty && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />}
+        <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      {open && (
+        <div className="border-t border-gray-100 p-4 space-y-4 bg-gray-50">
+          <IconPickerField value={vals.icon} onChange={(k) => setVals((v) => ({ ...v, icon: k }))} />
+          <div>
+            <div className="flex gap-1.5 mb-3">
+              {["en", "de", "tr"].map((l) => (
+                <button key={l} onClick={() => setLang(l)} className={`px-2.5 py-1 rounded text-xs font-semibold ${lang === l ? "bg-blue-600 text-white" : "bg-white text-gray-500 border border-gray-200"}`}>{l.toUpperCase()}</button>
+              ))}
+            </div>
+            <div className="space-y-2.5">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                <input value={(vals as Record<string, string>)[`name_${lang}`]} onChange={(e) => setVals((v) => ({ ...v, [`name_${lang}`]: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" placeholder={`Name (${lang.toUpperCase()})`} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                <textarea value={(vals as Record<string, string>)[`desc_${lang}`]} onChange={(e) => setVals((v) => ({ ...v, [`desc_${lang}`]: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white resize-none" placeholder={`Description (${lang.toUpperCase()})`} />
+              </div>
+            </div>
+          </div>
+          <button onClick={handleSave} disabled={!dirty || saving} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${saved ? "bg-emerald-50 text-emerald-600" : dirty ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}>
+            {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor…" : "Kaydet"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LabTestEditor({
+  index, section, rows, onSaveRow,
+}: { index: number; section: string; rows: ContentRow[]; onSaveRow: SaveRowFn }) {
+  const gv = (key: string) => rows.find((r) => r.section === section && r.key === key)?.value || "";
+  type Vals = { icon: string; name_en: string; name_de: string; name_tr: string };
+  const makeVals = (): Vals => ({ icon: gv("icon") || "density", name_en: gv("name_en"), name_de: gv("name_de"), name_tr: gv("name_tr") });
+  const [vals, setVals] = useState<Vals>(makeVals);
+  const [orig, setOrig] = useState<Vals>(makeVals);
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { const v = makeVals(); setVals(v); setOrig(v); }, [gv("icon"), gv("name_en"), gv("name_de"), gv("name_tr")]);
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  async function handleSave() {
+    setSaving(true);
+    await Promise.all(Object.entries(vals).map(([k, v]) => onSaveRow(null, section, k, v)));
+    setOrig({ ...vals }); setSaving(false); setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <button onClick={() => setOpen((o) => !o)} className="w-full flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 text-left transition-colors">
+        <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+          <LabAdminIcon iconKey={vals.icon} size={16} />
+        </div>
+        <span className="text-xs font-bold text-gray-400 mr-1">#{String(index).padStart(2, "0")}</span>
+        <span className="flex-1 text-sm font-medium text-gray-800 truncate">{vals.name_en || <span className="text-gray-400 italic">Unnamed</span>}</span>
+        {dirty && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />}
+        <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      {open && (
+        <div className="border-t border-gray-100 p-4 space-y-4 bg-gray-50">
+          <IconPickerField value={vals.icon} onChange={(k) => setVals((v) => ({ ...v, icon: k }))} />
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-2">Name (EN / DE / TR)</label>
+            <div className="space-y-2">
+              {["en", "de", "tr"].map((l) => (
+                <input key={l} value={(vals as Record<string, string>)[`name_${l}`]} onChange={(e) => setVals((v) => ({ ...v, [`name_${l}`]: e.target.value }))} placeholder={`Name (${l.toUpperCase()})`} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" />
+              ))}
+            </div>
+          </div>
+          <button onClick={handleSave} disabled={!dirty || saving} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${saved ? "bg-emerald-50 text-emerald-600" : dirty ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}>
+            {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor…" : "Kaydet"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LabCapabilitiesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
+  const rawCount = rows.find((r) => r.section === "page_quality_laboratory" && r.key === "cap_count")?.value;
+  const capCount = Math.max(parseInt(rawCount || "0", 10), 8);
+  const [count, setCount] = useState(capCount);
+  useEffect(() => { setCount(Math.max(parseInt(rawCount || "0", 10), 8)); }, [rawCount]);
+  async function addCap() {
+    const next = count + 1;
+    await onSaveRow(null, "page_quality_laboratory", "cap_count", String(next));
+    setCount(next);
+  }
+  async function removeLast() {
+    if (count <= 1) return;
+    if (!confirm(`Remove capability #${count}?`)) return;
+    const next = count - 1;
+    await onSaveRow(null, "page_quality_laboratory", "cap_count", String(next));
+    setCount(next);
+  }
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-800">Testing Capabilities</h3>
+          <p className="text-xs text-gray-500 mt-0.5">{count} items · icon + name (EN/DE/TR) + description</p>
+        </div>
+        <div className="flex gap-2">
+          {count > 1 && (
+            <button onClick={removeLast} className="px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs text-red-500 hover:bg-red-50">Remove last</button>
+          )}
+          <button onClick={addCap} className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">+ Add</button>
+        </div>
+      </div>
+      <div className="p-4 space-y-2">
+        {Array.from({ length: count }, (_, i) => (
+          <LabCapEditor key={i + 1} index={i + 1} section={`lab_cap_${i + 1}`} rows={rows} onSaveRow={onSaveRow} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LabTestsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
+  const rawCount = rows.find((r) => r.section === "page_quality_laboratory" && r.key === "test_count")?.value;
+  const testCount = Math.max(parseInt(rawCount || "0", 10), 6);
+  const [count, setCount] = useState(testCount);
+  useEffect(() => { setCount(Math.max(parseInt(rawCount || "0", 10), 6)); }, [rawCount]);
+  async function addTest() {
+    const next = count + 1;
+    await onSaveRow(null, "page_quality_laboratory", "test_count", String(next));
+    setCount(next);
+  }
+  async function removeLast() {
+    if (count <= 1) return;
+    if (!confirm(`Remove test #${count}?`)) return;
+    const next = count - 1;
+    await onSaveRow(null, "page_quality_laboratory", "test_count", String(next));
+    setCount(next);
+  }
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-800">Product-Specific Tests</h3>
+          <p className="text-xs text-gray-500 mt-0.5">{count} items · icon + name (EN/DE/TR)</p>
+        </div>
+        <div className="flex gap-2">
+          {count > 1 && (
+            <button onClick={removeLast} className="px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs text-red-500 hover:bg-red-50">Remove last</button>
+          )}
+          <button onClick={addTest} className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">+ Add</button>
+        </div>
+      </div>
+      <div className="p-4 space-y-2">
+        {Array.from({ length: count }, (_, i) => (
+          <LabTestEditor key={i + 1} index={i + 1} section={`lab_test_${i + 1}`} rows={rows} onSaveRow={onSaveRow} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LabReportingSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
+  const gv = (key: string) => rows.find((r) => r.section === "page_quality_laboratory" && r.key === key)?.value || "";
+  type Vals = { reporting_internal_en: string; reporting_internal_de: string; reporting_internal_tr: string; reporting_external_en: string; reporting_external_de: string; reporting_external_tr: string };
+  const DEFAULT_INTERNAL: Record<string, string> = {
+    en: "All test results are documented in controlled laboratory reports compliant with ISO 17025 traceability requirements. Critical parameters are monitored via inline Statistical Process Control (SPC), and nonconformance triggers an automated 8D corrective action workflow.",
+    de: "Alle Prüfergebnisse werden in kontrollierten Laborberichten gemäß den Rückverfolgbarkeitsanforderungen der ISO 17025 dokumentiert. Kritische Parameter werden über SPC überwacht; Nichtkonformität löst einen 8D-Korrekturworkflow aus.",
+    tr: "Tüm test sonuçları, ISO 17025 izlenebilirlik gereksinimlerine uygun kontrollü laboratuvar raporlarında belgelenir. Kritik parametreler SPC ile izlenir; uygunsuzluk durumunda otomatik 8D düzeltici eylem iş akışı başlatılır.",
+  };
+  const DEFAULT_EXTERNAL: Record<string, string> = {
+    en: "External test reports are issued upon request in English, German, and Turkish. Certificates of Conformance accompany every shipment. Third-party laboratory audits are conducted annually to validate our internal measurement system.",
+    de: "Externe Prüfberichte werden auf Anfrage in Englisch, Deutsch und Türkisch ausgestellt. Konformitätszertifikate begleiten jede Lieferung. Jährliche Drittlaboraudits validieren unser internes Messsystem.",
+    tr: "Harici test raporları talep üzerine İngilizce, Almanca ve Türkçe olarak düzenlenir. Uygunluk sertifikaları her sevkiyata eşlik eder. Yıllık üçüncü taraf laboratuvar denetimleri iç ölçüm sistemimizi doğrular.",
+  };
+  const makeVals = (): Vals => ({
+    reporting_internal_en: gv("reporting_internal_en") || DEFAULT_INTERNAL.en,
+    reporting_internal_de: gv("reporting_internal_de") || DEFAULT_INTERNAL.de,
+    reporting_internal_tr: gv("reporting_internal_tr") || DEFAULT_INTERNAL.tr,
+    reporting_external_en: gv("reporting_external_en") || DEFAULT_EXTERNAL.en,
+    reporting_external_de: gv("reporting_external_de") || DEFAULT_EXTERNAL.de,
+    reporting_external_tr: gv("reporting_external_tr") || DEFAULT_EXTERNAL.tr,
+  });
+  const [vals, setVals] = useState<Vals>(makeVals);
+  const [orig, setOrig] = useState<Vals>(makeVals);
+  const [lang, setLang] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { const v = makeVals(); setVals(v); setOrig(v); }, [
+    gv("reporting_internal_en"), gv("reporting_internal_de"), gv("reporting_internal_tr"),
+    gv("reporting_external_en"), gv("reporting_external_de"), gv("reporting_external_tr"),
+  ]);
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  async function handleSave() {
+    setSaving(true);
+    await Promise.all(Object.entries(vals).map(([k, v]) => onSaveRow(null, "page_quality_laboratory", k, v)));
+    setOrig({ ...vals }); setSaving(false); setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-gray-800">Control & Reporting Statement</h3>
+        <p className="text-xs text-gray-500 mt-0.5">Dark section at the bottom of the lab page</p>
+      </div>
+      <div className="p-5 space-y-5">
+        <div className="flex gap-1.5">
+          {["en", "de", "tr"].map((l) => (
+            <button key={l} onClick={() => setLang(l)} className={`px-2.5 py-1 rounded text-xs font-semibold ${lang === l ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"}`}>{l.toUpperCase()}</button>
+          ))}
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Internal Quality Control</label>
+          <textarea
+            value={(vals as Record<string, string>)[`reporting_internal_${lang}`]}
+            onChange={(e) => setVals((v) => ({ ...v, [`reporting_internal_${lang}`]: e.target.value }))}
+            rows={4} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">External Reporting</label>
+          <textarea
+            value={(vals as Record<string, string>)[`reporting_external_${lang}`]}
+            onChange={(e) => setVals((v) => ({ ...v, [`reporting_external_${lang}`]: e.target.value }))}
+            rows={4} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+          />
+        </div>
+        <button onClick={handleSave} disabled={!dirty || saving} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${saved ? "bg-emerald-50 text-emerald-600" : dirty ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}>
+          {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor…" : "Kaydet"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LaboratoryPagePanel({ rows, onSaveRow, loading }: { rows: ContentRow[]; onSaveRow: SaveRowFn; loading: boolean }) {
+  if (loading) return <div className="p-8 text-center text-gray-400 text-sm">Yükleniyor…</div>;
+  return (
+    <div className="space-y-6">
+      <InnerPagePanel pageKey="quality_laboratory" rows={rows} onSaveRow={onSaveRow} loading={loading} />
+      <LabCapabilitiesSection rows={rows} onSaveRow={onSaveRow} />
+      <LabTestsSection rows={rows} onSaveRow={onSaveRow} />
+      <LabReportingSection rows={rows} onSaveRow={onSaveRow} />
+    </div>
+  );
+}
+
 /* ────────────────────────────── ProductionElementsPanel ───────────────────── */
 function LangTabs({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
   return (
@@ -2364,6 +2723,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
         return <QualityPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       case "quality_certification":
         return <CertificatesManagerPanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "quality_laboratory":
+        return <LaboratoryPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }
