@@ -3,6 +3,7 @@ import HomePage from "./components/HomePage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductionPage from "./pages/ProductionPage";
 import IndustryDetailPage from "./pages/IndustryDetailPage";
+import QualityPage from "./pages/QualityPage";
 import SiteGate from "./components/SiteGate";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -31,7 +32,7 @@ function Routes() {
       </Route>
 
       <Route path="/quality">
-        {() => <PlaceholderPage title="Quality" subtitle="Our Standards" sectionKey="page_quality" />}
+        {() => <QualityPage />}
       </Route>
       <Route path="/quality/certification">
         {() => <PlaceholderPage title="Certification" subtitle="Quality" sectionKey="page_quality_certification" />}

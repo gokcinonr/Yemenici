@@ -1488,6 +1488,256 @@ function IndustryDetailPanel({
   );
 }
 
+/* ────────────────────────────── QualityPagePanel ─────────────────────────── */
+
+const QUALITY_PRINCIPLES: Array<{ section: string; label: string }> = [
+  { section: "quality_principle_focus",      label: "Customer Focus" },
+  { section: "quality_principle_process",    label: "Process-Based Thinking" },
+  { section: "quality_principle_improve",    label: "Continuous Improvement" },
+  { section: "quality_principle_compliance", label: "Standards Alignment" },
+];
+
+function QualityPageIntroSection({
+  rows,
+  onSaveRow,
+}: {
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const section = "page_quality";
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+
+  const initVals = () => ({
+    intro_en: gv("intro_en"), intro_de: gv("intro_de"), intro_tr: gv("intro_tr"),
+    standards_en: gv("standards_en"), standards_de: gv("standards_de"), standards_tr: gv("standards_tr"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [lang, setLang] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gv("intro_en"), gv("intro_de"), gv("intro_tr"), gv("standards_en"), gv("standards_de"), gv("standards_tr")]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        (["intro_en","intro_de","intro_tr","standards_en","standards_de","standards_tr"] as const).map((key) => {
+          const row = rows.find((r) => r.section === section && r.key === key);
+          return onSaveRow(row?.id ?? null, section, key, vals[key]);
+        })
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      alert("Kaydetme başarısız.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+        <h3 className="text-sm font-bold text-gray-800">Giriş Metni & Sertifikalar</h3>
+        <p className="text-xs text-gray-400 mt-0.5">Sayfa intro paragrafı ve standart isimleri (· ile ayırın)</p>
+      </div>
+      <div className="p-6">
+        <LangTabs lang={lang} setLang={setLang} />
+        <div className="space-y-4">
+          <TextField
+            label="Intro Metni"
+            value={vals[`intro_${lang}` as keyof typeof vals]}
+            setValue={set(`intro_${lang}` as keyof typeof vals)}
+            multiline
+            placeholder="Kalite felsefesi giriş paragrafı..."
+          />
+          <TextField
+            label="Sertifikasyon Metni"
+            value={vals[`standards_${lang}` as keyof typeof vals]}
+            setValue={set(`standards_${lang}` as keyof typeof vals)}
+            placeholder="ISO 9001:2015 · IATF 16949:2016"
+          />
+        </div>
+        <div className="mt-5 flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={!dirty || saving}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
+              saved
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : dirty
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor..." : "Kaydet"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QualityPrincipleEditor({
+  section,
+  label,
+  rows,
+  onSaveRow,
+}: {
+  section: string;
+  label: string;
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+}) {
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+
+  const initVals = () => ({
+    title_en: gv("title_en"), title_de: gv("title_de"), title_tr: gv("title_tr"),
+    body_en: gv("body_en"),   body_de: gv("body_de"),   body_tr: gv("body_tr"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [lang, setLang] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gv("title_en"), gv("title_de"), gv("title_tr"), gv("body_en"), gv("body_de"), gv("body_tr")]);
+
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const set = (k: keyof typeof vals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(
+        (["title_en","title_de","title_tr","body_en","body_de","body_tr"] as const).map((key) => {
+          const row = rows.find((r) => r.section === section && r.key === key);
+          return onSaveRow(row?.id ?? null, section, key, vals[key]);
+        })
+      );
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      alert("Kaydetme başarısız.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50/60 hover:bg-gray-100/60 transition text-left"
+      >
+        <span className="text-sm font-semibold text-gray-800">{label}</span>
+        <div className="flex items-center gap-3">
+          {dirty && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+          {saved && <span className="text-xs text-green-600 font-medium">✓ Kaydedildi</span>}
+          <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+      {open && (
+        <div className="p-4 bg-white space-y-4">
+          <LangTabs lang={lang} setLang={setLang} />
+          <TextField
+            label="Başlık"
+            value={vals[`title_${lang}` as keyof typeof vals]}
+            setValue={set(`title_${lang}` as keyof typeof vals)}
+            placeholder="İlke başlığı..."
+          />
+          <TextField
+            label="Açıklama"
+            value={vals[`body_${lang}` as keyof typeof vals]}
+            setValue={set(`body_${lang}` as keyof typeof vals)}
+            multiline
+            placeholder="İlke açıklaması..."
+          />
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={!dirty || saving}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition ${
+                saved
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : dirty
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {saved ? "✓ Kaydedildi" : saving ? "Kaydediliyor..." : "Kaydet"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function QualityPagePanel({
+  rows,
+  onSaveRow,
+  loading,
+}: {
+  rows: ContentRow[];
+  onSaveRow: SaveRowFn;
+  loading: boolean;
+}) {
+  return (
+    <div className="space-y-6">
+      <InnerPagePanel pageKey="quality" rows={rows} onSaveRow={onSaveRow} loading={loading} />
+
+      {!loading && (
+        <>
+          <QualityPageIntroSection rows={rows} onSaveRow={onSaveRow} />
+
+          <div className="border border-gray-200 rounded-2xl bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+              <h3 className="text-sm font-bold text-gray-800">Kalite İlkeleri</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Her ilke için başlık ve açıklama (EN/DE/TR) — ilkeye tıklayarak düzenleyin
+              </p>
+            </div>
+            <div className="p-4 space-y-2">
+              {QUALITY_PRINCIPLES.map((p) => (
+                <QualityPrincipleEditor
+                  key={p.section}
+                  section={p.section}
+                  label={p.label}
+                  rows={rows}
+                  onSaveRow={onSaveRow}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────── ProductionElementsPanel ───────────────────── */
 function LangTabs({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
   return (
@@ -1790,6 +2040,8 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
       case "solutions_industrial":
       case "solutions_agriculture":
         return <IndustryDetailPanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
+      case "quality":
+        return <QualityPagePanel rows={rows} onSaveRow={onSaveRow} loading={loading} />;
       default:
         return <InnerPagePanel pageKey={active} rows={rows} onSaveRow={onSaveRow} loading={loading} />;
     }
