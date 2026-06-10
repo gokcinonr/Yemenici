@@ -91,6 +91,89 @@ const NAV: { key: PageKey; label: string; icon: string }[] = [
   { key: "media", label: "Medya Kütüphanesi", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
 ];
 
+/* ────────────────────────────── Site pages ────────────────────────────── */
+const SITE_PAGES = [
+  { label: "Ana Sayfa", value: "/" },
+  { label: "Solutions", value: "/solutions" },
+  { label: "Solutions — Production", value: "/solutions/production" },
+  { label: "Solutions — Industries", value: "/solutions/industries" },
+  { label: "Solutions — Automotive", value: "/solutions/industries/automotive" },
+  { label: "Solutions — Industrial", value: "/solutions/industries/industrial" },
+  { label: "Solutions — Agriculture", value: "/solutions/industries/agriculture" },
+  { label: "Quality", value: "/quality" },
+  { label: "Quality — Certification", value: "/quality/certification" },
+  { label: "Quality — Laboratory & Testing", value: "/quality/laboratory-testing" },
+  { label: "Company", value: "/company" },
+  { label: "Company — About Us", value: "/company/about-us" },
+  { label: "Company — Our Values", value: "/company/our-values" },
+  { label: "Contact", value: "/contact" },
+];
+
+const KNOWN_PATHS = new Set(SITE_PAGES.map((p) => p.value));
+
+function isExternalUrl(v: string) {
+  return !!v && !KNOWN_PATHS.has(v);
+}
+
+function LinkSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [mode, setMode] = useState<"page" | "external">(() =>
+    isExternalUrl(value) ? "external" : "page",
+  );
+  const [extUrl, setExtUrl] = useState(() => (isExternalUrl(value) ? value : ""));
+
+  useEffect(() => {
+    if (isExternalUrl(value)) {
+      setMode("external");
+      setExtUrl(value);
+    } else {
+      setMode("page");
+    }
+  }, [value]);
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    if (v === "__external__") {
+      setMode("external");
+      if (extUrl) onChange(extUrl);
+    } else {
+      setMode("page");
+      onChange(v);
+    }
+  };
+
+  const handleExtUrl = (v: string) => {
+    setExtUrl(v);
+    onChange(v);
+  };
+
+  const selectValue = mode === "external" ? "__external__" : (KNOWN_PATHS.has(value) ? value : "");
+
+  return (
+    <div className="space-y-2">
+      <select
+        value={selectValue}
+        onChange={handleSelect}
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition bg-white"
+      >
+        <option value="">— Sayfa seçin —</option>
+        {SITE_PAGES.map((p) => (
+          <option key={p.value} value={p.value}>{p.label}</option>
+        ))}
+        <option value="__external__">🌐 Harici URL</option>
+      </select>
+      {mode === "external" && (
+        <input
+          type="text"
+          value={extUrl}
+          onChange={(e) => handleExtUrl(e.target.value)}
+          placeholder="https://..."
+          className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+        />
+      )}
+    </div>
+  );
+}
+
 /* ────────────────────────────── useField hook ────────────────────────────── */
 function useField(rows: ContentRow[], section: string, key: string, onSaveRow: (id: number, value: string) => Promise<void>) {
   const row = rows.find((r) => r.section === section && r.key === key);
@@ -142,6 +225,20 @@ function TextField({
         : <input type="text" value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
       }
+      <div className="flex justify-end mt-2">
+        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
+      </div>
+    </div>
+  );
+}
+
+function LinkField({
+  label, value, setValue, onSave, saving, dirty, justSaved,
+}: ReturnType<typeof useField> & { label: string }) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
+      <LinkSelector value={value} onChange={setValue} />
       <div className="flex justify-end mt-2">
         <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
       </div>
@@ -436,9 +533,7 @@ function CardGroup({ rows, prefix, title, onSaveRow }: {
           {/* Link */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Kart Link</label>
-            <input type="text" value={vals.link} onChange={(e) => set("link")(e.target.value)}
-              placeholder="https://..."
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+            <LinkSelector value={vals.link} onChange={set("link")} />
           </div>
         </div>
         {/* Tek kaydet butonu */}
@@ -471,7 +566,7 @@ function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow:
     <div className="space-y-6">
       <TextField label="Bölüm Metni" multiline {...text} />
       <TextField label="Buton Metni" {...btn} />
-      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} />
+      <LinkField label="Buton URL" {...btnUrl} />
     </div>
   );
 }
@@ -484,7 +579,7 @@ function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: (i
     <div className="space-y-6">
       <TextField label="Bölüm Metni" multiline {...text} />
       <TextField label="Buton Metni" {...btn} />
-      <TextField label="Buton URL" placeholder="https://..." {...btnUrl} />
+      <LinkField label="Buton URL" {...btnUrl} />
     </div>
   );
 }
