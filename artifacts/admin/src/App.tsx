@@ -258,8 +258,8 @@ function SaveBtn({ onSave, saving, dirty, justSaved }: { onSave: () => void; sav
 }
 
 function TextField({
-  label, value, setValue, onSave, saving, dirty, justSaved, multiline = false, placeholder,
-}: ReturnType<typeof useField> & { label: string; multiline?: boolean; placeholder?: string }) {
+  label, value, setValue, multiline = false, placeholder,
+}: { label: string; value: string; setValue: (v: string) => void; multiline?: boolean; placeholder?: string }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
@@ -269,23 +269,17 @@ function TextField({
         : <input type="text" value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
       }
-      <div className="flex justify-end mt-2">
-        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
-      </div>
     </div>
   );
 }
 
 function LinkField({
-  label, value, setValue, onSave, saving, dirty, justSaved,
-}: ReturnType<typeof useField> & { label: string }) {
+  label, value, setValue,
+}: { label: string; value: string; setValue: (v: string) => void }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
       <LinkSelector value={value} onChange={setValue} />
-      <div className="flex justify-end mt-2">
-        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
-      </div>
     </div>
   );
 }
@@ -434,17 +428,19 @@ function ImageField({
 }
 
 /* ────────────────────────────── Section components ────────────────────────────── */
-function HeroSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
-  const title1 = useField(rows, "hero", "title_line1", onSaveRow);
-  const title2 = useField(rows, "hero", "title_line2", onSaveRow);
-  const subtitle = useField(rows, "hero", "subtitle", onSaveRow);
-  const cta = useField(rows, "hero", "cta_button", onSaveRow);
+type HomepageVals = {
+  hero_title1: string; hero_title2: string; hero_subtitle: string; hero_cta: string;
+  industries_text: string; industries_btn: string; industries_url: string;
+  quality_text: string; quality_btn: string; quality_url: string;
+};
+
+function HeroSection({ vals, set }: { vals: HomepageVals; set: (k: keyof HomepageVals) => (v: string) => void }) {
   return (
-    <div className="space-y-6">
-      <TextField label="Başlık Satır 1" {...title1} />
-      <TextField label="Başlık Satır 2" {...title2} />
-      <TextField label="Alt Başlık" multiline {...subtitle} />
-      <TextField label="Buton Metni" {...cta} />
+    <div className="space-y-4">
+      <TextField label="Başlık Satır 1" value={vals.hero_title1} setValue={set("hero_title1")} />
+      <TextField label="Başlık Satır 2" value={vals.hero_title2} setValue={set("hero_title2")} />
+      <TextField label="Alt Başlık" multiline value={vals.hero_subtitle} setValue={set("hero_subtitle")} />
+      <TextField label="Buton Metni" value={vals.hero_cta} setValue={set("hero_cta")} />
     </div>
   );
 }
@@ -604,37 +600,55 @@ function CardsSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: Save
   );
 }
 
-function IndustriesSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
-  const text = useField(rows, "industries", "section_text", onSaveRow);
-  const btn = useField(rows, "industries", "discover_button", onSaveRow);
-  const btnUrl = useField(rows, "industries", "discover_button_url", onSaveRow);
+function IndustriesSection({ vals, set }: { vals: HomepageVals; set: (k: keyof HomepageVals) => (v: string) => void }) {
   return (
-    <div className="space-y-6">
-      <TextField label="Bölüm Metni" multiline {...text} />
-      <TextField label="Buton Metni" {...btn} />
-      <LinkField label="Buton URL" {...btnUrl} />
+    <div className="space-y-4">
+      <TextField label="Bölüm Metni" multiline value={vals.industries_text} setValue={set("industries_text")} />
+      <TextField label="Buton Metni" value={vals.industries_btn} setValue={set("industries_btn")} />
+      <LinkField label="Buton URL" value={vals.industries_url} setValue={set("industries_url")} />
     </div>
   );
 }
 
-function QualitySection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
-  const text = useField(rows, "quality", "text", onSaveRow);
-  const btn = useField(rows, "quality", "button", onSaveRow);
-  const btnUrl = useField(rows, "quality", "button_url", onSaveRow);
+function QualitySection({ vals, set }: { vals: HomepageVals; set: (k: keyof HomepageVals) => (v: string) => void }) {
   return (
-    <div className="space-y-6">
-      <TextField label="Bölüm Metni" multiline {...text} />
-      <TextField label="Buton Metni" {...btn} />
-      <LinkField label="Buton URL" {...btnUrl} />
+    <div className="space-y-4">
+      <TextField label="Bölüm Metni" multiline value={vals.quality_text} setValue={set("quality_text")} />
+      <TextField label="Buton Metni" value={vals.quality_btn} setValue={set("quality_btn")} />
+      <LinkField label="Buton URL" value={vals.quality_url} setValue={set("quality_url")} />
     </div>
   );
 }
 
 function FooterSection({ rows, onSaveRow }: { rows: ContentRow[]; onSaveRow: SaveRowFn }) {
-  const copy = useField(rows, "footer", "copyright", onSaveRow);
+  const gv = (k: string) => rows.find((r) => r.section === "footer" && r.key === k)?.value ?? "";
+  const initVals = () => ({ copyright: gv("copyright") });
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { const v = initVals(); setVals(v); setOrig(v); }, [gv("copyright")]);
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const row = rows.find((r) => r.section === "footer" && r.key === "copyright");
+      await onSaveRow(row?.id ?? null, "footer", "copyright", vals.copyright);
+      setOrig({ ...vals }); setSaved(true); setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
   return (
-    <div className="space-y-6">
-      <TextField label="Telif Hakkı" {...copy} />
+    <div className="space-y-4">
+      <SectionBlock title="Telif Hakkı">
+        <TextField label="Metin" value={vals.copyright} setValue={(v) => setVals((p) => ({ ...p, copyright: v }))} />
+      </SectionBlock>
+      <div className="flex justify-end">
+        <button onClick={handleSave} disabled={saving || !dirty}
+          className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+          {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -776,25 +790,97 @@ function HomepagePanel({ rows, onSaveRow, loading }: {
   onSaveRow: SaveRowFn;
   loading: boolean;
 }) {
+  const gv = (s: string, k: string) => rows.find((r) => r.section === s && r.key === k)?.value ?? "";
+
+  const initVals = (): HomepageVals => ({
+    hero_title1:      gv("hero",       "title_line1"),
+    hero_title2:      gv("hero",       "title_line2"),
+    hero_subtitle:    gv("hero",       "subtitle"),
+    hero_cta:         gv("hero",       "cta_button"),
+    industries_text:  gv("industries", "section_text"),
+    industries_btn:   gv("industries", "discover_button"),
+    industries_url:   gv("industries", "discover_button_url"),
+    quality_text:     gv("quality",    "text"),
+    quality_btn:      gv("quality",    "button"),
+    quality_url:      gv("quality",    "button_url"),
+  });
+
+  const [vals, setVals] = useState<HomepageVals>(initVals);
+  const [orig, setOrig] = useState<HomepageVals>(initVals);
+  const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  }, [
+    gv("hero",       "title_line1"), gv("hero",       "title_line2"),
+    gv("hero",       "subtitle"),    gv("hero",       "cta_button"),
+    gv("industries", "section_text"), gv("industries", "discover_button"),
+    gv("industries", "discover_button_url"),
+    gv("quality",    "text"),        gv("quality",    "button"),
+    gv("quality",    "button_url"),
+  ]);
+
+  const set = (k: keyof HomepageVals) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const SAVE_MAP: Array<{ s: string; k: string; vk: keyof HomepageVals }> = [
+    { s: "hero",       k: "title_line1",          vk: "hero_title1"     },
+    { s: "hero",       k: "title_line2",          vk: "hero_title2"     },
+    { s: "hero",       k: "subtitle",             vk: "hero_subtitle"   },
+    { s: "hero",       k: "cta_button",           vk: "hero_cta"        },
+    { s: "industries", k: "section_text",         vk: "industries_text" },
+    { s: "industries", k: "discover_button",      vk: "industries_btn"  },
+    { s: "industries", k: "discover_button_url",  vk: "industries_url"  },
+    { s: "quality",    k: "text",                 vk: "quality_text"    },
+    { s: "quality",    k: "button",               vk: "quality_btn"     },
+    { s: "quality",    k: "button_url",           vk: "quality_url"     },
+  ];
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await Promise.all(SAVE_MAP.map(({ s, k, vk }) => {
+        const row = rows.find((r) => r.section === s && r.key === k);
+        return onSaveRow(row?.id ?? null, s, k, vals[vk]);
+      }));
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
+
   if (loading) return (
     <div className="space-y-4">
       {[1, 2, 3, 4].map((i) => <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />)}
     </div>
   );
+
   return (
     <div className="space-y-6">
       <SectionBlock title="Hero">
-        <HeroSection rows={rows} onSaveRow={onSaveRow} />
+        <HeroSection vals={vals} set={set} />
       </SectionBlock>
       <SectionBlock title="Kartlar">
         <CardsSection rows={rows} onSaveRow={onSaveRow} />
       </SectionBlock>
       <SectionBlock title="Endüstriler Bölümü">
-        <IndustriesSection rows={rows} onSaveRow={onSaveRow} />
+        <IndustriesSection vals={vals} set={set} />
       </SectionBlock>
       <SectionBlock title="Kalite Bölümü">
-        <QualitySection rows={rows} onSaveRow={onSaveRow} />
+        <QualitySection vals={vals} set={set} />
       </SectionBlock>
+      <div className="flex justify-end">
+        <button
+          onClick={handleSave} disabled={saving || !dirty}
+          className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+        >
+          {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -823,7 +909,7 @@ const PAGE_SECTION: Record<PageKey, string> = {
 };
 
 /* ────────────────────────────── ColorField ────────────────────────────── */
-function ColorField({ label, value, setValue, onSave, saving, dirty, justSaved }: ReturnType<typeof useField> & { label: string }) {
+function ColorField({ label, value, setValue }: { label: string; value: string; setValue: (v: string) => void }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
@@ -841,7 +927,6 @@ function ColorField({ label, value, setValue, onSave, saving, dirty, justSaved }
           placeholder="#1e3a5f"
           className="flex-1 px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
         />
-        <SaveBtn onSave={onSave} saving={saving} dirty={dirty} justSaved={justSaved} />
       </div>
     </div>
   );
@@ -855,12 +940,46 @@ function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
   loading: boolean;
 }) {
   const section = PAGE_SECTION[pageKey];
-  const heroTitle = useField(rows, section, "hero_title", onSaveRow);
-  const heroSubtitle = useField(rows, section, "hero_subtitle", onSaveRow);
-  const heroBgColor = useField(rows, section, "hero_bg_color", onSaveRow);
-  const heroBgImage = useField(rows, section, "hero_bg_image", onSaveRow);
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+
+  const initVals = () => ({
+    hero_title:    gv("hero_title"),
+    hero_subtitle: gv("hero_subtitle"),
+    hero_bg_color: gv("hero_bg_color"),
+    hero_bg_image: gv("hero_bg_image"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [saving,      setSaving]      = useState(false);
+  const [saved,       setSaved]       = useState(false);
   const [imgUploading, setImgUploading] = useState(false);
+  const [showPicker,  setShowPicker]  = useState(false);
   const imgFileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  }, [gv("hero_title"), gv("hero_subtitle"), gv("hero_bg_color"), gv("hero_bg_image")]);
+
+  const set = (k: keyof ReturnType<typeof initVals>) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    const KEYS = ["hero_title", "hero_subtitle", "hero_bg_color", "hero_bg_image"] as const;
+    setSaving(true);
+    try {
+      await Promise.all(KEYS.map((key) => {
+        const row = rows.find((r) => r.section === section && r.key === key);
+        return onSaveRow(row?.id ?? null, section, key, vals[key]);
+      }));
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
 
   const handleBgImgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -870,8 +989,9 @@ function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
       const form = new FormData();
       form.append("file", file);
       const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      if (!res.ok) throw new Error();
       const { url } = await res.json() as { url: string };
-      await heroBgImage.onSave(url);
+      set("hero_bg_image")(url);
     } catch { alert("Yükleme başarısız."); }
     finally { setImgUploading(false); if (imgFileRef.current) imgFileRef.current.value = ""; }
   };
@@ -881,46 +1001,63 @@ function InnerPagePanel({ pageKey, rows, onSaveRow, loading }: {
       {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />)}
     </div>
   );
+
   return (
-    <SectionBlock title="Hero Bölümü">
+    <>
+      {showPicker && (
+        <MediaPickerModal
+          onSelect={(url) => { set("hero_bg_image")(url); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
       <div className="space-y-6">
-        <TextField label="Başlık" placeholder="Sayfa başlığı" {...heroTitle} />
-        <TextField label="Alt Başlık" multiline placeholder="Kısa açıklama..." {...heroSubtitle} />
-        <ColorField label="Arkaplan Rengi" {...heroBgColor} />
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Hero Arka Plan Görseli</label>
-          <div className="flex gap-3 items-start">
-            <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
-              {heroBgImage.value
-                ? <img src={heroBgImage.value} alt="" className="w-full h-full object-cover" />
-                : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              }
-            </div>
-            <div className="flex-1 space-y-2">
-              <input
-                type="text"
-                value={heroBgImage.value}
-                onChange={(e) => heroBgImage.setValue(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
-              />
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => imgFileRef.current?.click()}
-                  disabled={imgUploading}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                  {imgUploading ? "Yükleniyor..." : "Yükle"}
-                </button>
-                <SaveBtn onSave={heroBgImage.onSave} saving={heroBgImage.saving} dirty={heroBgImage.dirty} justSaved={heroBgImage.justSaved} />
+        <SectionBlock title="Hero Bölümü">
+          <div className="space-y-4">
+            <TextField label="Başlık" placeholder="Sayfa başlığı" value={vals.hero_title} setValue={set("hero_title")} />
+            <TextField label="Alt Başlık" multiline placeholder="Kısa açıklama..." value={vals.hero_subtitle} setValue={set("hero_subtitle")} />
+            <ColorField label="Arkaplan Rengi" value={vals.hero_bg_color} setValue={set("hero_bg_color")} />
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Hero Arka Plan Görseli</label>
+              <div className="flex gap-3 items-start">
+                <div className="w-24 h-16 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
+                  {vals.hero_bg_image
+                    ? <img src={vals.hero_bg_image} alt="" className="w-full h-full object-cover" />
+                    : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  }
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text" value={vals.hero_bg_image}
+                    onChange={(e) => set("hero_bg_image")(e.target.value)}
+                    placeholder="https://... veya aşağıdan seçin"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => imgFileRef.current?.click()} disabled={imgUploading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                      {imgUploading ? "Yükleniyor..." : "Yükle"}
+                    </button>
+                    <button onClick={() => setShowPicker(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      Kütüphaneden Seç
+                    </button>
+                  </div>
+                  <input ref={imgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgImgUpload} />
+                </div>
               </div>
-              <input ref={imgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgImgUpload} />
             </div>
           </div>
+        </SectionBlock>
+        <div className="flex justify-end">
+          <button onClick={handleSave} disabled={saving || !dirty}
+            className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+            {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+          </button>
         </div>
       </div>
-    </SectionBlock>
+    </>
   );
 }
 
@@ -932,12 +1069,43 @@ function NavBoxEditor({ section, title, hasImage = false, rows, onSaveRow }: {
   rows: ContentRow[];
   onSaveRow: SaveRowFn;
 }) {
-  const boxTitle = useField(rows, section, "title", onSaveRow);
-  const boxDesc = useField(rows, section, "desc", onSaveRow);
-  const boxHref = useField(rows, section, "href", onSaveRow);
-  const boxImage = useField(rows, section, "image", onSaveRow);
+  const gv = (k: string) => rows.find((r) => r.section === section && r.key === k)?.value ?? "";
+
+  const initVals = () => ({
+    title: gv("title"), desc: gv("desc"), href: gv("href"), image: gv("image"),
+  });
+
+  const [vals, setVals] = useState(initVals);
+  const [orig, setOrig] = useState(initVals);
+  const [saving,    setSaving]    = useState(false);
+  const [saved,     setSaved]     = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const v = initVals();
+    setVals(v);
+    setOrig(v);
+  }, [gv("title"), gv("desc"), gv("href"), gv("image")]);
+
+  const set = (k: keyof ReturnType<typeof initVals>) => (v: string) => setVals((p) => ({ ...p, [k]: v }));
+  const dirty = JSON.stringify(vals) !== JSON.stringify(orig);
+
+  const handleSave = async () => {
+    const KEYS = ["title", "desc", "href", "image"] as const;
+    setSaving(true);
+    try {
+      await Promise.all(KEYS.map((key) => {
+        const row = rows.find((r) => r.section === section && r.key === key);
+        return onSaveRow(row?.id ?? null, section, key, vals[key]);
+      }));
+      setOrig({ ...vals });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { alert("Kaydetme başarısız."); }
+    finally { setSaving(false); }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -947,53 +1115,72 @@ function NavBoxEditor({ section, title, hasImage = false, rows, onSaveRow }: {
       const form = new FormData();
       form.append("file", file);
       const res = await fetch(`${API}/admin/upload`, { method: "POST", credentials: "include", body: form });
+      if (!res.ok) throw new Error();
       const { url } = await res.json() as { url: string };
-      await boxImage.onSave(url);
+      set("image")(url);
     } catch { alert("Yükleme başarısız."); }
     finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
   };
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 bg-white space-y-4">
-      <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">{title}</p>
-      <TextField label="Başlık" {...boxTitle} />
-      <TextField label="Açıklama" multiline {...boxDesc} />
-      <LinkField label="Link" {...boxHref} />
-      {hasImage && (
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Görsel</label>
-          <div className="flex gap-3 items-start">
-            <div className="w-20 h-14 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
-              {boxImage.value
-                ? <img src={boxImage.value} alt="" className="w-full h-full object-cover" />
-                : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              }
-            </div>
-            <div className="flex-1 space-y-2">
-              <input
-                type="text"
-                value={boxImage.value}
-                onChange={(e) => boxImage.setValue(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
-              />
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                  {uploading ? "Yükleniyor..." : "Yükle"}
-                </button>
-                <SaveBtn onSave={boxImage.onSave} saving={boxImage.saving} dirty={boxImage.dirty} justSaved={boxImage.justSaved} />
-              </div>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
-            </div>
-          </div>
-        </div>
+    <>
+      {showPicker && (
+        <MediaPickerModal
+          onSelect={(url) => { set("image")(url); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
       )}
-    </div>
+      <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">{title}</p>
+        </div>
+        <div className="p-4 space-y-4">
+          <TextField label="Başlık" value={vals.title} setValue={set("title")} />
+          <TextField label="Açıklama" multiline value={vals.desc} setValue={set("desc")} />
+          <LinkField label="Link" value={vals.href} setValue={set("href")} />
+          {hasImage && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Görsel</label>
+              <div className="flex gap-3 items-start">
+                <div className="w-20 h-14 rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center text-gray-300">
+                  {vals.image
+                    ? <img src={vals.image} alt="" className="w-full h-full object-cover" />
+                    : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  }
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text" value={vals.image}
+                    onChange={(e) => set("image")(e.target.value)}
+                    placeholder="https://... veya aşağıdan seçin"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => fileRef.current?.click()} disabled={uploading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition disabled:opacity-50">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                      {uploading ? "Yükleniyor..." : "Yükle"}
+                    </button>
+                    <button onClick={() => setShowPicker(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      Kütüphaneden Seç
+                    </button>
+                  </div>
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="px-4 py-3 border-t border-gray-100 flex justify-end">
+          <button onClick={handleSave} disabled={saving || !dirty}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-40 ${saved ? "bg-green-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+            {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1326,7 +1513,7 @@ function ContentEditor({ username, onLogout }: { username: string; onLogout: () 
       case "footer":
         return loading
           ? <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
-          : <div className="border border-gray-200 rounded-2xl bg-white p-6"><FooterSection rows={rows} onSaveRow={onSaveRow} /></div>;
+          : <FooterSection rows={rows} onSaveRow={onSaveRow} />;
       case "media":
         return <MediaLibrary />;
       case "prod_elements":
