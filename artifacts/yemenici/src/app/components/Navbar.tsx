@@ -168,29 +168,8 @@ function SolutionsMegaMenu({ isOpen, onMouseEnter, onMouseLeave, get }: {
       <div className="px-4 md:px-8 pt-[127px] pb-8">
         <div className="max-w-[1280px] mx-auto flex gap-6">
 
-          {/* Col 1 (65%) — Industries */}
-          <div style={{ width: "65%", ...animStyle(visible, 0.18) }}>
-            <p style={sectionLabelStyle}>Industries</p>
-            <div className="grid grid-cols-2 gap-3">
-              {industries.map(({ label, href, desc }, i) => (
-                <Link key={label} href={href}>
-                  <div
-                    className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 h-full cursor-pointer transition-colors duration-200"
-                    style={animStyle(visible, 0.18 + i * 0.06)}
-                  >
-                    <p style={titleStyle}>{label}</p>
-                    <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Vertical separator */}
-          <div style={{ width: 1, backgroundColor: "rgba(0,0,0,0.08)", alignSelf: "stretch", flexShrink: 0 }} />
-
-          {/* Col 2 (35%) — Production double-height box */}
-          <div style={{ flex: 1, ...animStyle(visible, 0.30) }}>
+          {/* Col 1 (35%) — Production double-height box */}
+          <div style={{ flex: 1, ...animStyle(visible, 0.18) }}>
             <p style={sectionLabelStyle}>Production</p>
             <Link href={production.href}>
               <div
@@ -235,6 +214,27 @@ function SolutionsMegaMenu({ isOpen, onMouseEnter, onMouseLeave, get }: {
             </Link>
           </div>
 
+          {/* Vertical separator */}
+          <div style={{ width: 1, backgroundColor: "rgba(0,0,0,0.08)", alignSelf: "stretch", flexShrink: 0 }} />
+
+          {/* Col 2 (65%) — Industries */}
+          <div style={{ width: "65%", ...animStyle(visible, 0.30) }}>
+            <p style={sectionLabelStyle}>Industries</p>
+            <div className="grid grid-cols-2 gap-3">
+              {industries.map(({ label, href, desc }, i) => (
+                <Link key={label} href={href}>
+                  <div
+                    className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 h-full cursor-pointer transition-colors duration-200"
+                    style={animStyle(visible, 0.30 + i * 0.06)}
+                  >
+                    <p style={titleStyle}>{label}</p>
+                    <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -274,21 +274,18 @@ function QualityMegaMenu({ isOpen, onMouseEnter, onMouseLeave, get }: {
     >
       <div className="px-4 md:px-8 pt-[127px] pb-8">
         <div className="max-w-[1280px] mx-auto">
-          <div style={{ maxWidth: "46%", ...animStyle(visible, 0.18) }}>
-            <p style={sectionLabelStyle}>Quality</p>
-            <div className="flex flex-col gap-3">
-              {boxes.map(({ label, href, desc }, i) => (
-                <Link key={label} href={href}>
-                  <div
-                    className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 cursor-pointer transition-colors duration-200"
-                    style={animStyle(visible, 0.18 + i * 0.06)}
-                  >
-                    <p style={titleStyle}>{label}</p>
-                    <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+          <div style={animStyle(visible, 0.18)} className="flex gap-3">
+            {boxes.map(({ label, href, desc }, i) => (
+              <Link key={label} href={href} style={{ flex: 1 }}>
+                <div
+                  className="bg-[#202429]/[0.02] hover:bg-[#202429]/[0.08] rounded-[15px] p-4 h-full cursor-pointer transition-colors duration-200"
+                  style={animStyle(visible, 0.18 + i * 0.06)}
+                >
+                  <p style={titleStyle}>{label}</p>
+                  <p style={{ ...paraStyle, color: "#000f29" }}>{desc}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

@@ -954,15 +954,15 @@ function SolutionsMenuPanel({ rows, onSaveRow, loading }: { rows: ContentRow[]; 
   );
   return (
     <div className="space-y-6">
-      <SectionBlock title="Industries Kutuları">
+      <SectionBlock title="Production Kutusu (Sol)">
+        <NavBoxEditor section="nav_box_production" title="Production" hasImage rows={rows} onSaveRow={onSaveRow} />
+      </SectionBlock>
+      <SectionBlock title="Industries Kutuları (Sağ)">
         <div className="space-y-3">
           <NavBoxEditor section="nav_box_automotive" title="Automotive" rows={rows} onSaveRow={onSaveRow} />
           <NavBoxEditor section="nav_box_industrial" title="Industrial" rows={rows} onSaveRow={onSaveRow} />
           <NavBoxEditor section="nav_box_agriculture" title="Agriculture" rows={rows} onSaveRow={onSaveRow} />
         </div>
-      </SectionBlock>
-      <SectionBlock title="Production Kutusu">
-        <NavBoxEditor section="nav_box_production" title="Production" hasImage rows={rows} onSaveRow={onSaveRow} />
       </SectionBlock>
     </div>
   );
