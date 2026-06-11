@@ -1,0 +1,27 @@
+Please completely replace and rewrite the existing 'Production' page layout. The previous structure must be discarded to ensure it aligns perfectly with the design system, hero styling, and typography of the other inner pages.
+
+Apply the following modifications and structural requirements:
+
+1. Block 1: Standard Hero Banner (Matches other inner pages)
+   - Implement the exact same layout grid, padding, and font styles used on the rest of the website's hero sections.
+   - Design fields: Admin-uploaded background picture, dynamic Title, and Subtitle.
+   - Use the client's baseline content:
+     * Title: "Integrated Production for rubber"
+     * Subtitle: "We combine in-house rubber mixing, metal processing, tooling, and vulcanization to deliver complete and consistent component manufacturing."
+
+2. Block 2: Production Process (Asymmetric 50/50 Split Refactoring)
+   - Instead of the previous listing format, create a premium, alternating split-screen grid layout for the 4 production stages (Compound Mixing, Vulcanization, Tool Center, Metal Preparation).
+   - Divide each stage into two equal 50% columns: One side must be a full-height, immersive industrial image; the other side must be the technical text (Title and Body Copy) with high-end typography and generous white space.
+   - Implement the precise alternating sequence:
+     * Section 1 (Compound Mixing): Image on the LEFT, Text on the RIGHT.
+     * Section 2 (Vulcanization): Text on the LEFT, Image on the RIGHT.
+     * Section 3 (Tool Center): Image on the LEFT, Text on the RIGHT.
+     * Section 4 (Metal Preparation): Text on the LEFT, Image on the RIGHT.
+   - Responsive Design: On mobile viewports, the columns must smoothly stack vertically, with the image always appearing above the corresponding text element.
+
+3. Block 3: Standard Global Contact Form (150 width variant)
+   - Ensure the form matches the styling, fields, and multilingual validation behavior applied to the other pages.
+
+Admin Panel & Infrastructure Requirements:
+- Overwrite the old backend schema for the Production page. Maintain full dynamic multi-language tabs (EN, DE, TR).
+- The admin must be able to change the Hero content, upload distinct industrial photos for the 4 split sections, and manage all text copies seamlessly from the dashboard.
