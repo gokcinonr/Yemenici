@@ -164,7 +164,7 @@ var require_common = __commonJS({
     function setup(env) {
       createDebug.debug = createDebug;
       createDebug.default = createDebug;
-      createDebug.coerce = coerce;
+      createDebug.coerce = coerce2;
       createDebug.disable = disable;
       createDebug.enable = enable;
       createDebug.enabled = enabled;
@@ -319,7 +319,7 @@ var require_common = __commonJS({
         }
         return false;
       }
-      function coerce(val) {
+      function coerce2(val) {
         if (val instanceof Error) {
           return val.stack || val.message;
         }
@@ -20499,27 +20499,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router5;
+    module.exports = Router6;
     module.exports.Route = Route;
-    function Router5(options) {
-      if (!(this instanceof Router5)) {
-        return new Router5(options);
+    function Router6(options) {
+      if (!(this instanceof Router6)) {
+        return new Router6(options);
       }
       const opts = options || {};
-      function router5(req, res, next) {
-        router5.handle(req, res, next);
+      function router6(req, res, next) {
+        router6.handle(req, res, next);
       }
-      Object.setPrototypeOf(router5, this);
-      router5.caseSensitive = opts.caseSensitive;
-      router5.mergeParams = opts.mergeParams;
-      router5.params = {};
-      router5.strict = opts.strict;
-      router5.stack = [];
-      return router5;
+      Object.setPrototypeOf(router6, this);
+      router6.caseSensitive = opts.caseSensitive;
+      router6.mergeParams = opts.mergeParams;
+      router6.params = {};
+      router6.strict = opts.strict;
+      router6.stack = [];
+      return router6;
     }
-    Router5.prototype = function() {
+    Router6.prototype = function() {
     };
-    Router5.prototype.param = function param(name, fn) {
+    Router6.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20539,7 +20539,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router5.prototype.handle = function handle(req, res, callback) {
+    Router6.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20666,7 +20666,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router5.prototype.use = function use(handler) {
+    Router6.prototype.use = function use(handler) {
       let offset = 0;
       let path3 = "/";
       if (typeof handler !== "function") {
@@ -20699,7 +20699,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router5.prototype.route = function route(path3) {
+    Router6.prototype.route = function route(path3) {
       const route2 = new Route(path3);
       const layer = new Layer(path3, {
         sensitive: this.caseSensitive,
@@ -20714,7 +20714,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router5.prototype[method] = function(path3) {
+      Router6.prototype[method] = function(path3) {
         const route = this.route(path3);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20897,13 +20897,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router5 = require_router();
+    var Router6 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router5 = null;
+      var router6 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20912,13 +20912,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router5 === null) {
-            router5 = new Router5({
+          if (router6 === null) {
+            router6 = new Router6({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router5;
+          return router6;
         }
       });
     };
@@ -20989,15 +20989,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router5 = this.router;
+      var router6 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router5.use(path3, fn2);
+          return router6.use(path3, fn2);
         }
         debug(".use app under %s", path3);
         fn2.mountpath = path3;
         fn2.parent = this;
-        router5.use(path3, function mounted_app(req, res, next) {
+        router6.use(path3, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23524,7 +23524,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router5 = require_router();
+    var Router6 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23546,8 +23546,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router5.Route;
-    exports.Router = Router5;
+    exports.Route = Router6.Route;
+    exports.Router = Router6;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -28569,7 +28569,7 @@ var require_ms2 = __commonJS({
 var require_debug = __commonJS({
   "../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/debug.js"(exports, module) {
     exports = module.exports = createDebug.debug = createDebug["default"] = createDebug;
-    exports.coerce = coerce;
+    exports.coerce = coerce2;
     exports.disable = disable;
     exports.enable = enable;
     exports.enabled = enabled;
@@ -28663,7 +28663,7 @@ var require_debug = __commonJS({
       }
       return false;
     }
-    function coerce(val) {
+    function coerce2(val) {
       if (val instanceof Error) return val.stack || val.message;
       return val;
     }
@@ -40734,7 +40734,7 @@ var require_sbmh = __commonJS({
 var require_multipart = __commonJS({
   "../../node_modules/.pnpm/busboy@1.6.0/node_modules/busboy/lib/types/multipart.js"(exports, module) {
     "use strict";
-    var { Readable, Writable } = __require("stream");
+    var { Readable: Readable3, Writable } = __require("stream");
     var StreamSearch = require_sbmh();
     var {
       basename,
@@ -40890,7 +40890,7 @@ var require_multipart = __commonJS({
         return pos;
       }
     };
-    var FileStream = class extends Readable {
+    var FileStream = class extends Readable3 {
       constructor(opts, owner) {
         super(opts);
         this.truncated = false;
@@ -42683,7 +42683,7 @@ var require_make_middleware = __commonJS({
         if (!is2(req, ["multipart"])) return next();
         var options = setup();
         var limits = options.limits;
-        var storage2 = options.storage;
+        var storage = options.storage;
         var fileFilter = options.fileFilter;
         var fileStrategy = options.fileStrategy;
         var preservePath = options.preservePath;
@@ -42729,7 +42729,7 @@ var require_make_middleware = __commonJS({
           errorOccured = true;
           function finishAbort() {
             function remove(file2, cb) {
-              storage2._removeFile(req, file2, cb);
+              storage._removeFile(req, file2, cb);
             }
             removeUploadedFiles(uploadedFiles, remove, function(err, storageErrors) {
               if (err) return done(err);
@@ -42829,7 +42829,7 @@ var require_make_middleware = __commonJS({
               aborting = true;
               abortWithCode("LIMIT_FILE_SIZE", fieldname);
             });
-            storage2._handleFile(req, file2, function(err2, info) {
+            storage._handleFile(req, file2, function(err2, info) {
               if (aborting) {
                 appender.removePlaceholder(placeholder);
                 uploadedFiles.push({ ...file2, ...info });
@@ -43010,7 +43010,7 @@ var require_buffer_list = __commonJS({
     var Buffer2 = _require.Buffer;
     var _require2 = __require("util");
     var inspect = _require2.inspect;
-    var custom2 = inspect && inspect.custom || "inspect";
+    var custom3 = inspect && inspect.custom || "inspect";
     function copyBuffer(src, target, offset) {
       Buffer2.prototype.copy.call(src, target, offset);
     }
@@ -43165,7 +43165,7 @@ var require_buffer_list = __commonJS({
         }
         // Make sure the linked list only shows the minimal necessary information.
       }, {
-        key: custom2,
+        key: custom3,
         value: function value(_, options) {
           return inspect(this, _objectSpread(_objectSpread({}, options), {}, {
             // Only inspect one level.
@@ -43882,9 +43882,9 @@ var require_stream_duplex = __commonJS({
       return keys2;
     };
     module.exports = Duplex;
-    var Readable = require_stream_readable();
+    var Readable3 = require_stream_readable();
     var Writable = require_stream_writable();
-    require_inherits()(Duplex, Readable);
+    require_inherits()(Duplex, Readable3);
     {
       keys = objectKeys(Writable.prototype);
       for (v = 0; v < keys.length; v++) {
@@ -43897,7 +43897,7 @@ var require_stream_duplex = __commonJS({
     var v;
     function Duplex(options) {
       if (!(this instanceof Duplex)) return new Duplex(options);
-      Readable.call(this, options);
+      Readable3.call(this, options);
       Writable.call(this, options);
       this.allowHalfOpen = true;
       if (options) {
@@ -44553,14 +44553,14 @@ var require_from = __commonJS({
       return (hint === "string" ? String : Number)(input);
     }
     var ERR_INVALID_ARG_TYPE = require_errors().codes.ERR_INVALID_ARG_TYPE;
-    function from(Readable, iterable, opts) {
+    function from(Readable3, iterable, opts) {
       var iterator;
       if (iterable && typeof iterable.next === "function") {
         iterator = iterable;
       } else if (iterable && iterable[Symbol.asyncIterator]) iterator = iterable[Symbol.asyncIterator]();
       else if (iterable && iterable[Symbol.iterator]) iterator = iterable[Symbol.iterator]();
       else throw new ERR_INVALID_ARG_TYPE("iterable", ["Iterable"], iterable);
-      var readable = new Readable(_objectSpread({
+      var readable = new Readable3(_objectSpread({
         objectMode: true
       }, opts));
       var reading = false;
@@ -44600,9 +44600,9 @@ var require_from = __commonJS({
 var require_stream_readable = __commonJS({
   "../../node_modules/.pnpm/readable-stream@3.6.2/node_modules/readable-stream/lib/_stream_readable.js"(exports, module) {
     "use strict";
-    module.exports = Readable;
+    module.exports = Readable3;
     var Duplex;
-    Readable.ReadableState = ReadableState;
+    Readable3.ReadableState = ReadableState;
     var EE = __require("events").EventEmitter;
     var EElistenerCount = function EElistenerCount2(emitter, type) {
       return emitter.listeners(type).length;
@@ -44637,7 +44637,7 @@ var require_stream_readable = __commonJS({
     var StringDecoder;
     var createReadableStreamAsyncIterator;
     var from;
-    require_inherits()(Readable, Stream);
+    require_inherits()(Readable3, Stream);
     var errorOrDestroy = destroyImpl.errorOrDestroy;
     var kProxyEvents = ["error", "close", "destroy", "pause", "resume"];
     function prependListener(emitter, event, fn) {
@@ -44681,9 +44681,9 @@ var require_stream_readable = __commonJS({
         this.encoding = options.encoding;
       }
     }
-    function Readable(options) {
+    function Readable3(options) {
       Duplex = Duplex || require_stream_duplex();
-      if (!(this instanceof Readable)) return new Readable(options);
+      if (!(this instanceof Readable3)) return new Readable3(options);
       var isDuplex = this instanceof Duplex;
       this._readableState = new ReadableState(options, this, isDuplex);
       this.readable = true;
@@ -44693,7 +44693,7 @@ var require_stream_readable = __commonJS({
       }
       Stream.call(this);
     }
-    Object.defineProperty(Readable.prototype, "destroyed", {
+    Object.defineProperty(Readable3.prototype, "destroyed", {
       // making it explicit this property is not enumerable
       // because otherwise some prototype manipulation in
       // userland will fail
@@ -44711,12 +44711,12 @@ var require_stream_readable = __commonJS({
         this._readableState.destroyed = value;
       }
     });
-    Readable.prototype.destroy = destroyImpl.destroy;
-    Readable.prototype._undestroy = destroyImpl.undestroy;
-    Readable.prototype._destroy = function(err, cb) {
+    Readable3.prototype.destroy = destroyImpl.destroy;
+    Readable3.prototype._undestroy = destroyImpl.undestroy;
+    Readable3.prototype._destroy = function(err, cb) {
       cb(err);
     };
-    Readable.prototype.push = function(chunk, encoding) {
+    Readable3.prototype.push = function(chunk, encoding) {
       var state = this._readableState;
       var skipChunkCheck;
       if (!state.objectMode) {
@@ -44733,7 +44733,7 @@ var require_stream_readable = __commonJS({
       }
       return readableAddChunk(this, chunk, encoding, false, skipChunkCheck);
     };
-    Readable.prototype.unshift = function(chunk) {
+    Readable3.prototype.unshift = function(chunk) {
       return readableAddChunk(this, chunk, null, true, false);
     };
     function readableAddChunk(stream, chunk, encoding, addToFront, skipChunkCheck) {
@@ -44794,10 +44794,10 @@ var require_stream_readable = __commonJS({
       }
       return er;
     }
-    Readable.prototype.isPaused = function() {
+    Readable3.prototype.isPaused = function() {
       return this._readableState.flowing === false;
     };
-    Readable.prototype.setEncoding = function(enc) {
+    Readable3.prototype.setEncoding = function(enc) {
       if (!StringDecoder) StringDecoder = require_string_decoder().StringDecoder;
       var decoder = new StringDecoder(enc);
       this._readableState.decoder = decoder;
@@ -44843,7 +44843,7 @@ var require_stream_readable = __commonJS({
       }
       return state.length;
     }
-    Readable.prototype.read = function(n) {
+    Readable3.prototype.read = function(n) {
       debug("read", n);
       n = parseInt(n, 10);
       var state = this._readableState;
@@ -44952,10 +44952,10 @@ var require_stream_readable = __commonJS({
       }
       state.readingMore = false;
     }
-    Readable.prototype._read = function(n) {
+    Readable3.prototype._read = function(n) {
       errorOrDestroy(this, new ERR_METHOD_NOT_IMPLEMENTED("_read()"));
     };
-    Readable.prototype.pipe = function(dest, pipeOpts) {
+    Readable3.prototype.pipe = function(dest, pipeOpts) {
       var src = this;
       var state = this._readableState;
       switch (state.pipesCount) {
@@ -45058,7 +45058,7 @@ var require_stream_readable = __commonJS({
         }
       };
     }
-    Readable.prototype.unpipe = function(dest) {
+    Readable3.prototype.unpipe = function(dest) {
       var state = this._readableState;
       var unpipeInfo = {
         hasUnpiped: false
@@ -45092,7 +45092,7 @@ var require_stream_readable = __commonJS({
       dest.emit("unpipe", this, unpipeInfo);
       return this;
     };
-    Readable.prototype.on = function(ev, fn) {
+    Readable3.prototype.on = function(ev, fn) {
       var res = Stream.prototype.on.call(this, ev, fn);
       var state = this._readableState;
       if (ev === "data") {
@@ -45113,15 +45113,15 @@ var require_stream_readable = __commonJS({
       }
       return res;
     };
-    Readable.prototype.addListener = Readable.prototype.on;
-    Readable.prototype.removeListener = function(ev, fn) {
+    Readable3.prototype.addListener = Readable3.prototype.on;
+    Readable3.prototype.removeListener = function(ev, fn) {
       var res = Stream.prototype.removeListener.call(this, ev, fn);
       if (ev === "readable") {
         process.nextTick(updateReadableListening, this);
       }
       return res;
     };
-    Readable.prototype.removeAllListeners = function(ev) {
+    Readable3.prototype.removeAllListeners = function(ev) {
       var res = Stream.prototype.removeAllListeners.apply(this, arguments);
       if (ev === "readable" || ev === void 0) {
         process.nextTick(updateReadableListening, this);
@@ -45141,7 +45141,7 @@ var require_stream_readable = __commonJS({
       debug("readable nexttick read 0");
       self2.read(0);
     }
-    Readable.prototype.resume = function() {
+    Readable3.prototype.resume = function() {
       var state = this._readableState;
       if (!state.flowing) {
         debug("resume");
@@ -45167,7 +45167,7 @@ var require_stream_readable = __commonJS({
       flow(stream);
       if (state.flowing && !state.reading) stream.read(0);
     }
-    Readable.prototype.pause = function() {
+    Readable3.prototype.pause = function() {
       debug("call pause flowing=%j", this._readableState.flowing);
       if (this._readableState.flowing !== false) {
         debug("pause");
@@ -45182,7 +45182,7 @@ var require_stream_readable = __commonJS({
       debug("flow", state.flowing);
       while (state.flowing && stream.read() !== null) ;
     }
-    Readable.prototype.wrap = function(stream) {
+    Readable3.prototype.wrap = function(stream) {
       var _this = this;
       var state = this._readableState;
       var paused = false;
@@ -45227,14 +45227,14 @@ var require_stream_readable = __commonJS({
       return this;
     };
     if (typeof Symbol === "function") {
-      Readable.prototype[Symbol.asyncIterator] = function() {
+      Readable3.prototype[Symbol.asyncIterator] = function() {
         if (createReadableStreamAsyncIterator === void 0) {
           createReadableStreamAsyncIterator = require_async_iterator();
         }
         return createReadableStreamAsyncIterator(this);
       };
     }
-    Object.defineProperty(Readable.prototype, "readableHighWaterMark", {
+    Object.defineProperty(Readable3.prototype, "readableHighWaterMark", {
       // making it explicit this property is not enumerable
       // because otherwise some prototype manipulation in
       // userland will fail
@@ -45243,7 +45243,7 @@ var require_stream_readable = __commonJS({
         return this._readableState.highWaterMark;
       }
     });
-    Object.defineProperty(Readable.prototype, "readableBuffer", {
+    Object.defineProperty(Readable3.prototype, "readableBuffer", {
       // making it explicit this property is not enumerable
       // because otherwise some prototype manipulation in
       // userland will fail
@@ -45252,7 +45252,7 @@ var require_stream_readable = __commonJS({
         return this._readableState && this._readableState.buffer;
       }
     });
-    Object.defineProperty(Readable.prototype, "readableFlowing", {
+    Object.defineProperty(Readable3.prototype, "readableFlowing", {
       // making it explicit this property is not enumerable
       // because otherwise some prototype manipulation in
       // userland will fail
@@ -45266,8 +45266,8 @@ var require_stream_readable = __commonJS({
         }
       }
     });
-    Readable._fromList = fromList;
-    Object.defineProperty(Readable.prototype, "readableLength", {
+    Readable3._fromList = fromList;
+    Object.defineProperty(Readable3.prototype, "readableLength", {
       // making it explicit this property is not enumerable
       // because otherwise some prototype manipulation in
       // userland will fail
@@ -45313,11 +45313,11 @@ var require_stream_readable = __commonJS({
       }
     }
     if (typeof Symbol === "function") {
-      Readable.from = function(iterable, opts) {
+      Readable3.from = function(iterable, opts) {
         if (from === void 0) {
           from = require_from();
         }
-        return from(Readable, iterable, opts);
+        return from(Readable3, iterable, opts);
       };
     }
     function indexOf(xs, x) {
@@ -51487,17 +51487,129 @@ var require_lib6 = __commonJS({
 });
 
 // src/app.ts
-var import_express5 = __toESM(require_express2(), 1);
+var import_express6 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 var import_express_session = __toESM(require_express_session(), 1);
 import path2 from "path";
 
 // src/routes/index.ts
-var import_express4 = __toESM(require_express2(), 1);
+var import_express5 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
+
+// ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/external.js
+var external_exports = {};
+__export(external_exports, {
+  BRAND: () => BRAND,
+  DIRTY: () => DIRTY,
+  EMPTY_PATH: () => EMPTY_PATH,
+  INVALID: () => INVALID,
+  NEVER: () => NEVER,
+  OK: () => OK,
+  ParseStatus: () => ParseStatus,
+  Schema: () => ZodType,
+  ZodAny: () => ZodAny,
+  ZodArray: () => ZodArray,
+  ZodBigInt: () => ZodBigInt,
+  ZodBoolean: () => ZodBoolean,
+  ZodBranded: () => ZodBranded,
+  ZodCatch: () => ZodCatch,
+  ZodDate: () => ZodDate,
+  ZodDefault: () => ZodDefault,
+  ZodDiscriminatedUnion: () => ZodDiscriminatedUnion,
+  ZodEffects: () => ZodEffects,
+  ZodEnum: () => ZodEnum,
+  ZodError: () => ZodError,
+  ZodFirstPartyTypeKind: () => ZodFirstPartyTypeKind,
+  ZodFunction: () => ZodFunction,
+  ZodIntersection: () => ZodIntersection,
+  ZodIssueCode: () => ZodIssueCode,
+  ZodLazy: () => ZodLazy,
+  ZodLiteral: () => ZodLiteral,
+  ZodMap: () => ZodMap,
+  ZodNaN: () => ZodNaN,
+  ZodNativeEnum: () => ZodNativeEnum,
+  ZodNever: () => ZodNever,
+  ZodNull: () => ZodNull,
+  ZodNullable: () => ZodNullable,
+  ZodNumber: () => ZodNumber,
+  ZodObject: () => ZodObject,
+  ZodOptional: () => ZodOptional,
+  ZodParsedType: () => ZodParsedType,
+  ZodPipeline: () => ZodPipeline,
+  ZodPromise: () => ZodPromise,
+  ZodReadonly: () => ZodReadonly,
+  ZodRecord: () => ZodRecord,
+  ZodSchema: () => ZodType,
+  ZodSet: () => ZodSet,
+  ZodString: () => ZodString,
+  ZodSymbol: () => ZodSymbol,
+  ZodTransformer: () => ZodEffects,
+  ZodTuple: () => ZodTuple,
+  ZodType: () => ZodType,
+  ZodUndefined: () => ZodUndefined,
+  ZodUnion: () => ZodUnion,
+  ZodUnknown: () => ZodUnknown,
+  ZodVoid: () => ZodVoid,
+  addIssueToContext: () => addIssueToContext,
+  any: () => anyType,
+  array: () => arrayType,
+  bigint: () => bigIntType,
+  boolean: () => booleanType,
+  coerce: () => coerce,
+  custom: () => custom,
+  date: () => dateType,
+  datetimeRegex: () => datetimeRegex,
+  defaultErrorMap: () => en_default,
+  discriminatedUnion: () => discriminatedUnionType,
+  effect: () => effectsType,
+  enum: () => enumType,
+  function: () => functionType,
+  getErrorMap: () => getErrorMap,
+  getParsedType: () => getParsedType,
+  instanceof: () => instanceOfType,
+  intersection: () => intersectionType,
+  isAborted: () => isAborted,
+  isAsync: () => isAsync,
+  isDirty: () => isDirty,
+  isValid: () => isValid,
+  late: () => late,
+  lazy: () => lazyType,
+  literal: () => literalType,
+  makeIssue: () => makeIssue,
+  map: () => mapType,
+  nan: () => nanType,
+  nativeEnum: () => nativeEnumType,
+  never: () => neverType,
+  null: () => nullType,
+  nullable: () => nullableType,
+  number: () => numberType,
+  object: () => objectType,
+  objectUtil: () => objectUtil,
+  oboolean: () => oboolean,
+  onumber: () => onumber,
+  optional: () => optionalType,
+  ostring: () => ostring,
+  pipeline: () => pipelineType,
+  preprocess: () => preprocessType,
+  promise: () => promiseType,
+  quotelessJson: () => quotelessJson,
+  record: () => recordType,
+  set: () => setType,
+  setErrorMap: () => setErrorMap,
+  strictObject: () => strictObjectType,
+  string: () => stringType,
+  symbol: () => symbolType,
+  transformer: () => effectsType,
+  tuple: () => tupleType,
+  undefined: () => undefinedType,
+  union: () => unionType,
+  unknown: () => unknownType,
+  util: () => util,
+  void: () => voidType
+});
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/util.js
 var util;
@@ -51652,6 +51764,10 @@ var ZodIssueCode = util.arrayToEnum([
   "not_multiple_of",
   "not_finite"
 ]);
+var quotelessJson = (obj) => {
+  const json3 = JSON.stringify(obj, null, 2);
+  return json3.replace(/"([^"]+)":/g, "$1:");
+};
 var ZodError = class _ZodError extends Error {
   get errors() {
     return this.issues;
@@ -51852,6 +51968,9 @@ var en_default = errorMap;
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
+function setErrorMap(map2) {
+  overrideErrorMap = map2;
+}
 function getErrorMap() {
   return overrideErrorMap;
 }
@@ -51882,6 +52001,7 @@ var makeIssue = (params) => {
     message: errorMessage
   };
 };
+var EMPTY_PATH = [];
 function addIssueToContext(ctx, issueData) {
   const overrideMap = getErrorMap();
   const issue2 = makeIssue({
@@ -55207,6 +55327,7 @@ ZodNaN.create = (params) => {
     ...processCreateParams(params)
   });
 };
+var BRAND = /* @__PURE__ */ Symbol("zod_brand");
 var ZodBranded = class extends ZodType {
   _parse(input) {
     const { ctx } = this._processInputParams(input);
@@ -55298,6 +55419,33 @@ ZodReadonly.create = (type, params) => {
     ...processCreateParams(params)
   });
 };
+function cleanParams(params, data) {
+  const p = typeof params === "function" ? params(data) : typeof params === "string" ? { message: params } : params;
+  const p2 = typeof p === "string" ? { message: p } : p;
+  return p2;
+}
+function custom(check2, _params = {}, fatal) {
+  if (check2)
+    return ZodAny.create().superRefine((data, ctx) => {
+      const r = check2(data);
+      if (r instanceof Promise) {
+        return r.then((r2) => {
+          if (!r2) {
+            const params = cleanParams(_params, data);
+            const _fatal = params.fatal ?? fatal ?? true;
+            ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
+          }
+        });
+      }
+      if (!r) {
+        const params = cleanParams(_params, data);
+        const _fatal = params.fatal ?? fatal ?? true;
+        ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
+      }
+      return;
+    });
+  return ZodAny.create();
+}
 var late = {
   object: ZodObject.lazycreate
 };
@@ -55340,6 +55488,9 @@ var ZodFirstPartyTypeKind;
   ZodFirstPartyTypeKind2["ZodPipeline"] = "ZodPipeline";
   ZodFirstPartyTypeKind2["ZodReadonly"] = "ZodReadonly";
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
+var instanceOfType = (cls, params = {
+  message: `Input not instance of ${cls.name}`
+}) => custom((data) => data instanceof cls, params);
 var stringType = ZodString.create;
 var numberType = ZodNumber.create;
 var nanType = ZodNaN.create;
@@ -55374,6 +55525,20 @@ var optionalType = ZodOptional.create;
 var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
+var ostring = () => stringType().optional();
+var onumber = () => numberType().optional();
+var oboolean = () => booleanType().optional();
+var coerce = {
+  string: ((arg) => ZodString.create({ ...arg, coerce: true })),
+  number: ((arg) => ZodNumber.create({ ...arg, coerce: true })),
+  boolean: ((arg) => ZodBoolean.create({
+    ...arg,
+    coerce: true
+  })),
+  bigint: ((arg) => ZodBigInt.create({ ...arg, coerce: true })),
+  date: ((arg) => ZodDate.create({ ...arg, coerce: true }))
+};
+var NEVER = INVALID;
 
 // ../../lib/api-zod/src/generated/api.ts
 var HealthCheckResponse = objectType({
@@ -57117,6 +57282,7 @@ var bcryptjs_default = {
 // src/routes/admin.ts
 var import_multer = __toESM(require_multer(), 1);
 import path from "path";
+import { randomUUID as randomUUID2 } from "crypto";
 
 // ../../node_modules/.pnpm/pg@8.20.0/node_modules/pg/esm/index.mjs
 var import_lib = __toESM(require_lib6(), 1);
@@ -64100,12 +64266,12 @@ __export(schema_exports, {
 });
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/classic/external.js
-var external_exports = {};
-__export(external_exports, {
+var external_exports2 = {};
+__export(external_exports2, {
   $brand: () => $brand,
   $input: () => $input,
   $output: () => $output,
-  NEVER: () => NEVER,
+  NEVER: () => NEVER2,
   TimePrecision: () => TimePrecision,
   ZodAny: () => ZodAny2,
   ZodArray: () => ZodArray2,
@@ -64195,7 +64361,7 @@ __export(external_exports, {
   core: () => core_exports2,
   cuid: () => cuid3,
   cuid2: () => cuid22,
-  custom: () => custom,
+  custom: () => custom2,
   date: () => date4,
   discriminatedUnion: () => discriminatedUnion,
   e164: () => e1642,
@@ -64277,7 +64443,7 @@ __export(external_exports, {
   safeParse: () => safeParse2,
   safeParseAsync: () => safeParseAsync2,
   set: () => set,
-  setErrorMap: () => setErrorMap,
+  setErrorMap: () => setErrorMap2,
   size: () => _size,
   startsWith: () => _startsWith,
   strictObject: () => strictObject,
@@ -64415,7 +64581,7 @@ __export(core_exports2, {
   Doc: () => Doc,
   JSONSchema: () => json_schema_exports,
   JSONSchemaGenerator: () => JSONSchemaGenerator,
-  NEVER: () => NEVER,
+  NEVER: () => NEVER2,
   TimePrecision: () => TimePrecision,
   _any: () => _any,
   _array: () => _array,
@@ -64556,7 +64722,7 @@ __export(core_exports2, {
 });
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/core/core.js
-var NEVER = Object.freeze({
+var NEVER2 = Object.freeze({
   status: "aborted"
 });
 // @__NO_SIDE_EFFECTS__
@@ -75132,7 +75298,7 @@ function check(fn) {
   ch._zod.check = fn;
   return ch;
 }
-function custom(fn, _params) {
+function custom2(fn, _params) {
   return _custom(ZodCustom, fn ?? (() => true), _params);
 }
 function refine(fn, _params = {}) {
@@ -75201,7 +75367,7 @@ var ZodIssueCode2 = {
   invalid_value: "invalid_value",
   custom: "custom"
 };
-function setErrorMap(map2) {
+function setErrorMap2(map2) {
   config({
     customError: map2
   });
@@ -75265,16 +75431,16 @@ function isColumnType(column, columnTypes) {
 function isWithEnum(column) {
   return "enumValues" in column && Array.isArray(column.enumValues) && column.enumValues.length > 0;
 }
-var literalSchema = external_exports.union([external_exports.string(), external_exports.number(), external_exports.boolean(), external_exports.null()]);
-var jsonSchema = external_exports.union([
+var literalSchema = external_exports2.union([external_exports2.string(), external_exports2.number(), external_exports2.boolean(), external_exports2.null()]);
+var jsonSchema = external_exports2.union([
   literalSchema,
-  external_exports.record(external_exports.string(), external_exports.any()),
-  external_exports.array(external_exports.any())
+  external_exports2.record(external_exports2.string(), external_exports2.any()),
+  external_exports2.array(external_exports2.any())
 ]);
-var bufferSchema = external_exports.custom((v) => v instanceof Buffer);
+var bufferSchema = external_exports2.custom((v) => v instanceof Buffer);
 function columnToSchema(column, factory) {
-  const z$1 = factory?.zodInstance ?? external_exports;
-  const coerce = factory?.coerce ?? {};
+  const z$1 = factory?.zodInstance ?? external_exports2;
+  const coerce2 = factory?.coerce ?? {};
   let schema;
   if (isWithEnum(column)) {
     schema = column.enumValues.length ? z$1.enum(column.enumValues) : z$1.string();
@@ -75301,15 +75467,15 @@ function columnToSchema(column, factory) {
     } else if (column.dataType === "array") {
       schema = z$1.array(z$1.any());
     } else if (column.dataType === "number") {
-      schema = numberColumnToSchema(column, z$1, coerce);
+      schema = numberColumnToSchema(column, z$1, coerce2);
     } else if (column.dataType === "bigint") {
-      schema = bigintColumnToSchema(column, z$1, coerce);
+      schema = bigintColumnToSchema(column, z$1, coerce2);
     } else if (column.dataType === "boolean") {
-      schema = coerce === true || coerce.boolean ? z$1.coerce.boolean() : z$1.boolean();
+      schema = coerce2 === true || coerce2.boolean ? z$1.coerce.boolean() : z$1.boolean();
     } else if (column.dataType === "date") {
-      schema = coerce === true || coerce.date ? z$1.coerce.date() : z$1.date();
+      schema = coerce2 === true || coerce2.date ? z$1.coerce.date() : z$1.date();
     } else if (column.dataType === "string") {
-      schema = stringColumnToSchema(column, z$1, coerce);
+      schema = stringColumnToSchema(column, z$1, coerce2);
     } else if (column.dataType === "json") {
       schema = jsonSchema;
     } else if (column.dataType === "custom") {
@@ -75323,7 +75489,7 @@ function columnToSchema(column, factory) {
   }
   return schema;
 }
-function numberColumnToSchema(column, z, coerce) {
+function numberColumnToSchema(column, z, coerce2) {
   let unsigned = column.getSQLType().includes("unsigned");
   let min;
   let max;
@@ -75391,18 +75557,18 @@ function numberColumnToSchema(column, z, coerce) {
     min = Number.MIN_SAFE_INTEGER;
     max = Number.MAX_SAFE_INTEGER;
   }
-  let schema = coerce === true || coerce?.number ? integer3 ? z.coerce.number() : z.coerce.number().int() : integer3 ? z.int() : z.number();
+  let schema = coerce2 === true || coerce2?.number ? integer3 ? z.coerce.number() : z.coerce.number().int() : integer3 ? z.int() : z.number();
   schema = schema.gte(min).lte(max);
   return schema;
 }
-function bigintColumnToSchema(column, z, coerce) {
+function bigintColumnToSchema(column, z, coerce2) {
   const unsigned = column.getSQLType().includes("unsigned");
   const min = unsigned ? 0n : CONSTANTS.INT64_MIN;
   const max = unsigned ? CONSTANTS.INT64_UNSIGNED_MAX : CONSTANTS.INT64_MAX;
-  const schema = coerce === true || coerce?.bigint ? z.coerce.bigint() : z.bigint();
+  const schema = coerce2 === true || coerce2?.bigint ? z.coerce.bigint() : z.bigint();
   return schema.gte(min).lte(max);
 }
-function stringColumnToSchema(column, z, coerce) {
+function stringColumnToSchema(column, z, coerce2) {
   if (isColumnType(column, ["PgUUID"])) {
     return z.uuid();
   }
@@ -75436,7 +75602,7 @@ function stringColumnToSchema(column, z, coerce) {
     regex = /^[01]+$/;
     max = column.dimensions;
   }
-  let schema = coerce === true || coerce?.string ? z.coerce.string() : z.string();
+  let schema = coerce2 === true || coerce2?.string ? z.coerce.string() : z.string();
   schema = regex ? schema.regex(regex) : schema;
   return max && fixed ? schema.length(max) : max ? schema.max(max) : schema;
 }
@@ -75457,7 +75623,7 @@ function handleColumns(columns, refinements, conditions, factory) {
       continue;
     }
     const column = is(selected, Column) ? selected : void 0;
-    const schema = column ? columnToSchema(column, factory) : external_exports.any();
+    const schema = column ? columnToSchema(column, factory) : external_exports2.any();
     const refined = typeof refinement === "function" ? refinement(schema) : schema;
     if (conditions.never(column)) {
       continue;
@@ -75473,7 +75639,7 @@ function handleColumns(columns, refinements, conditions, factory) {
       }
     }
   }
-  return external_exports.object(columnSchemas);
+  return external_exports2.object(columnSchemas);
 }
 var insertConditions = {
   never: (column) => column?.generated?.type === "always" || column?.generatedIdentity?.type === "always",
@@ -75539,21 +75705,312 @@ if (!connectionString) {
 var pool = new Pool3({ connectionString });
 var db = drizzle(pool, { schema: schema_exports });
 
+// src/lib/objectStorage.ts
+import { Storage } from "@google-cloud/storage";
+import { Readable } from "stream";
+import { randomUUID } from "crypto";
+
+// src/lib/objectAcl.ts
+var ACL_POLICY_METADATA_KEY = "custom:aclPolicy";
+function isPermissionAllowed(requested, granted) {
+  if (requested === "read" /* READ */) {
+    return ["read" /* READ */, "write" /* WRITE */].includes(granted);
+  }
+  return granted === "write" /* WRITE */;
+}
+function createObjectAccessGroup(group) {
+  switch (group.type) {
+    // Implement per access group type, e.g.:
+    // case "USER_LIST":
+    //   return new UserListAccessGroup(group.id);
+    default:
+      throw new Error(`Unknown access group type: ${group.type}`);
+  }
+}
+async function setObjectAclPolicy(objectFile, aclPolicy) {
+  const [exists2] = await objectFile.exists();
+  if (!exists2) {
+    throw new Error(`Object not found: ${objectFile.name}`);
+  }
+  await objectFile.setMetadata({
+    metadata: {
+      [ACL_POLICY_METADATA_KEY]: JSON.stringify(aclPolicy)
+    }
+  });
+}
+async function getObjectAclPolicy(objectFile) {
+  const [metadata] = await objectFile.getMetadata();
+  const aclPolicy = metadata?.metadata?.[ACL_POLICY_METADATA_KEY];
+  if (!aclPolicy) {
+    return null;
+  }
+  return JSON.parse(aclPolicy);
+}
+async function canAccessObject({
+  userId,
+  objectFile,
+  requestedPermission
+}) {
+  const aclPolicy = await getObjectAclPolicy(objectFile);
+  if (!aclPolicy) {
+    return false;
+  }
+  if (aclPolicy.visibility === "public" && requestedPermission === "read" /* READ */) {
+    return true;
+  }
+  if (!userId) {
+    return false;
+  }
+  if (aclPolicy.owner === userId) {
+    return true;
+  }
+  for (const rule of aclPolicy.aclRules || []) {
+    const accessGroup = createObjectAccessGroup(rule.group);
+    if (await accessGroup.hasMember(userId) && isPermissionAllowed(requestedPermission, rule.permission)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// src/lib/objectStorage.ts
+var REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+var objectStorageClient = new Storage({
+  credentials: {
+    audience: "replit",
+    subject_token_type: "access_token",
+    token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+    type: "external_account",
+    credential_source: {
+      url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+      format: {
+        type: "json",
+        subject_token_field_name: "access_token"
+      }
+    },
+    universe_domain: "googleapis.com"
+  },
+  projectId: ""
+});
+var ObjectNotFoundError = class _ObjectNotFoundError extends Error {
+  constructor() {
+    super("Object not found");
+    this.name = "ObjectNotFoundError";
+    Object.setPrototypeOf(this, _ObjectNotFoundError.prototype);
+  }
+};
+var ObjectStorageService = class {
+  constructor() {
+  }
+  getPublicObjectSearchPaths() {
+    const pathsStr = process.env.PUBLIC_OBJECT_SEARCH_PATHS || "";
+    const paths = Array.from(
+      new Set(
+        pathsStr.split(",").map((path3) => path3.trim()).filter((path3) => path3.length > 0)
+      )
+    );
+    if (paths.length === 0) {
+      throw new Error(
+        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a bucket in 'Object Storage' tool and set PUBLIC_OBJECT_SEARCH_PATHS env var (comma-separated paths)."
+      );
+    }
+    return paths;
+  }
+  getPrivateObjectDir() {
+    const dir = process.env.PRIVATE_OBJECT_DIR || "";
+    if (!dir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+    return dir;
+  }
+  async searchPublicObject(filePath) {
+    for (const searchPath of this.getPublicObjectSearchPaths()) {
+      const fullPath = `${searchPath}/${filePath}`;
+      const { bucketName, objectName } = parseObjectPath(fullPath);
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file2 = bucket.file(objectName);
+      const [exists2] = await file2.exists();
+      if (exists2) {
+        return file2;
+      }
+    }
+    return null;
+  }
+  async downloadObject(file2, cacheTtlSec = 3600) {
+    const [metadata] = await file2.getMetadata();
+    const aclPolicy = await getObjectAclPolicy(file2);
+    const isPublic = aclPolicy?.visibility === "public";
+    const nodeStream = file2.createReadStream();
+    const webStream = Readable.toWeb(nodeStream);
+    const headers = {
+      "Content-Type": metadata.contentType || "application/octet-stream",
+      "Cache-Control": `${isPublic ? "public" : "private"}, max-age=${cacheTtlSec}`
+    };
+    if (metadata.size) {
+      headers["Content-Length"] = String(metadata.size);
+    }
+    return new Response(webStream, { headers });
+  }
+  async getObjectEntityUploadURL() {
+    const privateObjectDir = this.getPrivateObjectDir();
+    if (!privateObjectDir) {
+      throw new Error(
+        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' tool and set PRIVATE_OBJECT_DIR env var."
+      );
+    }
+    const objectId = randomUUID();
+    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+    return signObjectURL({
+      bucketName,
+      objectName,
+      method: "PUT",
+      ttlSec: 900
+    });
+  }
+  async getObjectEntityFile(objectPath) {
+    if (!objectPath.startsWith("/objects/")) {
+      throw new ObjectNotFoundError();
+    }
+    const parts = objectPath.slice(1).split("/");
+    if (parts.length < 2) {
+      throw new ObjectNotFoundError();
+    }
+    const entityId = parts.slice(1).join("/");
+    let entityDir = this.getPrivateObjectDir();
+    if (!entityDir.endsWith("/")) {
+      entityDir = `${entityDir}/`;
+    }
+    const objectEntityPath = `${entityDir}${entityId}`;
+    const { bucketName, objectName } = parseObjectPath(objectEntityPath);
+    const bucket = objectStorageClient.bucket(bucketName);
+    const objectFile = bucket.file(objectName);
+    const [exists2] = await objectFile.exists();
+    if (!exists2) {
+      throw new ObjectNotFoundError();
+    }
+    return objectFile;
+  }
+  normalizeObjectEntityPath(rawPath) {
+    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
+      return rawPath;
+    }
+    const url2 = new URL(rawPath);
+    const rawObjectPath = url2.pathname;
+    let objectEntityDir = this.getPrivateObjectDir();
+    if (!objectEntityDir.endsWith("/")) {
+      objectEntityDir = `${objectEntityDir}/`;
+    }
+    if (!rawObjectPath.startsWith(objectEntityDir)) {
+      return rawObjectPath;
+    }
+    const entityId = rawObjectPath.slice(objectEntityDir.length);
+    return `/objects/${entityId}`;
+  }
+  async trySetObjectEntityAclPolicy(rawPath, aclPolicy) {
+    const normalizedPath = this.normalizeObjectEntityPath(rawPath);
+    if (!normalizedPath.startsWith("/")) {
+      return normalizedPath;
+    }
+    const objectFile = await this.getObjectEntityFile(normalizedPath);
+    await setObjectAclPolicy(objectFile, aclPolicy);
+    return normalizedPath;
+  }
+  async canAccessObjectEntity({
+    userId,
+    objectFile,
+    requestedPermission
+  }) {
+    return canAccessObject({
+      userId,
+      objectFile,
+      requestedPermission: requestedPermission ?? "read" /* READ */
+    });
+  }
+};
+function parseObjectPath(path3) {
+  if (!path3.startsWith("/")) {
+    path3 = `/${path3}`;
+  }
+  const pathParts = path3.split("/");
+  if (pathParts.length < 3) {
+    throw new Error("Invalid path: must contain at least a bucket name");
+  }
+  const bucketName = pathParts[1];
+  const objectName = pathParts.slice(2).join("/");
+  return {
+    bucketName,
+    objectName
+  };
+}
+async function signObjectURL({
+  bucketName,
+  objectName,
+  method,
+  ttlSec
+}) {
+  const request = {
+    bucket_name: bucketName,
+    object_name: objectName,
+    method,
+    expires_at: new Date(Date.now() + ttlSec * 1e3).toISOString()
+  };
+  const response = await fetch(
+    `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(request),
+      signal: AbortSignal.timeout(3e4)
+    }
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to sign object URL, errorcode: ${response.status}, make sure you're running on Replit`
+    );
+  }
+  const { signed_url: signedURL } = await response.json();
+  return signedURL;
+}
+
 // src/routes/admin.ts
 var router2 = (0, import_express2.Router)();
-var storage = import_multer.default.diskStorage({
-  destination: path.join(process.cwd(), "public/uploads"),
-  filename: (_req, file2, cb) => {
-    const ext = path.extname(file2.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
+function parsePrivateDir() {
+  const dir = process.env.PRIVATE_OBJECT_DIR || "";
+  const normalized = dir.startsWith("/") ? dir.slice(1) : dir;
+  const idx = normalized.indexOf("/");
+  const bucketName = idx >= 0 ? normalized.slice(0, idx) : normalized;
+  const prefix = idx >= 0 ? normalized.slice(idx + 1) : "";
+  return { bucketName, prefix };
+}
+async function uploadToGCS(buffer, contentType, ext) {
+  const { bucketName, prefix } = parsePrivateDir();
+  const uuid5 = randomUUID2();
+  const objectName = prefix ? `${prefix}/uploads/${uuid5}${ext}` : `uploads/${uuid5}${ext}`;
+  await objectStorageClient.bucket(bucketName).file(objectName).save(buffer, { metadata: { contentType }, resumable: false });
+  const entityId = `uploads/${uuid5}${ext}`;
+  const objectPath = `/objects/${entityId}`;
+  return { url: `/api/storage${objectPath}`, filename: `${uuid5}${ext}` };
+}
+var memStorage = import_multer.default.memoryStorage();
 var upload = (0, import_multer.default)({
-  storage,
+  storage: memStorage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file2, cb) => {
     if (file2.mimetype.startsWith("image/")) cb(null, true);
     else cb(new Error("Only images allowed"));
+  }
+});
+var pdfUploadMiddleware = (0, import_multer.default)({
+  storage: memStorage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_req, file2, cb) => {
+    if (file2.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files allowed"));
   }
 });
 function requireAuth(req, res, next) {
@@ -75585,33 +76042,25 @@ router2.post("/admin/logout", (req, res) => {
     res.json({ ok: true });
   });
 });
-router2.get("/admin/me", requireAuth, (req, res) => {
-  res.json({ username: req.session.adminUsername });
-});
-router2.get("/admin/content", requireAuth, async (req, res) => {
-  try {
-    const rows = await db.select().from(siteContentTable);
-    res.json(rows);
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "Server error" });
+router2.get("/admin/me", (req, res) => {
+  if (!req.session?.adminId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
   }
+  res.json({ username: req.session.adminUsername });
 });
 router2.post("/admin/content", requireAuth, async (req, res) => {
   try {
-    const { section, key, value, label } = req.body;
-    if (!section || !key) {
-      res.status(400).json({ error: "section and key are required" });
-      return;
-    }
-    const existing = await db.select().from(siteContentTable).where(eq(siteContentTable.section, section)).then((rows) => rows.find((r) => r.key === key));
-    if (existing) {
-      const [updated] = await db.update(siteContentTable).set({ value: value ?? "", updatedAt: /* @__PURE__ */ new Date() }).where(eq(siteContentTable.id, existing.id)).returning();
+    const { section, key, value } = req.body;
+    const existing = await db.select().from(siteContentTable).where(eq(siteContentTable.section, section)).limit(1e3);
+    const row = existing.find((r) => r.key === key);
+    if (row) {
+      const [updated] = await db.update(siteContentTable).set({ value, updatedAt: /* @__PURE__ */ new Date() }).where(eq(siteContentTable.id, row.id)).returning();
       res.json(updated);
-      return;
+    } else {
+      const [created] = await db.insert(siteContentTable).values({ section, key, value, label: "" }).returning();
+      res.json(created);
     }
-    const [created] = await db.insert(siteContentTable).values({ section, key, value: value ?? "", label: label ?? key, updatedAt: /* @__PURE__ */ new Date() }).returning();
-    res.json(created);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Server error" });
@@ -75619,7 +76068,7 @@ router2.post("/admin/content", requireAuth, async (req, res) => {
 });
 router2.put("/admin/content/:id", requireAuth, async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number(req.params.id);
     const { value } = req.body;
     const [updated] = await db.update(siteContentTable).set({ value, updatedAt: /* @__PURE__ */ new Date() }).where(eq(siteContentTable.id, id)).returning();
     res.json(updated);
@@ -75632,51 +76081,66 @@ router2.post(
   "/admin/upload",
   requireAuth,
   upload.single("file"),
-  (req, res) => {
+  async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
-    const url2 = `/api/uploads/${req.file.filename}`;
-    res.json({ url: url2, filename: req.file.filename });
+    try {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const result = await uploadToGCS(req.file.buffer, req.file.mimetype, ext);
+      res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Upload failed" });
+    }
   }
 );
-var pdfUpload = (0, import_multer.default)({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 },
-  fileFilter: (_req, file2, cb) => {
-    if (file2.mimetype === "application/pdf") cb(null, true);
-    else cb(new Error("Only PDF files allowed"));
-  }
-});
 router2.post(
   "/admin/upload-pdf",
   requireAuth,
-  pdfUpload.single("file"),
-  (req, res) => {
+  pdfUploadMiddleware.single("file"),
+  async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
-    const url2 = `/api/uploads/${req.file.filename}`;
-    res.json({ url: url2, filename: req.file.filename });
+    try {
+      const result = await uploadToGCS(req.file.buffer, "application/pdf", ".pdf");
+      res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Upload failed" });
+    }
   }
 );
-router2.get("/admin/media", requireAuth, (_req, res) => {
-  const fs = __require("fs");
-  const uploadDir = path.join(process.cwd(), "public/uploads");
+router2.get("/admin/media", requireAuth, async (req, res) => {
   try {
-    const files = fs.readdirSync(uploadDir).filter((f) => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f)).map((f) => {
-      const stat = fs.statSync(path.join(uploadDir, f));
-      return { filename: f, url: `/api/uploads/${f}`, size: stat.size, createdAt: stat.birthtime };
+    const { bucketName, prefix } = parsePrivateDir();
+    const gcsPrefix = prefix ? `${prefix}/uploads/` : "uploads/";
+    const bucket = objectStorageClient.bucket(bucketName);
+    const [files] = await bucket.getFiles({ prefix: gcsPrefix });
+    const IMAGE_RE = /\.(png|jpe?g|gif|webp|svg|bmp|tiff?)$/i;
+    const media = files.filter((f) => IMAGE_RE.test(f.name)).map((f) => {
+      const entityId = prefix ? f.name.slice(prefix.length + 1) : f.name;
+      const objectPath = `/objects/${entityId}`;
+      const uuidPart = path.basename(f.name);
+      return {
+        filename: uuidPart,
+        url: `/api/storage${objectPath}`,
+        size: Number(f.metadata?.size ?? 0),
+        createdAt: f.metadata?.timeCreated ?? (/* @__PURE__ */ new Date()).toISOString()
+      };
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    res.json(files);
-  } catch {
+    res.json(media);
+  } catch (err) {
+    req.log.error(err);
     res.json([]);
   }
 });
-router2.delete("/admin/media/:filename", requireAuth, (req, res) => {
-  const fs = __require("fs");
-  const filename = path.basename(req.params.filename);
-  const filePath = path.join(process.cwd(), "public/uploads", filename);
+router2.delete("/admin/media/:filename", requireAuth, async (req, res) => {
   try {
-    if (__require("fs").existsSync(filePath)) fs.unlinkSync(filePath);
+    const filename = path.basename(req.params.filename);
+    const { bucketName, prefix } = parsePrivateDir();
+    const objectName = prefix ? `${prefix}/uploads/${filename}` : `uploads/${filename}`;
+    await objectStorageClient.bucket(bucketName).file(objectName).delete({ ignoreNotFound: true });
     res.json({ ok: true });
-  } catch {
+  } catch (err) {
+    req.log.error(err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
@@ -75845,12 +76309,104 @@ router3.post("/contact", async (req, res) => {
 });
 var contact_default = router3;
 
-// src/routes/index.ts
+// src/routes/storage.ts
+var import_express4 = __toESM(require_express2(), 1);
+import { Readable as Readable2 } from "stream";
+var RequestUploadUrlBody = external_exports.object({
+  name: external_exports.string(),
+  size: external_exports.number(),
+  contentType: external_exports.string()
+});
+var RequestUploadUrlResponse = external_exports.object({
+  uploadURL: external_exports.string(),
+  objectPath: external_exports.string(),
+  metadata: external_exports.object({
+    name: external_exports.string(),
+    size: external_exports.number(),
+    contentType: external_exports.string()
+  })
+});
 var router4 = (0, import_express4.Router)();
-router4.use(health_default);
-router4.use(contact_default);
-router4.use(admin_default);
-var routes_default = router4;
+var objectStorageService = new ObjectStorageService();
+router4.post("/storage/uploads/request-url", async (req, res) => {
+  const parsed = RequestUploadUrlBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Missing or invalid required fields" });
+    return;
+  }
+  try {
+    const { name, size, contentType } = parsed.data;
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+    res.json(
+      RequestUploadUrlResponse.parse({
+        uploadURL,
+        objectPath,
+        metadata: { name, size, contentType }
+      })
+    );
+  } catch (error40) {
+    req.log.error({ err: error40 }, "Error generating upload URL");
+    res.status(500).json({ error: "Failed to generate upload URL" });
+  }
+});
+router4.get("/storage/public-objects/*filePath", async (req, res) => {
+  try {
+    const raw = req.params.filePath;
+    const filePath = Array.isArray(raw) ? raw.join("/") : raw;
+    const file2 = await objectStorageService.searchPublicObject(filePath);
+    if (!file2) {
+      res.status(404).json({ error: "File not found" });
+      return;
+    }
+    const response = await objectStorageService.downloadObject(file2);
+    res.status(response.status);
+    response.headers.forEach((value, key) => res.setHeader(key, value));
+    if (response.body) {
+      const nodeStream = Readable2.fromWeb(response.body);
+      nodeStream.pipe(res);
+    } else {
+      res.end();
+    }
+  } catch (error40) {
+    req.log.error({ err: error40 }, "Error serving public object");
+    res.status(500).json({ error: "Failed to serve public object" });
+  }
+});
+router4.get("/storage/objects/*path", async (req, res) => {
+  try {
+    const raw = req.params.path;
+    const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
+    const objectPath = `/objects/${wildcardPath}`;
+    const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
+    const response = await objectStorageService.downloadObject(objectFile);
+    res.status(response.status);
+    response.headers.forEach((value, key) => res.setHeader(key, value));
+    if (response.body) {
+      const nodeStream = Readable2.fromWeb(response.body);
+      nodeStream.pipe(res);
+    } else {
+      res.end();
+    }
+  } catch (error40) {
+    if (error40 instanceof ObjectNotFoundError) {
+      req.log.warn({ err: error40 }, "Object not found");
+      res.status(404).json({ error: "Object not found" });
+      return;
+    }
+    req.log.error({ err: error40 }, "Error serving object");
+    res.status(500).json({ error: "Failed to serve object" });
+  }
+});
+var storage_default = router4;
+
+// src/routes/index.ts
+var router5 = (0, import_express5.Router)();
+router5.use(health_default);
+router5.use(contact_default);
+router5.use(admin_default);
+router5.use(storage_default);
+var routes_default = router5;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -75871,7 +76427,7 @@ var logger = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express5.default)();
+var app = (0, import_express6.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -75892,8 +76448,8 @@ app.use(
   })
 );
 app.use((0, import_cors.default)({ origin: true, credentials: true }));
-app.use(import_express5.default.json());
-app.use(import_express5.default.urlencoded({ extended: true }));
+app.use(import_express6.default.json());
+app.use(import_express6.default.urlencoded({ extended: true }));
 app.use(
   (0, import_express_session.default)({
     secret: process.env.SESSION_SECRET || "yemenici-admin-secret",
@@ -75902,7 +76458,7 @@ app.use(
     cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1e3 }
   })
 );
-app.use("/api/uploads", import_express5.default.static(path2.join(process.cwd(), "public/uploads")));
+app.use("/api/uploads", import_express6.default.static(path2.join(process.cwd(), "public/uploads")));
 app.use("/api", routes_default);
 var app_default = app;
 

@@ -2,20 +2,53 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import multer from "multer";
 import path from "path";
+import { randomUUID } from "crypto";
 import { db, adminUsersTable, siteContentTable, contactSubmissionsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
+import { objectStorageClient } from "../lib/objectStorage";
 
 const router = Router();
 
-const storage = multer.diskStorage({
-  destination: path.join(process.cwd(), "public/uploads"),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  },
-});
+/* ── GCS helpers ────────────────────────────────────────────────────── */
+
+function parsePrivateDir(): { bucketName: string; prefix: string } {
+  const dir = process.env.PRIVATE_OBJECT_DIR || "";
+  const normalized = dir.startsWith("/") ? dir.slice(1) : dir;
+  const idx = normalized.indexOf("/");
+  const bucketName = idx >= 0 ? normalized.slice(0, idx) : normalized;
+  const prefix = idx >= 0 ? normalized.slice(idx + 1) : "";
+  return { bucketName, prefix };
+}
+
+/** Upload a buffer to GCS, return serving URL and UUID filename */
+async function uploadToGCS(
+  buffer: Buffer,
+  contentType: string,
+  ext: string,
+): Promise<{ url: string; filename: string }> {
+  const { bucketName, prefix } = parsePrivateDir();
+  const uuid = randomUUID();
+  const objectName = prefix
+    ? `${prefix}/uploads/${uuid}${ext}`
+    : `uploads/${uuid}${ext}`;
+
+  await objectStorageClient
+    .bucket(bucketName)
+    .file(objectName)
+    .save(buffer, { metadata: { contentType }, resumable: false });
+
+  /* entityId = everything after the bucket-level prefix */
+  const entityId = `uploads/${uuid}${ext}`;
+  const objectPath = `/objects/${entityId}`;
+  return { url: `/api/storage${objectPath}`, filename: `${uuid}${ext}` };
+}
+
+/* ── Multer — memory only (no disk writes) ─────────────────────────── */
+
+const memStorage = multer.memoryStorage();
+
 const upload = multer({
-  storage,
+  storage: memStorage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith("image/")) cb(null, true);
@@ -23,10 +56,21 @@ const upload = multer({
   },
 });
 
+const pdfUploadMiddleware = multer({
+  storage: memStorage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files allowed"));
+  },
+});
+
 function requireAuth(req: any, res: any, next: any) {
   if (req.session?.adminId) return next();
   res.status(401).json({ error: "Unauthorized" });
 }
+
+/* ── Auth ───────────────────────────────────────────────────────────── */
 
 router.post("/admin/login", async (req, res) => {
   try {
@@ -60,50 +104,39 @@ router.post("/admin/logout", (req, res) => {
   });
 });
 
-router.get("/admin/me", requireAuth, (req, res) => {
+router.get("/admin/me", (req, res) => {
+  if (!req.session?.adminId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
   res.json({ username: req.session.adminUsername });
 });
 
-router.get("/admin/content", requireAuth, async (req, res) => {
-  try {
-    const rows = await db.select().from(siteContentTable);
-    res.json(rows);
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+/* ── Content ────────────────────────────────────────────────────────── */
 
 router.post("/admin/content", requireAuth, async (req, res) => {
   try {
-    const { section, key, value, label } = req.body as {
-      section: string; key: string; value: string; label?: string;
-    };
-    if (!section || !key) {
-      res.status(400).json({ error: "section and key are required" });
-      return;
-    }
+    const { section, key, value } = req.body as { section: string; key: string; value: string };
     const existing = await db
       .select()
       .from(siteContentTable)
       .where(eq(siteContentTable.section, section))
-      .then((rows) => rows.find((r) => r.key === key));
-
-    if (existing) {
+      .limit(1000);
+    const row = existing.find((r) => r.key === key);
+    if (row) {
       const [updated] = await db
         .update(siteContentTable)
-        .set({ value: value ?? "", updatedAt: new Date() })
-        .where(eq(siteContentTable.id, existing.id))
+        .set({ value, updatedAt: new Date() })
+        .where(eq(siteContentTable.id, row.id))
         .returning();
       res.json(updated);
-      return;
+    } else {
+      const [created] = await db
+        .insert(siteContentTable)
+        .values({ section, key, value, label: "" })
+        .returning();
+      res.json(created);
     }
-
-    const [created] = await db
-      .insert(siteContentTable)
-      .values({ section, key, value: value ?? "", label: label ?? key, updatedAt: new Date() })
-      .returning();
-    res.json(created);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Server error" });
@@ -112,7 +145,7 @@ router.post("/admin/content", requireAuth, async (req, res) => {
 
 router.put("/admin/content/:id", requireAuth, async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number(req.params.id);
     const { value } = req.body as { value: string };
     const [updated] = await db
       .update(siteContentTable)
@@ -126,65 +159,95 @@ router.put("/admin/content/:id", requireAuth, async (req, res) => {
   }
 });
 
+/* ── Image upload → GCS ─────────────────────────────────────────────── */
+
 router.post(
   "/admin/upload",
   requireAuth,
   upload.single("file"),
-  (req: any, res: any) => {
+  async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
-    const url = `/api/uploads/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename });
+    try {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const result = await uploadToGCS(req.file.buffer, req.file.mimetype, ext);
+      res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Upload failed" });
+    }
   },
 );
 
-const pdfUpload = multer({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (file.mimetype === "application/pdf") cb(null, true);
-    else cb(new Error("Only PDF files allowed"));
-  },
-});
+/* ── PDF upload → GCS ───────────────────────────────────────────────── */
 
 router.post(
   "/admin/upload-pdf",
   requireAuth,
-  pdfUpload.single("file"),
-  (req: any, res: any) => {
+  pdfUploadMiddleware.single("file"),
+  async (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
-    const url = `/api/uploads/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename });
+    try {
+      const result = await uploadToGCS(req.file.buffer, "application/pdf", ".pdf");
+      res.json(result);
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "Upload failed" });
+    }
   },
 );
 
-router.get("/admin/media", requireAuth, (_req, res) => {
-  const fs = require("fs") as typeof import("fs");
-  const uploadDir = path.join(process.cwd(), "public/uploads");
+/* ── Media library — list from GCS ─────────────────────────────────── */
+
+router.get("/admin/media", requireAuth, async (req, res) => {
   try {
-    const files = fs.readdirSync(uploadDir)
-      .filter((f: string) => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f))
-      .map((f: string) => {
-        const stat = fs.statSync(path.join(uploadDir, f));
-        return { filename: f, url: `/api/uploads/${f}`, size: stat.size, createdAt: stat.birthtime };
+    const { bucketName, prefix } = parsePrivateDir();
+    const gcsPrefix = prefix ? `${prefix}/uploads/` : "uploads/";
+    const bucket = objectStorageClient.bucket(bucketName);
+    const [files] = await bucket.getFiles({ prefix: gcsPrefix });
+
+    const IMAGE_RE = /\.(png|jpe?g|gif|webp|svg|bmp|tiff?)$/i;
+    const media = files
+      .filter((f) => IMAGE_RE.test(f.name))
+      .map((f) => {
+        const entityId = prefix
+          ? f.name.slice(prefix.length + 1) /* strip "prefix/" */
+          : f.name;
+        const objectPath = `/objects/${entityId}`;
+        const uuidPart = path.basename(f.name);
+        return {
+          filename: uuidPart,
+          url: `/api/storage${objectPath}`,
+          size: Number(f.metadata?.size ?? 0),
+          createdAt: f.metadata?.timeCreated ?? new Date().toISOString(),
+        };
       })
-      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    res.json(files);
-  } catch {
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.json(media);
+  } catch (err) {
+    req.log.error(err);
     res.json([]);
   }
 });
 
-router.delete("/admin/media/:filename", requireAuth, (req, res) => {
-  const fs = require("fs") as typeof import("fs");
-  const filename = path.basename(req.params.filename);
-  const filePath = path.join(process.cwd(), "public/uploads", filename);
+/* ── Media delete — remove from GCS ────────────────────────────────── */
+
+router.delete("/admin/media/:filename", requireAuth, async (req, res) => {
   try {
-    if (require("fs").existsSync(filePath)) fs.unlinkSync(filePath);
+    const filename = path.basename(req.params.filename);
+    const { bucketName, prefix } = parsePrivateDir();
+    const objectName = prefix
+      ? `${prefix}/uploads/${filename}`
+      : `uploads/${filename}`;
+    await objectStorageClient.bucket(bucketName).file(objectName).delete({ ignoreNotFound: true });
     res.json({ ok: true });
-  } catch {
+  } catch (err) {
+    req.log.error(err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
+
+/* ── Contact submissions ─────────────────────────────────────────────── */
 
 router.get("/admin/submissions", requireAuth, async (req, res) => {
   try {
@@ -199,6 +262,8 @@ router.get("/admin/submissions", requireAuth, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+/* ── Site access (password gate) ────────────────────────────────────── */
 
 router.post("/site-access", async (req, res) => {
   try {
@@ -223,6 +288,8 @@ router.post("/site-access", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+/* ── Public content ─────────────────────────────────────────────────── */
 
 router.get("/content", async (req, res) => {
   try {
