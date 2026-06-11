@@ -118,13 +118,13 @@ export default function HomePage() {
       <section className="bg-[#f2f3f5] pt-20 pb-20">
         <div className="max-w-[1280px] mx-auto px-8">
           <p
-            className="text-[30px] text-black leading-[42px] max-w-[873px]"
+            className="text-[30px] text-black leading-[42px] max-w-[873px] aos"
             style={{ fontFamily: "Poppins, sans-serif", fontWeight: 200 }}
           >
             We design and manufacture high-performance rubber and rubber-to-metal components tailored to the technical needs of mobility, industrial, and agricultural sectors.
           </p>
 
-          <div className="mt-8">
+          <div className="mt-8 aos">
             <button
               className="bg-white text-black text-[12px] tracking-wide rounded-full px-8 py-2"
               style={{ fontFamily: "Poppins, sans-serif", fontWeight: 300 }}
@@ -133,28 +133,34 @@ export default function HomePage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <IndustryCard
-              title={getContent("cards", "mobility_title") || "Mobility"}
-              paragraph={getContent("cards", "mobility_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
-              imageUrl={getContent("cards", "mobility_image") || undefined}
-              linkUrl={getContent("cards", "mobility_link") || undefined}
-              hoverTextColor={getContent("cards", "mobility_hover_text") || "white"}
-            />
-            <IndustryCard
-              title={getContent("cards", "industries_title") || "Industries"}
-              paragraph={getContent("cards", "industries_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
-              imageUrl={getContent("cards", "industries_image") || undefined}
-              linkUrl={getContent("cards", "industries_link") || undefined}
-              hoverTextColor={getContent("cards", "industries_hover_text") || "white"}
-            />
-            <IndustryCard
-              title={getContent("cards", "agriculture_title") || "Agriculture"}
-              paragraph={getContent("cards", "agriculture_desc") || "We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."}
-              imageUrl={getContent("cards", "agriculture_image") || undefined}
-              linkUrl={getContent("cards", "agriculture_link") || undefined}
-              hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8" data-stagger="">
+            <div className="aos">
+              <IndustryCard
+                title={getContent("cards", "mobility_title") || "Mobility"}
+                paragraph={getContent("cards", "mobility_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
+                imageUrl={getContent("cards", "mobility_image") || undefined}
+                linkUrl={getContent("cards", "mobility_link") || undefined}
+                hoverTextColor={getContent("cards", "mobility_hover_text") || "white"}
+              />
+            </div>
+            <div className="aos">
+              <IndustryCard
+                title={getContent("cards", "industries_title") || "Industries"}
+                paragraph={getContent("cards", "industries_desc") || "We supply rubber and rubber-to-metal components for a wide range of mobility platforms, with proven performance in demanding OEM applications."}
+                imageUrl={getContent("cards", "industries_image") || undefined}
+                linkUrl={getContent("cards", "industries_link") || undefined}
+                hoverTextColor={getContent("cards", "industries_hover_text") || "white"}
+              />
+            </div>
+            <div className="aos">
+              <IndustryCard
+                title={getContent("cards", "agriculture_title") || "Agriculture"}
+                paragraph={getContent("cards", "agriculture_desc") || "We support agricultural manufacturers with rugged rubber and rubber-to-metal components that perform reliably in harsh field conditions."}
+                imageUrl={getContent("cards", "agriculture_image") || undefined}
+                linkUrl={getContent("cards", "agriculture_link") || undefined}
+                hoverTextColor={getContent("cards", "agriculture_hover_text") || "white"}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -162,7 +168,7 @@ export default function HomePage() {
       {/* ─── Quality ───────────────────────────────────── */}
       <section className="bg-[#f2f3f5] pb-20">
         <div className="max-w-[1280px] mx-auto px-8">
-          <div className="rounded-[25px] overflow-hidden">
+          <div className="rounded-[25px] overflow-hidden aos">
             <img
               src={imgQuality}
               alt=""
@@ -189,7 +195,7 @@ export default function HomePage() {
       {/* ─── Footer CTA ─────────────────────────────────── */}
       <section className="bg-[#f2f3f5] pb-20">
         <div className="max-w-[1280px] mx-auto px-8">
-          <div className="border-t border-[#9AA4B7] pt-16">
+          <div className="border-t border-[#9AA4B7] pt-16 aos">
             <p
               className="text-[40px] text-black leading-normal max-w-[593px]"
               style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}

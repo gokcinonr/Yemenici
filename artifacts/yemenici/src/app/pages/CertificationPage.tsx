@@ -369,7 +369,7 @@ export default function CertificationPage() {
           </div>
 
           {/* Right text column */}
-          <div style={{ flex: 1, maxWidth: 640 }}>
+          <div className="aos" style={{ flex: 1, maxWidth: 640 }}>
             <p
               style={{
                 fontWeight: 300,
@@ -437,9 +437,12 @@ export default function CertificationPage() {
               gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
               gap: 24,
             }}
+            data-stagger=""
           >
             {displayCerts.map((cert, i) => (
-              <CertCard key={i} cert={cert} />
+              <div key={i} className="aos">
+                <CertCard cert={cert} />
+              </div>
             ))}
           </div>
         </div>

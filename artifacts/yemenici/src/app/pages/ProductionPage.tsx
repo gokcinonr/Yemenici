@@ -418,7 +418,7 @@ export default function ProductionPage({
               key={el.section}
               /* On mobile: image always on top (DOM order), text below.
                  On desktop: alternate left/right via flex-row-reverse. */
-              className={`flex flex-col ${imageOnLeft ? "md:flex-row" : "md:flex-row-reverse"}`}
+              className={`flex flex-col ${imageOnLeft ? "md:flex-row" : "md:flex-row-reverse"} aos`}
               style={{
                 borderBottom:
                   i < ELEMENTS.length - 1

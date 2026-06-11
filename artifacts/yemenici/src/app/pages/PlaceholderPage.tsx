@@ -80,7 +80,7 @@ export default function PlaceholderPage({
       </section>
 
       {/* Page body */}
-      <div className="max-w-[1280px] mx-auto px-8 py-16 min-h-[50vh]">
+      <div className="max-w-[1280px] mx-auto px-8 py-16 min-h-[50vh] aos">
         <p
           className="text-[16px] text-[#555] max-w-[560px] leading-[28px]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}

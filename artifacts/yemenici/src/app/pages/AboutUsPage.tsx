@@ -93,7 +93,7 @@ export default function AboutUsPage() {
       {/* ── COMPANY OVERVIEW (600-layout) ────────────────────────────────── */}
       <section style={{ backgroundColor: "#ffffff", padding: "96px 0", fontFamily: "Poppins, sans-serif" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 48px", boxSizing: "border-box" }}>
-          <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+          <div className="aos" style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
             <div style={{ flexShrink: 0, width: 200, paddingTop: 4 }}>
               <div style={{ width: 36, height: 2, backgroundColor: "#004FA3", marginBottom: 20 }} />
               <p style={{ fontWeight: 300, fontSize: 24, lineHeight: 1.25, color: "#0d1219", margin: 0 }}>
@@ -112,9 +112,11 @@ export default function AboutUsPage() {
       {/* ── STATS STRIP ──────────────────────────────────────────────────── */}
       <section style={{ backgroundColor: "#f8f9fb", padding: "60px 0", fontFamily: "Poppins, sans-serif" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 48px", boxSizing: "border-box" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }} data-stagger="">
             {STATS.map((s, i) => (
-              <StatCard key={i} value={s.value} label={s.label[lang]} />
+              <div key={i} className="aos">
+                <StatCard value={s.value} label={s.label[lang]} />
+              </div>
             ))}
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function AboutUsPage() {
       {/* ── VERTICAL INTEGRATION (dark) ──────────────────────────────────── */}
       <section style={{ backgroundColor: "#0a1628", padding: "80px 0", fontFamily: "Poppins, sans-serif" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 48px", boxSizing: "border-box" }}>
-          <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+          <div className="aos" style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
             <div style={{ flexShrink: 0, width: 200, paddingTop: 4 }}>
               <div style={{ width: 36, height: 2, backgroundColor: "#4a7cbf", marginBottom: 20 }} />
               <p style={{ fontWeight: 300, fontSize: 22, lineHeight: 1.25, color: "#ffffff", margin: 0 }}>
