@@ -170,13 +170,11 @@ export default function ProductionPage({
       <section
         style={{
           position: "relative",
-          minHeight: 560,
+          minHeight: 640,
           backgroundColor: heroBgColor,
           backgroundImage: heroBgImage ? `url(${heroBgImage})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          display: "flex",
-          alignItems: "flex-end",
           fontFamily: "Poppins, sans-serif",
         }}
       >
@@ -191,7 +189,7 @@ export default function ProductionPage({
           }}
         />
 
-        {/* Content */}
+        {/* Content — paddingTop: 107 protects the navbar zone */}
         <div
           style={{
             position: "relative",
@@ -199,7 +197,7 @@ export default function ProductionPage({
             maxWidth: 1280,
             margin: "0 auto",
             width: "100%",
-            padding: "0 48px 88px",
+            padding: "171px 48px 96px",
             boxSizing: "border-box",
           }}
         >
