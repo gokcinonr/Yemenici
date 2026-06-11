@@ -163,7 +163,7 @@ export default function SiteGate({ children }: { children: ReactNode }) {
           letterSpacing: "-0.3px",
           marginBottom: 6,
         }}>
-          Yemenici Kauçuk
+          Yemenici
         </div>
         <div style={{
           fontFamily: "Poppins, sans-serif",
@@ -270,7 +270,7 @@ export default function SiteGate({ children }: { children: ReactNode }) {
         color: "rgba(255,255,255,0.25)",
         zIndex: 1,
       }}>
-        © {new Date().getFullYear()} Yemenici Kauçuk
+        © {new Date().getFullYear()} Yemenici
       </div>
     </div>
   );
