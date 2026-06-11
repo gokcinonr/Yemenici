@@ -534,7 +534,14 @@ export default function Navbar() {
         className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[28px] px-4 md:px-8"
         onMouseLeave={scheduleClose}
       >
-        <div className="relative bg-white rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]">
+        <div
+          className="relative rounded-[20px] h-[79px] flex items-center justify-between px-6 w-full max-w-[1280px]"
+          style={{
+            background: "rgba(255, 255, 255, 0.97)",
+            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.07)",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
+          }}
+        >
           <Logo />
 
           {/* Desktop nav */}
