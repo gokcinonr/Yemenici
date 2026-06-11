@@ -530,30 +530,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Scroll-blur overlay ────────────────────────────────────────────
-           Fixed layer that sits between page content (z-auto) and the
-           navbar pill (z-50).  backdrop-filter blurs anything scrolling
-           beneath; mask-image fades the blur from fully transparent at the
-           very top of the viewport to fully opaque at the bottom of the
-           header zone (107 px = 28 px gap + 79 px pill height).
-           pointer-events: none lets all clicks fall through to the navbar. */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 107,
-          zIndex: 45,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 100%)",
-          pointerEvents: "none",
-        }}
-      />
-
       <div
         className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[28px] px-4 md:px-8"
         onMouseLeave={scheduleClose}
