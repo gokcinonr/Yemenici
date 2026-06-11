@@ -394,7 +394,7 @@ export default function HomePageNavOff() {
       <div className="absolute h-[472.527px] left-0 top-0 w-[1440px]" data-name="Path 4749">
         <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 472.527">
           <foreignObject height="0" width="0" x="0" y="0">
-            <div style={{ backdropFilter: "blur(30px)", clipPath: "url(#bgblur_0_1_495_clip_path)", height: "100%", width: "100%" }} xmlns="http://www.w3.org/1999/xhtml" />
+            <div style={{ backdropFilter: "blur(30px)", clipPath: "url(#bgblur_0_1_495_clip_path)", height: "100%", width: "100%" }} />
           </foreignObject>
           <path d="M0 0H1440V472.527H0V0Z" fill="var(--fill-0, #F9F9F9)" id="Path 4749" data-figma-bg-blur-radius="60" />
           <defs>
