@@ -1,0 +1,58 @@
+Prepare this Replit project for production deployment on Hostinger’s managed Node.js Web App hosting.
+
+Do not redesign the application or change its existing features.
+
+Tasks:
+
+1. Inspect the complete project and identify:
+   - framework and framework version
+   - Node.js version
+   - package manager
+   - build command
+   - production start command
+   - build output directory
+   - server entry file
+   - database type and provider
+   - file or object storage dependencies
+   - background workers, cron jobs, queues, WebSockets, Playwright, Chromium, or native system dependencies
+   - all required environment variables
+
+2. Remove runtime dependence on Replit-specific services and configuration where necessary.
+
+3. Ensure the production server:
+   - uses process.env.PORT
+   - binds to 0.0.0.0 when applicable
+   - does not depend on a hard-coded Replit URL or port
+   - starts using a standard package.json production script
+
+4. Verify package.json contains working build and start scripts.
+
+5. Ensure secrets are read only from environment variables. Do not place real secret values in the repository.
+
+6. Create an .env.example containing variable names with safe placeholder values.
+
+7. If the application uses PostgreSQL, do not convert it to MySQL automatically. Document whether the existing database can remain externally hosted or must be migrated to Supabase or Neon.
+
+8. If persistent files are written to the local filesystem, identify them and recommend an object-storage replacement. Do not assume deployment storage is persistent.
+
+9. Run the production build and start commands locally and fix any migration-related errors without changing application behavior.
+
+10. Create HOSTINGER_DEPLOYMENT.md containing:
+    - required Hostinger hosting type
+    - recommended Node.js version
+    - build command
+    - start command
+    - output directory
+    - entry file
+    - complete environment-variable checklist
+    - database migration requirements
+    - storage migration requirements
+    - domain and post-deployment testing checklist
+    - any reason the project requires VPS instead of managed hosting
+
+11. Commit the migration-readiness changes to the existing GitHub repository, but do not deploy, change DNS, delete Replit data, or expose secrets.
+
+At the end, report whether this project is:
+A. Ready for Hostinger managed Node.js hosting
+B. Ready after database/storage migration
+C. Requires Hostinger VPS

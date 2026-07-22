@@ -75698,9 +75698,11 @@ var insertContactSchema = createInsertSchema(contactSubmissionsTable).omit({
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
-var connectionString = process.env.DATABASE_URL;
+var connectionString = process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!connectionString) {
-  throw new Error("DATABASE_URL must be set.");
+  throw new Error(
+    "SUPABASE_DATABASE_URL (or DATABASE_URL as fallback) must be set."
+  );
 }
 var pool = new Pool3({ connectionString });
 var db = drizzle(pool, { schema: schema_exports });
@@ -75775,23 +75777,34 @@ async function canAccessObject({
 
 // src/lib/objectStorage.ts
 var REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
-var objectStorageClient = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
-      format: {
-        type: "json",
-        subject_token_field_name: "access_token"
-      }
-    },
-    universe_domain: "googleapis.com"
-  },
-  projectId: ""
-});
+var useReplitSidecar = Boolean(process.env.REPL_ID) && !process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.GCS_SERVICE_ACCOUNT_KEY;
+function createStorageClient() {
+  if (useReplitSidecar) {
+    return new Storage({
+      credentials: {
+        audience: "replit",
+        subject_token_type: "access_token",
+        token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+        type: "external_account",
+        credential_source: {
+          url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+          format: {
+            type: "json",
+            subject_token_field_name: "access_token"
+          }
+        },
+        universe_domain: "googleapis.com"
+      },
+      projectId: ""
+    });
+  }
+  if (process.env.GCS_SERVICE_ACCOUNT_KEY) {
+    const credentials = JSON.parse(process.env.GCS_SERVICE_ACCOUNT_KEY);
+    return new Storage({ credentials });
+  }
+  return new Storage();
+}
+var objectStorageClient = createStorageClient();
 var ObjectNotFoundError = class _ObjectNotFoundError extends Error {
   constructor() {
     super("Object not found");
@@ -75811,7 +75824,7 @@ var ObjectStorageService = class {
     );
     if (paths.length === 0) {
       throw new Error(
-        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a bucket in 'Object Storage' tool and set PUBLIC_OBJECT_SEARCH_PATHS env var (comma-separated paths)."
+        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a GCS bucket and set PUBLIC_OBJECT_SEARCH_PATHS env var (comma-separated paths, format: /bucket/prefix)."
       );
     }
     return paths;
@@ -75820,7 +75833,7 @@ var ObjectStorageService = class {
     const dir = process.env.PRIVATE_OBJECT_DIR || "";
     if (!dir) {
       throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' tool and set PRIVATE_OBJECT_DIR env var."
+        "PRIVATE_OBJECT_DIR not set. Create a GCS bucket and set PRIVATE_OBJECT_DIR env var (format: /bucket-name/prefix)."
       );
     }
     return dir;
@@ -75857,7 +75870,7 @@ var ObjectStorageService = class {
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {
       throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' tool and set PRIVATE_OBJECT_DIR env var."
+        "PRIVATE_OBJECT_DIR not set. Create a GCS bucket and set PRIVATE_OBJECT_DIR env var."
       );
     }
     const objectId = randomUUID();
@@ -75940,10 +75953,7 @@ function parseObjectPath(path3) {
   }
   const bucketName = pathParts[1];
   const objectName = pathParts.slice(2).join("/");
-  return {
-    bucketName,
-    objectName
-  };
+  return { bucketName, objectName };
 }
 async function signObjectURL({
   bucketName,
@@ -75951,30 +75961,42 @@ async function signObjectURL({
   method,
   ttlSec
 }) {
-  const request = {
-    bucket_name: bucketName,
-    object_name: objectName,
-    method,
-    expires_at: new Date(Date.now() + ttlSec * 1e3).toISOString()
-  };
-  const response = await fetch(
-    `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(request),
-      signal: AbortSignal.timeout(3e4)
-    }
-  );
-  if (!response.ok) {
-    throw new Error(
-      `Failed to sign object URL, errorcode: ${response.status}, make sure you're running on Replit`
+  if (useReplitSidecar) {
+    const request = {
+      bucket_name: bucketName,
+      object_name: objectName,
+      method,
+      expires_at: new Date(Date.now() + ttlSec * 1e3).toISOString()
+    };
+    const response = await fetch(
+      `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+        signal: AbortSignal.timeout(3e4)
+      }
     );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to sign object URL, status: ${response.status}`
+      );
+    }
+    const { signed_url: signedURL } = await response.json();
+    return signedURL;
   }
-  const { signed_url: signedURL } = await response.json();
-  return signedURL;
+  const actionMap = {
+    GET: "read",
+    PUT: "write",
+    DELETE: "delete",
+    HEAD: "read"
+  };
+  const [signedUrl] = await objectStorageClient.bucket(bucketName).file(objectName).getSignedUrl({
+    version: "v4",
+    action: actionMap[method],
+    expires: Date.now() + ttlSec * 1e3
+  });
+  return signedUrl;
 }
 
 // src/routes/admin.ts
@@ -76455,11 +76477,29 @@ app.use(
     secret: process.env.SESSION_SECRET || "yemenici-admin-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1e3 }
+    cookie: {
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1e3,
+      // On Hostinger (HTTPS) set secure:true; locally keep false.
+      secure: process.env.NODE_ENV === "production" && process.env.TRUST_PROXY === "1"
+    }
   })
 );
 app.use("/api/uploads", import_express6.default.static(path2.join(process.cwd(), "public/uploads")));
 app.use("/api", routes_default);
+if (process.env.NODE_ENV === "production") {
+  const root = process.cwd();
+  const adminDist = path2.join(root, "artifacts/admin/dist/public");
+  app.use("/admin", import_express6.default.static(adminDist));
+  app.get(["/admin", "/admin/*path"], (_req, res) => {
+    res.sendFile(path2.join(adminDist, "index.html"));
+  });
+  const yemeniciDist = path2.join(root, "artifacts/yemenici/dist/public");
+  app.use(import_express6.default.static(yemeniciDist));
+  app.get("/*path", (_req, res) => {
+    res.sendFile(path2.join(yemeniciDist, "index.html"));
+  });
+}
 var app_default = app;
 
 // src/index.ts

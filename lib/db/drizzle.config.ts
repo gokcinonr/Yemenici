@@ -1,10 +1,13 @@
 import { defineConfig } from "drizzle-kit";
 import path from "path";
 
-const url = process.env.DATABASE_URL;
+// SUPABASE_DATABASE_URL takes precedence; DATABASE_URL is the fallback.
+const url = process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
 
 if (!url) {
-  throw new Error("DATABASE_URL must be set");
+  throw new Error(
+    "SUPABASE_DATABASE_URL (or DATABASE_URL as fallback) must be set",
+  );
 }
 
 export default defineConfig({
