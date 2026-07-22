@@ -12,7 +12,14 @@ if (!connectionString) {
   );
 }
 
-export const pool = mysql.createPool(connectionString);
+// Append charset and timezone to the connection URI so all text is transmitted
+// as utf8mb4 (full Unicode including emoji and all Turkish characters) and all
+// DATETIME values are stored and retrieved as UTC.
+const url = new URL(connectionString);
+if (!url.searchParams.has("charset")) url.searchParams.set("charset", "utf8mb4");
+if (!url.searchParams.has("timezone")) url.searchParams.set("timezone", "+00:00");
+
+export const pool = mysql.createPool(url.toString());
 export const db = drizzle(pool, { schema, mode: "default" });
 
 export * from "./schema";

@@ -7,6 +7,8 @@
  * path before any disk operation.
  *
  * Atomic writes: buffer → <name>.tmp → rename to <name>.
+ *
+ * Call validateAndPrepareUploadRoot() once at server startup in filesystem mode.
  */
 
 import fs from "fs/promises";
@@ -45,15 +47,25 @@ export function mimeFromExt(ext: string): string {
 
 // ── Root resolution ────────────────────────────────────────────────────────
 
+/**
+ * Return the validated absolute path of UPLOAD_ROOT.
+ * Throws fast with a clear message if the variable is unset or not absolute.
+ */
 export function getUploadRoot(): string {
   const root = process.env.UPLOAD_ROOT;
   if (!root) {
     throw new Error(
-      "UPLOAD_ROOT must be set for filesystem storage mode. " +
-        "Example: UPLOAD_ROOT=/home/user/domains/example.com/private_uploads",
+      "UPLOAD_ROOT env var is not set. " +
+        "Example: UPLOAD_ROOT=/home/USERNAME/domains/example.com/private_uploads",
     );
   }
-  return path.resolve(root);
+  if (!path.isAbsolute(root)) {
+    throw new Error(
+      `UPLOAD_ROOT must be an absolute path (starts with /). Got: "${root}". ` +
+        "Use a full filesystem path, e.g. /home/USERNAME/domains/example.com/private_uploads",
+    );
+  }
+  return root;
 }
 
 /**
@@ -72,6 +84,44 @@ function securePath(relKey: string): string {
     throw new Error(`Path traversal rejected: "${relKey}"`);
   }
   return resolved;
+}
+
+// ── Startup validation ─────────────────────────────────────────────────────
+
+/**
+ * Must be called once at server startup when UPLOAD_ROOT is set.
+ *
+ * Validates:
+ *   1. UPLOAD_ROOT is set and is an absolute path
+ *   2. The uploads sub-directory exists (or is created recursively)
+ *   3. The process has write permission to that directory
+ *
+ * Throws with a clear diagnostic if any condition fails — do not silently
+ * continue with a broken storage configuration.
+ */
+export async function validateAndPrepareUploadRoot(): Promise<void> {
+  const root = getUploadRoot(); // throws if unset or relative
+  const uploadsDir = path.join(root, "uploads");
+
+  try {
+    await fs.mkdir(uploadsDir, { recursive: true });
+  } catch (err: any) {
+    throw new Error(
+      `Failed to create UPLOAD_ROOT/uploads directory at "${uploadsDir}": ${err.message}. ` +
+        "Ensure the parent directory exists and the process has write permission.",
+    );
+  }
+
+  const testFile = path.join(uploadsDir, `.write-check-${process.pid}`);
+  try {
+    await fs.writeFile(testFile, "ok");
+    await fs.unlink(testFile);
+  } catch {
+    throw new Error(
+      `UPLOAD_ROOT is not writable. Check filesystem permissions for "${uploadsDir}". ` +
+        "The Node.js process must have read+write access.",
+    );
+  }
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────
@@ -144,7 +194,6 @@ export async function listFiles(): Promise<FileInfo[]> {
   const root = getUploadRoot();
   const dir = path.join(root, "uploads");
 
-  // Let TS infer: readdir with withFileTypes:true returns Dirent<string>[]
   let entries;
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });

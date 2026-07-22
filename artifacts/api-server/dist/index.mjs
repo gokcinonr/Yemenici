@@ -18409,8 +18409,8 @@ var require_encodeurl = __commonJS({
     var ENCODE_CHARS_REGEXP = /(?:[^\x21\x23-\x3B\x3D\x3F-\x5F\x61-\x7A\x7C\x7E]|%(?:[^0-9A-Fa-f]|[0-9A-Fa-f][^0-9A-Fa-f]|$))+/g;
     var UNMATCHED_SURROGATE_PAIR_REGEXP = /(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]|[\uD800-\uDBFF]([^\uDC00-\uDFFF]|$)/g;
     var UNMATCHED_SURROGATE_PAIR_REPLACE = "$1\uFFFD$2";
-    function encodeUrl(url2) {
-      return String(url2).replace(UNMATCHED_SURROGATE_PAIR_REGEXP, UNMATCHED_SURROGATE_PAIR_REPLACE).replace(ENCODE_CHARS_REGEXP, encodeURI);
+    function encodeUrl(url3) {
+      return String(url3).replace(UNMATCHED_SURROGATE_PAIR_REGEXP, UNMATCHED_SURROGATE_PAIR_REPLACE).replace(ENCODE_CHARS_REGEXP, encodeURI);
     }
   }
 });
@@ -18466,35 +18466,35 @@ var require_escape_html = __commonJS({
 var require_parseurl = __commonJS({
   "../../node_modules/.pnpm/parseurl@1.3.3/node_modules/parseurl/index.js"(exports, module) {
     "use strict";
-    var url2 = __require("url");
-    var parse3 = url2.parse;
-    var Url = url2.Url;
+    var url3 = __require("url");
+    var parse3 = url3.parse;
+    var Url = url3.Url;
     module.exports = parseurl;
     module.exports.original = originalurl;
     function parseurl(req) {
-      var url3 = req.url;
-      if (url3 === void 0) {
+      var url4 = req.url;
+      if (url4 === void 0) {
         return void 0;
       }
       var parsed = req._parsedUrl;
-      if (fresh(url3, parsed)) {
+      if (fresh(url4, parsed)) {
         return parsed;
       }
-      parsed = fastparse(url3);
-      parsed._raw = url3;
+      parsed = fastparse(url4);
+      parsed._raw = url4;
       return req._parsedUrl = parsed;
     }
     function originalurl(req) {
-      var url3 = req.originalUrl;
-      if (typeof url3 !== "string") {
+      var url4 = req.originalUrl;
+      if (typeof url4 !== "string") {
         return parseurl(req);
       }
       var parsed = req._parsedOriginalUrl;
-      if (fresh(url3, parsed)) {
+      if (fresh(url4, parsed)) {
         return parsed;
       }
-      parsed = fastparse(url3);
-      parsed._raw = url3;
+      parsed = fastparse(url4);
+      parsed._raw = url4;
       return req._parsedOriginalUrl = parsed;
     }
     function fastparse(str) {
@@ -18530,18 +18530,18 @@ var require_parseurl = __commonJS({
             return parse3(str);
         }
       }
-      var url3 = Url !== void 0 ? new Url() : {};
-      url3.path = str;
-      url3.href = str;
-      url3.pathname = pathname;
+      var url4 = Url !== void 0 ? new Url() : {};
+      url4.path = str;
+      url4.href = str;
+      url4.pathname = pathname;
       if (search !== null) {
-        url3.query = query;
-        url3.search = search;
+        url4.query = query;
+        url4.search = search;
       }
-      return url3;
+      return url4;
     }
-    function fresh(url3, parsedUrl) {
-      return typeof parsedUrl === "object" && parsedUrl !== null && (Url === void 0 || parsedUrl instanceof Url) && parsedUrl._raw === url3;
+    function fresh(url4, parsedUrl) {
+      return typeof parsedUrl === "object" && parsedUrl !== null && (Url === void 0 || parsedUrl instanceof Url) && parsedUrl._raw === url4;
     }
   }
 });
@@ -20738,14 +20738,14 @@ var require_router = __commonJS({
         return void 0;
       }
     }
-    function getProtohost(url2) {
-      if (typeof url2 !== "string" || url2.length === 0 || url2[0] === "/") {
+    function getProtohost(url3) {
+      if (typeof url3 !== "string" || url3.length === 0 || url3[0] === "/") {
         return void 0;
       }
-      const searchIndex = url2.indexOf("?");
-      const pathLength = searchIndex !== -1 ? searchIndex : url2.length;
-      const fqdnIndex = url2.substring(0, pathLength).indexOf("://");
-      return fqdnIndex !== -1 ? url2.substring(0, url2.indexOf("/", 3 + fqdnIndex)) : void 0;
+      const searchIndex = url3.indexOf("?");
+      const pathLength = searchIndex !== -1 ? searchIndex : url3.length;
+      const fqdnIndex = url3.substring(0, pathLength).indexOf("://");
+      return fqdnIndex !== -1 ? url3.substring(0, url3.indexOf("/", 3 + fqdnIndex)) : void 0;
     }
     function matchLayer(layer, path4) {
       try {
@@ -23266,11 +23266,11 @@ var require_response = __commonJS({
       this.append("Set-Cookie", cookie.serialize(name, String(val), opts));
       return this;
     };
-    res.location = function location(url2) {
-      return this.set("Location", encodeUrl(url2));
+    res.location = function location(url3) {
+      return this.set("Location", encodeUrl(url3));
     };
-    res.redirect = function redirect(url2) {
-      var address = url2;
+    res.redirect = function redirect(url3) {
+      var address = url3;
       var body;
       var status = 302;
       if (arguments.length === 2) {
@@ -23424,7 +23424,7 @@ var require_serve_static = __commonJS({
     var parseUrl = require_parseurl();
     var resolve = __require("path").resolve;
     var send = require_send();
-    var url2 = __require("url");
+    var url3 = __require("url");
     module.exports = serveStatic;
     function serveStatic(root, options) {
       if (!root) {
@@ -23505,7 +23505,7 @@ var require_serve_static = __commonJS({
         var originalUrl = parseUrl.original(this.req);
         originalUrl.path = null;
         originalUrl.pathname = collapseLeadingSlashes(originalUrl.pathname + "/");
-        var loc = encodeUrl(url2.format(originalUrl));
+        var loc = encodeUrl(url3.format(originalUrl));
         var doc = createHtmlDocument("Redirecting", "Redirecting to " + escapeHtml(loc));
         res.statusCode = 301;
         res.setHeader("Content-Type", "text/html; charset=UTF-8");
@@ -57400,11 +57400,11 @@ var init_schemas = __esm({
       inst._zod.check = (payload) => {
         try {
           const orig = payload.value;
-          const url2 = new URL(orig);
-          const href = url2.href;
+          const url3 = new URL(orig);
+          const href = url3.href;
           if (def.hostname) {
             def.hostname.lastIndex = 0;
-            if (!def.hostname.test(url2.hostname)) {
+            if (!def.hostname.test(url3.hostname)) {
               payload.issues.push({
                 code: "invalid_format",
                 format: "url",
@@ -57418,7 +57418,7 @@ var init_schemas = __esm({
           }
           if (def.protocol) {
             def.protocol.lastIndex = 0;
-            if (!def.protocol.test(url2.protocol.endsWith(":") ? url2.protocol.slice(0, -1) : url2.protocol)) {
+            if (!def.protocol.test(url3.protocol.endsWith(":") ? url3.protocol.slice(0, -1) : url3.protocol)) {
               payload.issues.push({
                 code: "invalid_format",
                 format: "url",
@@ -67465,7 +67465,7 @@ __export(src_exports, {
   siteImagesTable: () => siteImagesTable
 });
 import mysql from "mysql2/promise";
-var connectionString, pool, db;
+var connectionString, url2, pool, db;
 var init_src = __esm({
   "../../lib/db-mysql/src/index.ts"() {
     "use strict";
@@ -67478,7 +67478,10 @@ var init_src = __esm({
         "MYSQL_DATABASE_URL must be set for MySQL mode. Format: mysql://USER:PASSWORD@HOST:3306/DATABASE"
       );
     }
-    pool = mysql.createPool(connectionString);
+    url2 = new URL(connectionString);
+    if (!url2.searchParams.has("charset")) url2.searchParams.set("charset", "utf8mb4");
+    if (!url2.searchParams.has("timezone")) url2.searchParams.set("timezone", "+00:00");
+    pool = mysql.createPool(url2.toString());
     db = drizzle(pool, { schema: schema_exports, mode: "default" });
   }
 });
@@ -82893,10 +82896,15 @@ function getUploadRoot() {
   const root = process.env.UPLOAD_ROOT;
   if (!root) {
     throw new Error(
-      "UPLOAD_ROOT must be set for filesystem storage mode. Example: UPLOAD_ROOT=/home/user/domains/example.com/private_uploads"
+      "UPLOAD_ROOT env var is not set. Example: UPLOAD_ROOT=/home/USERNAME/domains/example.com/private_uploads"
     );
   }
-  return path.resolve(root);
+  if (!path.isAbsolute(root)) {
+    throw new Error(
+      `UPLOAD_ROOT must be an absolute path (starts with /). Got: "${root}". Use a full filesystem path, e.g. /home/USERNAME/domains/example.com/private_uploads`
+    );
+  }
+  return root;
 }
 function securePath(relKey) {
   const root = getUploadRoot();
@@ -82905,6 +82913,26 @@ function securePath(relKey) {
     throw new Error(`Path traversal rejected: "${relKey}"`);
   }
   return resolved;
+}
+async function validateAndPrepareUploadRoot() {
+  const root = getUploadRoot();
+  const uploadsDir = path.join(root, "uploads");
+  try {
+    await fs.mkdir(uploadsDir, { recursive: true });
+  } catch (err) {
+    throw new Error(
+      `Failed to create UPLOAD_ROOT/uploads directory at "${uploadsDir}": ${err.message}. Ensure the parent directory exists and the process has write permission.`
+    );
+  }
+  const testFile = path.join(uploadsDir, `.write-check-${process.pid}`);
+  try {
+    await fs.writeFile(testFile, "ok");
+    await fs.unlink(testFile);
+  } catch {
+    throw new Error(
+      `UPLOAD_ROOT is not writable. Check filesystem permissions for "${uploadsDir}". The Node.js process must have read+write access.`
+    );
+  }
 }
 async function saveFile(buffer, mimeType, ext, allowedMimes = ALLOWED_IMAGE_TYPES) {
   if (!allowedMimes.has(mimeType) && mimeType !== "application/pdf") {
@@ -83197,8 +83225,8 @@ var ObjectStorageService = class {
     if (!rawPath.startsWith("https://storage.googleapis.com/")) {
       return rawPath;
     }
-    const url2 = new URL(rawPath);
-    const rawObjectPath = url2.pathname;
+    const url3 = new URL(rawPath);
+    const rawObjectPath = url3.pathname;
     let objectEntityDir = this.getPrivateObjectDir();
     if (!objectEntityDir.endsWith("/")) {
       objectEntityDir = `${objectEntityDir}/`;
@@ -83868,14 +83896,18 @@ var app_default = app;
 
 // src/index.ts
 var rawPort = process.env["PORT"];
+var port = rawPort !== void 0 && rawPort !== "" ? Number(rawPort) : 3e3;
 if (!rawPort) {
+  logger.warn("PORT env var not set \u2014 defaulting to 3000");
+}
+if (Number.isNaN(port) || port <= 0 || !Number.isInteger(port)) {
   throw new Error(
-    "PORT environment variable is required but was not provided."
+    `Invalid PORT value: "${rawPort}". PORT must be a positive integer (e.g. 3000).`
   );
 }
-var port = Number(rawPort);
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
+if (process.env.UPLOAD_ROOT) {
+  await validateAndPrepareUploadRoot();
+  logger.info({ uploadRoot: process.env.UPLOAD_ROOT }, "Filesystem storage ready");
 }
 async function seedAdminUser() {
   try {
@@ -83894,19 +83926,20 @@ async function seedAdminUser() {
   }
 }
 seedAdminUser().then(() => {
-  app_default.listen(port, (err) => {
-    if (err) {
-      logger.error({ err }, "Error listening on port");
-      process.exit(1);
-    }
+  const server = app_default.listen(port, "0.0.0.0", () => {
     logger.info(
       {
         port,
+        host: "0.0.0.0",
         db: process.env.MYSQL_DATABASE_URL ? "mysql" : "postgres",
         storage: process.env.UPLOAD_ROOT ? "filesystem" : "gcs"
       },
       "Server listening"
     );
+  });
+  server.on("error", (err) => {
+    logger.error({ err }, "Error binding to port");
+    process.exit(1);
   });
 });
 /*! Bundled license information:

@@ -1,0 +1,95 @@
+Perform one final Hostinger production-readiness verification before deployment.
+
+Do not deploy, migrate real data, modify production databases, change DNS, or delete any source data.
+
+1. Find and correct every occurrence in code and documentation where PORT is incorrectly set to "production".
+
+The correct Hostinger production configuration is:
+
+NODE_ENV=production
+PORT=3000
+TRUST_PROXY=1
+
+2. Verify that the Express server:
+   - reads a numeric process.env.PORT
+   - defaults to 3000
+   - binds to 0.0.0.0
+   - rejects or safely handles a non-numeric PORT value
+
+3. Verify package.json contains:
+   - a supported Node.js engine
+   - the correct packageManager field
+   - working build and start scripts
+   - all MySQL runtime dependencies, including mysql2, in production dependencies rather than devDependencies
+
+4. Perform a complete MySQL adapter review:
+   - confirm every PostgreSQL-specific query has been removed or isolated
+   - verify inserts that previously used .returning() now return equivalent IDs and response data using MySQL insertId or a safe follow-up query
+   - verify booleans, timestamps, JSON values, nullability, defaults, unique constraints and indexes behave equivalently
+   - verify admin_users password hashes and existing IDs migrate without transformation
+   - verify foreign-key-safe migration order
+   - verify explicit source IDs are preserved
+   - verify AUTO_INCREMENT continues above the largest migrated ID
+
+5. Add support for two different MySQL URLs if it is not already present:
+
+MYSQL_DATABASE_URL
+- Used by the production application from inside Hostinger.
+- Usually uses the internal Hostinger database host.
+
+MYSQL_MIGRATION_DATABASE_URL
+- Used only by the one-time migration script from Replit or a local computer.
+- Uses Hostinger’s remote MySQL hostname.
+
+The migration script must never accidentally use localhost when running outside Hostinger.
+
+6. Verify the migration script requires:
+   - SUPABASE_DATABASE_URL as the read-only source
+   - MYSQL_MIGRATION_DATABASE_URL as the destination
+   - --execute for real writes
+   - dry-run by default
+
+7. Improve migration verification so it reports per-table:
+   - source row count
+   - attempted rows
+   - inserted rows
+   - skipped rows
+   - destination row count
+   - mismatches
+
+Do not hide unexpected database errors with INSERT IGNORE. Duplicate-key skips may be handled intentionally, but schema, truncation, encoding, nullability and foreign-key errors must remain visible and fail the migration.
+
+8. Verify utf8mb4 is used for the database schema and all text columns support Turkish characters correctly.
+
+9. Verify UPLOAD_ROOT:
+   - must be an absolute path
+   - is created recursively if missing
+   - fails startup with a clear error if it is not writable
+   - remains outside public_html and outside the GitHub deployment/build directory
+   - never exposes private files directly as public static assets
+
+10. Confirm that the three existing WebP files can be placed under:
+
+UPLOAD_ROOT/private/uploads/
+
+while preserving their existing relative object keys and database references.
+
+11. Run:
+   - type checking
+   - production build
+   - all existing tests
+   - database adapter unit tests
+   - migration-script dry run against the existing PostgreSQL source if it can be done without exposing credentials
+
+12. Update HOSTINGER_DEPLOYMENT.md and .env.example with the corrected variables.
+
+At the end, provide:
+- all corrections made
+- final Node.js version
+- final build command
+- final start command
+- final entry file
+- complete Hostinger runtime environment-variable list
+- complete one-time migration environment-variable list
+- whether any MySQL behavior remains untested
+- whether the project is safe to deploy to Hostinger

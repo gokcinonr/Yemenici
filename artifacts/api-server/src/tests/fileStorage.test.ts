@@ -187,4 +187,47 @@ describe("getUploadRoot", () => {
     const { getUploadRoot } = await storage();
     expect(() => getUploadRoot()).toThrow(/UPLOAD_ROOT/);
   });
+
+  it("throws when UPLOAD_ROOT is a relative path", async () => {
+    process.env.UPLOAD_ROOT = "relative/path/uploads";
+    const { getUploadRoot } = await storage();
+    expect(() => getUploadRoot()).toThrow(/absolute/i);
+  });
+
+  it("returns the root when UPLOAD_ROOT is an absolute path", async () => {
+    // tmpDir is set to an absolute path in beforeEach
+    const { getUploadRoot } = await storage();
+    const root = getUploadRoot();
+    expect(path.isAbsolute(root)).toBe(true);
+    expect(root).toBe(tmpDir);
+  });
+});
+
+// ── validateAndPrepareUploadRoot ───────────────────────────────────────────────
+
+describe("validateAndPrepareUploadRoot", () => {
+  it("creates the uploads directory when it does not exist", async () => {
+    const { validateAndPrepareUploadRoot } = await storage();
+    await validateAndPrepareUploadRoot();
+    const stat = await fs.stat(path.join(tmpDir, "uploads"));
+    expect(stat.isDirectory()).toBe(true);
+  });
+
+  it("succeeds idempotently (safe to call multiple times)", async () => {
+    const { validateAndPrepareUploadRoot } = await storage();
+    await validateAndPrepareUploadRoot();
+    await expect(validateAndPrepareUploadRoot()).resolves.toBeUndefined();
+  });
+
+  it("throws when UPLOAD_ROOT is not set", async () => {
+    delete process.env.UPLOAD_ROOT;
+    const { validateAndPrepareUploadRoot } = await storage();
+    await expect(validateAndPrepareUploadRoot()).rejects.toThrow(/UPLOAD_ROOT/);
+  });
+
+  it("throws when UPLOAD_ROOT is a relative path", async () => {
+    process.env.UPLOAD_ROOT = "relative/path";
+    const { validateAndPrepareUploadRoot } = await storage();
+    await expect(validateAndPrepareUploadRoot()).rejects.toThrow(/absolute/i);
+  });
 });
