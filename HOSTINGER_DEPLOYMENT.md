@@ -14,9 +14,11 @@ No VPS is required. All runtime dependencies are pure Node.js; there are no nati
 | Framework | Express 5 (API) + React 19 + Vite 7 (frontends) |
 | Node.js version | **24** (minimum 22 LTS) |
 | Package manager | pnpm 9+ |
-| Database | PostgreSQL 17 — Supabase (external, stays external) |
-| Object storage | Google Cloud Storage (GCS) |
+| Database | **MySQL 8.0** — Hostinger managed MySQL |
+| File storage | **Hostinger filesystem** — `UPLOAD_ROOT` outside `public_html` |
 | Build tool | esbuild (API) + Vite (frontends) |
+
+> **Dual-mode design:** The same codebase runs on both Replit (PostgreSQL + GCS) and Hostinger (MySQL + filesystem). The active backend is selected at startup via environment variables (`MYSQL_DATABASE_URL` and `UPLOAD_ROOT`).
 
 ---
 
@@ -77,17 +79,6 @@ React builds as static files — no separate nginx config is needed:
 
 Copy `.env.example` and fill in every value marked **REQUIRED**.
 
-### Database
-
-| Variable | Required | Notes |
-|---|---|---|
-| `SUPABASE_DATABASE_URL` | ✅ REQUIRED | Supabase Transaction Pooler URL (port 6543). Format: `postgresql://USER:PASS@HOST:6543/postgres` |
-| `DATABASE_URL` | fallback | Only used when `SUPABASE_DATABASE_URL` is absent |
-
-> **The Supabase database stays external.** No database migration or provider
-> change is needed; simply copy the connection string from the Supabase dashboard
-> (Project Settings → Database → Transaction pooler).
-
 ### Server
 
 | Variable | Required | Notes |
@@ -98,16 +89,29 @@ Copy `.env.example` and fill in every value marked **REQUIRED**.
 | `SESSION_SECRET` | ✅ REQUIRED | Random 48-byte hex string (see generation command in `.env.example`) |
 | `ADMIN_PASSWORD` | ✅ REQUIRED | Password for the admin panel default user |
 
-### Google Cloud Storage
+### Database (MySQL — Hostinger mode)
 
 | Variable | Required | Notes |
 |---|---|---|
-| `PRIVATE_OBJECT_DIR` | ✅ REQUIRED | GCS path for private uploads. Format: `/bucket-name/prefix` |
-| `PUBLIC_OBJECT_SEARCH_PATHS` | ✅ REQUIRED | Comma-separated GCS paths for public assets |
-| `GCS_SERVICE_ACCOUNT_KEY` | ✅ REQUIRED* | Inline service-account JSON (preferred on Hostinger) |
-| `GOOGLE_APPLICATION_CREDENTIALS` | alt | Path to service-account JSON file on disk |
+| `MYSQL_DATABASE_URL` | ✅ REQUIRED | Setting this activates MySQL mode. Format: `mysql://USER:PASS@HOST:PORT/DATABASE` |
 
-*Use `GCS_SERVICE_ACCOUNT_KEY` (inline JSON) OR `GOOGLE_APPLICATION_CREDENTIALS` (file path) — not both.
+> **When `MYSQL_DATABASE_URL` is set**, the server loads `@workspace/db-mysql` (mysql2 driver). PostgreSQL / Supabase variables are ignored entirely.
+
+Hostinger MySQL connection string format:
+```
+mysql://CPANEL_USER_DB_USER:PASSWORD@localhost:3306/CPANEL_USER_DBNAME
+```
+Find credentials in hPanel → Databases → MySQL Databases.
+
+### File Storage (filesystem — Hostinger mode)
+
+| Variable | Required | Notes |
+|---|---|---|
+| `UPLOAD_ROOT` | ✅ REQUIRED | Absolute path **outside** `public_html`. Example: `/home/u123456789/domains/yourdomain.com/private_uploads` |
+
+> **When `UPLOAD_ROOT` is set**, the server saves uploaded files to that directory. GCS variables are ignored entirely.
+
+The directory is created automatically on first upload. Make sure the Node.js process has write permission to the parent directory.
 
 ### Optional
 
@@ -117,55 +121,79 @@ Copy `.env.example` and fill in every value marked **REQUIRED**.
 
 ---
 
-## 7. Database Migration Requirements
+## 7. Database Setup
 
-**No migration required.** The database (Supabase PostgreSQL) is externally hosted and
-will remain unchanged. Schema is already deployed.
+### 7a. Create the MySQL database
 
-To apply future schema changes from development to production:
+In hPanel → Databases → MySQL Databases:
+
+1. Create database: e.g. `u123456789_yemenici`
+2. Create user: e.g. `u123456789_yemuser` with a strong password
+3. Add user to database with **All Privileges**
+
+### 7b. Apply the schema
+
+Run the migration SQL on the Hostinger MySQL server:
 
 ```bash
-SUPABASE_DATABASE_URL='postgresql://...' pnpm --filter @workspace/db run push
+# Option A: From your local machine using mysql client
+mysql -h HOSTINGER_MYSQL_HOST -u DB_USER -p DB_NAME < lib/db-mysql/migrations/0000_initial.sql
+
+# Option B: From Hostinger hPanel → phpMyAdmin
+# Import the file: lib/db-mysql/migrations/0000_initial.sql
 ```
 
-> ⚠️ Run `drizzle-kit push` **before** deploying new server code that depends on
-> the new schema.
+The migration file is at `lib/db-mysql/migrations/0000_initial.sql`.
+
+For future schema changes using drizzle-kit:
+
+```bash
+# Generate new migration files (requires MYSQL_DATABASE_URL to be set):
+MYSQL_DATABASE_URL='mysql://...' pnpm --filter @workspace/db-mysql run generate
+
+# Apply migrations:
+MYSQL_DATABASE_URL='mysql://...' pnpm --filter @workspace/db-mysql run migrate
+```
+
+### 7c. Migrate data from PostgreSQL
+
+Use the migration tool to copy data from the existing PostgreSQL/Supabase database:
+
+```bash
+# Dry run (prints what would be inserted without writing):
+SUPABASE_DATABASE_URL='postgresql://...' MYSQL_DATABASE_URL='mysql://...' \
+  pnpm --filter @workspace/scripts run migrate-to-mysql
+
+# Execute the migration (actually writes to MySQL):
+SUPABASE_DATABASE_URL='postgresql://...' MYSQL_DATABASE_URL='mysql://...' \
+  pnpm --filter @workspace/scripts run migrate-to-mysql -- --execute
+```
+
+Safe to re-run — uses `INSERT IGNORE` (skips existing rows by primary key).
 
 ---
 
-## 8. Storage Migration Requirements
+## 8. File Storage Setup
 
-The current Replit setup uses a **Replit-managed GCS bucket** with a local
-authentication sidecar (`http://127.0.0.1:1106`). This sidecar does not exist
-on Hostinger.
+### 8a. Create the uploads directory
 
-### Steps to migrate storage
+```bash
+# SSH into Hostinger, create directory outside public_html:
+mkdir -p /home/USERNAME/domains/yourdomain.com/private_uploads/uploads
+chmod 755 /home/USERNAME/domains/yourdomain.com/private_uploads
+```
 
-1. **Create a GCS bucket** in Google Cloud Console
-   - Recommended region: `europe-west1` (closest to Supabase eu-west-1)
-   - Uncheck "Public access prevention" if you need public assets
+### 8b. Set the environment variable
 
-2. **Create a Service Account**
-   - Grant role: **Storage Object Admin** (`roles/storage.objectAdmin`)
-   - Grant role: **Service Account Token Creator** (`roles/iam.serviceAccountTokenCreator`) — needed for signed URL generation
-   - Download the JSON key file
+```bash
+UPLOAD_ROOT=/home/USERNAME/domains/yourdomain.com/private_uploads
+```
 
-3. **Migrate existing files** from the Replit bucket to the new bucket:
-   ```bash
-   # Using gsutil with the old Replit credentials (run from Replit before closing)
-   gsutil -m cp -r gs://replit-objstore-0bd0ac77-d9b1-4f7c-ba9c-6aaea8fd3ef0/** gs://your-new-bucket/
-   ```
+### 8c. Migrate existing GCS files (if any)
 
-4. **Set environment variables** on Hostinger:
-   ```
-   PRIVATE_OBJECT_DIR=/your-new-bucket/private
-   PUBLIC_OBJECT_SEARCH_PATHS=/your-new-bucket/public
-   GCS_SERVICE_ACCOUNT_KEY=<paste entire contents of JSON key on one line>
-   ```
+If media was previously stored in GCS, download and re-upload via the admin panel, or copy using gsutil + upload manually to the private_uploads directory with matching filenames.
 
-5. **Update `site_images` table** if image URLs stored in the database reference
-   the old Replit bucket path — run a SQL UPDATE to replace the old path prefix
-   with the new one.
+> **Note:** `site_images` table was empty at the time of MySQL migration, so no image URL migration is needed. Images stored as URLs in `site_content` rows (e.g. nav boxes) will need to be re-uploaded via the admin panel after the Hostinger deploy.
 
 ---
 
@@ -181,7 +209,7 @@ After pointing your domain to Hostinger and the app is live:
 - [ ] `https://yourdomain.com/api/healthz` — returns `{"status":"ok"}`
 - [ ] `https://yourdomain.com/admin/` — admin login page loads
 - [ ] Admin login with configured `ADMIN_PASSWORD`
-- [ ] Upload an image from the admin panel → image appears on the site
+- [ ] Upload an image from the admin panel → image served from `/api/storage/objects/`
 - [ ] Contact form submission → email sent (verify SMTP settings in admin)
 
 ### Session and security
@@ -192,13 +220,14 @@ After pointing your domain to Hostinger and the app is live:
 
 ### Database
 
-- [ ] Site content (navbar, page text) loads from Supabase
+- [ ] Site content (navbar, page text) loads from MySQL
 - [ ] Contact form submissions appear in the admin panel
 
-### Performance
+### Storage
 
-- [ ] Static assets served with `Cache-Control` headers
-- [ ] Images served from GCS with correct `Content-Type`
+- [ ] Uploaded files stored in `UPLOAD_ROOT/uploads/`
+- [ ] Images served correctly with `Content-Type` headers
+- [ ] Path traversal prevented (test: `GET /api/storage/objects/../../../etc/passwd` returns 404)
 
 ---
 
@@ -211,21 +240,25 @@ This project does **not** require VPS because:
 - ✅ No Playwright, Chromium, or headless browser
 - ✅ No WebSockets
 - ✅ No cron jobs or background queues
-- ✅ All persistence is external (Supabase DB + GCS)
+- ✅ All persistence is local (Hostinger MySQL DB + filesystem)
 - ✅ No custom OS packages or system-level dependencies
+
+---
+
+## 11. Rollback Plan
+
+If the Hostinger deployment encounters issues, the Replit environment (PostgreSQL + GCS) continues to work unchanged. The database adapter (`src/lib/database.ts`) falls back to PostgreSQL when `MYSQL_DATABASE_URL` is not set, and the storage adapter falls back to GCS when `UPLOAD_ROOT` is not set.
 
 ---
 
 ## Final Assessment
 
-> **B — Ready after storage migration**
+> **Ready to deploy** after completing these steps:
 >
-> The database (Supabase PostgreSQL) is already externally hosted and requires
-> no changes. The only prerequisite before going live on Hostinger is:
->
-> 1. Create a GCS bucket with a service account and set `GCS_SERVICE_ACCOUNT_KEY`.
-> 2. Migrate existing media files from the Replit bucket to the new bucket.
-> 3. Set all required environment variables listed in Section 6.
->
-> Once those three steps are complete, `pnpm install && pnpm run build` followed
-> by `pnpm run start` will bring the full application online.
+> 1. Create MySQL database on Hostinger hPanel
+> 2. Run `lib/db-mysql/migrations/0000_initial.sql` to create tables
+> 3. Run the migration tool with `--execute` to copy PostgreSQL data to MySQL
+> 4. Create `UPLOAD_ROOT` directory outside `public_html`
+> 5. Set all required environment variables in Hostinger hPanel
+> 6. Run `pnpm install --frozen-lockfile && pnpm run build`
+> 7. Set entry point to `artifacts/api-server/dist/index.mjs`

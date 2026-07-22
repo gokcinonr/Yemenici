@@ -1,0 +1,3 @@
+- [MySQL dual-mode adapter](mysql-dual-mode.md) — MYSQL_DATABASE_URL selects MySQL; absent → PG. db exported as `any` to avoid union type clash.
+- [Hostinger filesystem storage](hostinger-filesystem.md) — UPLOAD_ROOT activates filesystem mode; absent → GCS. Atomic write (.tmp → rename) with path-traversal guard.
+- [MySQL drizzle: no .returning()](mysql-drizzle-returning.md) — drizzle-orm MySQL driver has no .returning(); all mutations re-fetch after insert/update.

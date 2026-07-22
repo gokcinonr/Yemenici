@@ -1,6 +1,6 @@
 import { Router } from "express";
 import nodemailer from "nodemailer";
-import { db, contactSubmissionsTable, siteContentTable } from "@workspace/db";
+import { db, contactSubmissionsTable, siteContentTable } from "../lib/database";
 import { eq } from "drizzle-orm";
 
 const router = Router();
@@ -10,7 +10,7 @@ async function getSmtpConfig() {
     .select()
     .from(siteContentTable)
     .where(eq(siteContentTable.section, "contact_settings"));
-  const get = (key: string) => rows.find((r) => r.key === key)?.value || "";
+  const get = (key: string) => rows.find((r: any) => r.key === key)?.value || "";
   return {
     host: get("smtp_host"),
     port: parseInt(get("smtp_port") || "587", 10),
@@ -110,7 +110,8 @@ router.post("/contact", async (req, res) => {
       return;
     }
 
-    const [submission] = await db
+    // No .returning() — not supported by MySQL Drizzle.
+    await db
       .insert(contactSubmissionsTable)
       .values({
         firstName: firstName.trim(),
@@ -122,10 +123,9 @@ router.post("/contact", async (req, res) => {
         message: message.trim(),
         lang: lang || "en",
         consentGiven: true,
-      })
-      .returning();
+      });
 
-    req.log.info({ submissionId: submission.id, email: submission.email }, "Contact form saved");
+    req.log.info({ email: email.trim().toLowerCase() }, "Contact form saved");
 
     try {
       const smtp = await getSmtpConfig();
@@ -151,7 +151,7 @@ router.post("/contact", async (req, res) => {
             lang: lang || "en",
           }),
         });
-        req.log.info({ submissionId: submission.id }, "Email notification sent");
+        req.log.info("Email notification sent");
       } else {
         req.log.warn("SMTP not configured — email skipped");
       }

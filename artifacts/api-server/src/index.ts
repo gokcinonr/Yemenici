@@ -1,7 +1,8 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import bcrypt from "bcryptjs";
-import { db, adminUsersTable } from "@workspace/db";
+// Import from the DB adapter so startup validation works on both PG and MySQL.
+import { db, adminUsersTable } from "./lib/database";
 
 const rawPort = process.env["PORT"];
 
@@ -40,6 +41,13 @@ seedAdminUser().then(() => {
       logger.error({ err }, "Error listening on port");
       process.exit(1);
     }
-    logger.info({ port }, "Server listening");
+    logger.info(
+      {
+        port,
+        db: process.env.MYSQL_DATABASE_URL ? "mysql" : "postgres",
+        storage: process.env.UPLOAD_ROOT ? "filesystem" : "gcs",
+      },
+      "Server listening",
+    );
   });
 });

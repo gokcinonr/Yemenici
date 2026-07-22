@@ -1,0 +1,118 @@
+Revise the previous Hostinger migration preparation so that the complete production application can run only on Hostinger without paid external database or object-storage services.
+
+Target architecture:
+
+- Application: Hostinger Managed Node.js Web App
+- Database: Hostinger MySQL
+- File storage: persistent Hostinger filesystem
+- Source control and deployment: GitHub
+- No production dependency on Supabase, Replit App Storage, Google Cloud Storage, Amazon S3, or another paid external service
+
+Do not modify, delete, or overwrite the current Supabase database or Replit App Storage objects. Do not change DNS or deploy the application.
+
+Phase 1 — Audit
+
+1. Inspect the complete PostgreSQL/Drizzle schema and report:
+   - all tables
+   - row counts
+   - relationships
+   - indexes and unique constraints
+   - enum types
+   - JSON/JSONB columns
+   - UUID usage
+   - timestamp/default-value behavior
+   - PostgreSQL-specific SQL, operators or functions
+   - extensions, triggers and stored procedures, if any
+
+2. Determine exactly what must change for MySQL compatibility.
+
+3. Inspect all file-storage operations and report:
+   - upload endpoints
+   - download/view endpoints
+   - authorization rules
+   - object-path format
+   - whether database rows contain bucket IDs, absolute URLs, signed URLs or only relative paths
+
+Phase 2 — Hostinger MySQL conversion
+
+4. Convert the application from PostgreSQL to MySQL using the appropriate Drizzle MySQL dialect and mysql2 driver.
+
+5. Preserve all existing application behavior, relationships, indexes and validation rules.
+
+6. Create clean MySQL migrations for a new Hostinger database.
+
+7. Use a production environment variable such as:
+
+MYSQL_DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
+
+Do not place real credentials in source files or commit them.
+
+8. Create a one-time database migration tool that:
+   - reads from the existing Supabase PostgreSQL database
+   - writes to the new Hostinger MySQL database
+   - defaults to dry-run mode
+   - migrates tables in dependency-safe order
+   - preserves primary keys and relationships
+   - supports safe re-runs
+   - reports source and destination row counts
+   - never deletes or modifies source data
+   - does not print credentials
+
+Do not execute the migration yet.
+
+Phase 3 — Hostinger filesystem storage
+
+9. Replace the planned external GCS production mode with a Hostinger filesystem mode controlled by:
+
+UPLOAD_ROOT=/home/USERNAME/domains/DOMAIN/private_uploads
+
+10. Keep uploaded files outside public_html and outside directories replaced during GitHub deployment.
+
+11. Store relative file keys in the database rather than absolute server paths or domain URLs.
+
+12. Preserve the existing private/uploads object-path structure.
+
+13. Serve private files through the Express application while preserving the current authorization rules.
+
+14. Implement:
+   - path-traversal prevention
+   - safe generated filenames
+   - MIME/type validation
+   - upload-size limits
+   - atomic file writes
+   - proper 404 and authorization responses
+
+15. Add a documented manual procedure for placing the existing three WebP files into the new Hostinger upload directory without changing their relative paths.
+
+Phase 4 — Verification
+
+16. Run the complete production build and available automated tests.
+
+17. Add tests for:
+   - MySQL database access
+   - migrations
+   - upload
+   - authorized file retrieval
+   - unauthorized retrieval
+   - path traversal
+   - missing files
+   - SPA routing
+   - production startup
+
+18. Update:
+   - .env.example
+   - HOSTINGER_DEPLOYMENT.md
+
+19. Remove SUPABASE_DATABASE_URL, GCS_SERVICE_ACCOUNT_KEY and Google Cloud Storage from the final Hostinger production requirements, but do not remove compatibility code if it is still needed to keep the current Replit version running before cutover.
+
+20. At the end, report:
+   - whether the conversion is complete
+   - all files changed
+   - exact Hostinger environment variables
+   - MySQL migration command
+   - data-copy command
+   - upload-directory requirements
+   - any remaining blockers
+   - whether the current live Replit deployment was affected
+
+Do not deploy, migrate production data, delete source data, push secrets, change DNS, or shut down Replit.
